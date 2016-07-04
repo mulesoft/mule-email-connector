@@ -4,12 +4,12 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.retriever.pop3;
+package org.mule.extension.email.internal.retriever.pop3;
 
 import static org.mule.extension.email.internal.EmailProtocol.POP3;
 import static org.mule.extension.email.internal.util.EmailConnectorUtils.POP3_PORT;
-import org.mule.extension.email.api.retriever.AbstractRetrieverProvider;
-import org.mule.extension.email.api.retriever.RetrieverConnection;
+import org.mule.extension.email.internal.retriever.AbstractRetrieverProvider;
+import org.mule.extension.email.internal.retriever.RetrieverConnection;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.extension.api.annotation.Alias;

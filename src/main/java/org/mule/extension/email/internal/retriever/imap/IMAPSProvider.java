@@ -4,12 +4,13 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.sender;
+package org.mule.extension.email.internal.retriever.imap;
 
-import static org.mule.extension.email.internal.EmailProtocol.SMTPS;
-import static org.mule.extension.email.internal.util.EmailConnectorUtils.SMTPS_PORT;
+import static org.mule.extension.email.internal.EmailProtocol.IMAPS;
+import static org.mule.extension.email.internal.util.EmailConnectorUtils.IMAPS_PORT;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
-import org.mule.extension.email.api.retriever.RetrieverConnection;
+import org.mule.extension.email.internal.retriever.AbstractRetrieverProvider;
+import org.mule.extension.email.internal.retriever.RetrieverConnection;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -20,20 +21,21 @@ import org.mule.runtime.extension.api.annotation.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 
 /**
- * A {@link ConnectionProvider} that returns instances of smtps based {@link RetrieverConnection}s.
+ * A {@link ConnectionProvider} that returns instances of imaps (secure) based {@link RetrieverConnection}s.
  * <p>
  * The returned connection is secured by TLS.
  *
  * @since 4.0
  */
-@Alias("smtps")
-public class SMTPSProvider extends AbstractSenderProvider implements Initialisable
+@Alias("imaps")
+public class IMAPSProvider extends AbstractRetrieverProvider<RetrieverConnection> implements Initialisable
 {
+
     /**
      * The port number of the mail server.
      */
     @Parameter
-    @Optional(defaultValue = SMTPS_PORT)
+    @Optional(defaultValue = IMAPS_PORT)
     private String port;
 
     /**
@@ -56,17 +58,17 @@ public class SMTPSProvider extends AbstractSenderProvider implements Initialisab
      * {@inheritDoc}
      */
     @Override
-    public SenderConnection connect() throws ConnectionException
+    public RetrieverConnection connect() throws ConnectionException
     {
-        return new SenderConnection(SMTPS,
-                                    settings.getUser(),
-                                    settings.getPassword(),
-                                    settings.getHost(),
-                                    port,
-                                    getConnectionTimeout(),
-                                    getReadTimeout(),
-                                    getWriteTimeout(),
-                                    getProperties(),
-                                    tlsContextFactory);
+        return new RetrieverConnection(IMAPS,
+                                       settings.getUser(),
+                                       settings.getPassword(),
+                                       settings.getHost(),
+                                       port,
+                                       getConnectionTimeout(),
+                                       getReadTimeout(),
+                                       getWriteTimeout(),
+                                       getProperties(),
+                                       tlsContextFactory);
     }
 }

@@ -4,11 +4,9 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api;
+package org.mule.extension.email.internal;
 
 import static org.apache.commons.lang.StringUtils.join;
-import org.mule.extension.email.internal.EmailProtocol;
-import org.mule.extension.email.internal.PasswordAuthenticator;
 import org.mule.extension.email.internal.exception.EmailConnectionException;
 import org.mule.extension.email.internal.exception.EmailException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;

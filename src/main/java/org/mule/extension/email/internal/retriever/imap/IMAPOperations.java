@@ -4,13 +4,13 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.retriever.imap;
+package org.mule.extension.email.internal.retriever.imap;
 
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
 import static org.mule.extension.email.internal.util.EmailConnectorUtils.INBOX_FOLDER;
-import org.mule.extension.email.api.retriever.RetrieverConnection;
-import org.mule.extension.email.api.retriever.RetrieverOperations;
+import org.mule.extension.email.internal.retriever.RetrieverConnection;
+import org.mule.extension.email.internal.retriever.RetrieverOperations;
 import org.mule.extension.email.internal.commands.ExpungeCommand;
 import org.mule.extension.email.internal.commands.SetFlagCommand;
 import org.mule.runtime.api.message.MuleMessage;

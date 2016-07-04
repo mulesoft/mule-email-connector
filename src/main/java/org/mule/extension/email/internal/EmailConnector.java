@@ -4,12 +4,12 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api;
+package org.mule.extension.email.internal;
 
 
-import org.mule.extension.email.api.retriever.imap.IMAPConfiguration;
-import org.mule.extension.email.api.retriever.pop3.POP3Configuration;
-import org.mule.extension.email.api.sender.SMTPConfiguration;
+import org.mule.extension.email.internal.retriever.imap.IMAPConfiguration;
+import org.mule.extension.email.internal.retriever.pop3.POP3Configuration;
+import org.mule.extension.email.internal.sender.SMTPConfiguration;
 import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Extension;
 

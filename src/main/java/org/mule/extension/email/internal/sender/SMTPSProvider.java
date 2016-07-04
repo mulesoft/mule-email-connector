@@ -4,13 +4,12 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.retriever.pop3;
+package org.mule.extension.email.internal.sender;
 
-import static org.mule.extension.email.internal.EmailProtocol.POP3S;
-import static org.mule.extension.email.internal.util.EmailConnectorUtils.POP3S_PORT;
+import static org.mule.extension.email.internal.EmailProtocol.SMTPS;
+import static org.mule.extension.email.internal.util.EmailConnectorUtils.SMTPS_PORT;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
-import org.mule.extension.email.api.retriever.AbstractRetrieverProvider;
-import org.mule.extension.email.api.retriever.RetrieverConnection;
+import org.mule.extension.email.internal.retriever.RetrieverConnection;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -21,21 +20,20 @@ import org.mule.runtime.extension.api.annotation.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 
 /**
- * A {@link ConnectionProvider} that returns instances of pop3s (secured) based {@link RetrieverConnection}s.
+ * A {@link ConnectionProvider} that returns instances of smtps based {@link RetrieverConnection}s.
  * <p>
  * The returned connection is secured by TLS.
  *
  * @since 4.0
  */
-@Alias("pop3s")
-public class POP3SProvider extends AbstractRetrieverProvider<RetrieverConnection> implements Initialisable
+@Alias("smtps")
+public class SMTPSProvider extends AbstractSenderProvider implements Initialisable
 {
-
     /**
      * The port number of the mail server.
      */
     @Parameter
-    @Optional(defaultValue = POP3S_PORT)
+    @Optional(defaultValue = SMTPS_PORT)
     private String port;
 
     /**
@@ -58,17 +56,17 @@ public class POP3SProvider extends AbstractRetrieverProvider<RetrieverConnection
      * {@inheritDoc}
      */
     @Override
-    public RetrieverConnection connect() throws ConnectionException
+    public SenderConnection connect() throws ConnectionException
     {
-        return new RetrieverConnection(POP3S,
-                                       settings.getUser(),
-                                       settings.getPassword(),
-                                       settings.getHost(),
-                                       port,
-                                       getConnectionTimeout(),
-                                       getReadTimeout(),
-                                       getWriteTimeout(),
-                                       getProperties(),
-                                       tlsContextFactory);
+        return new SenderConnection(SMTPS,
+                                    settings.getUser(),
+                                    settings.getPassword(),
+                                    settings.getHost(),
+                                    port,
+                                    getConnectionTimeout(),
+                                    getReadTimeout(),
+                                    getWriteTimeout(),
+                                    getProperties(),
+                                    tlsContextFactory);
     }
 }

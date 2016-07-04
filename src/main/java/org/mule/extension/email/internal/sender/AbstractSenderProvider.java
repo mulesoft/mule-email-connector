@@ -4,9 +4,9 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.sender;
+package org.mule.extension.email.internal.sender;
 
-import org.mule.extension.email.api.AbstractEmailConnectionProvider;
+import org.mule.extension.email.internal.AbstractEmailConnectionProvider;
 import org.mule.extension.email.api.EmailConnectionSettings;
 import org.mule.runtime.api.connection.ConnectionHandlingStrategy;
 import org.mule.runtime.api.connection.ConnectionHandlingStrategyFactory;

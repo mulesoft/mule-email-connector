@@ -4,13 +4,13 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.retriever.imap;
+package org.mule.extension.email.internal.retriever.pop3;
 
-import static org.mule.extension.email.internal.EmailProtocol.IMAPS;
-import static org.mule.extension.email.internal.util.EmailConnectorUtils.IMAPS_PORT;
+import static org.mule.extension.email.internal.EmailProtocol.POP3S;
+import static org.mule.extension.email.internal.util.EmailConnectorUtils.POP3S_PORT;
 import static org.mule.runtime.core.api.lifecycle.LifecycleUtils.initialiseIfNeeded;
-import org.mule.extension.email.api.retriever.AbstractRetrieverProvider;
-import org.mule.extension.email.api.retriever.RetrieverConnection;
+import org.mule.extension.email.internal.retriever.AbstractRetrieverProvider;
+import org.mule.extension.email.internal.retriever.RetrieverConnection;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.tls.TlsContextFactory;
@@ -21,21 +21,21 @@ import org.mule.runtime.extension.api.annotation.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 
 /**
- * A {@link ConnectionProvider} that returns instances of imaps (secure) based {@link RetrieverConnection}s.
+ * A {@link ConnectionProvider} that returns instances of pop3s (secured) based {@link RetrieverConnection}s.
  * <p>
  * The returned connection is secured by TLS.
  *
  * @since 4.0
  */
-@Alias("imaps")
-public class IMAPSProvider extends AbstractRetrieverProvider<RetrieverConnection> implements Initialisable
+@Alias("pop3s")
+public class POP3SProvider extends AbstractRetrieverProvider<RetrieverConnection> implements Initialisable
 {
 
     /**
      * The port number of the mail server.
      */
     @Parameter
-    @Optional(defaultValue = IMAPS_PORT)
+    @Optional(defaultValue = POP3S_PORT)
     private String port;
 
     /**
@@ -60,7 +60,7 @@ public class IMAPSProvider extends AbstractRetrieverProvider<RetrieverConnection
     @Override
     public RetrieverConnection connect() throws ConnectionException
     {
-        return new RetrieverConnection(IMAPS,
+        return new RetrieverConnection(POP3S,
                                        settings.getUser(),
                                        settings.getPassword(),
                                        settings.getHost(),

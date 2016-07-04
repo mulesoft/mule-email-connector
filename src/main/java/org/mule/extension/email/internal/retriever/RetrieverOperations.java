@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.retriever;
+package org.mule.extension.email.internal.retriever;
 
 import static org.mule.extension.email.internal.util.EmailConnectorUtils.INBOX_FOLDER;
 
