@@ -17,7 +17,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 /**
  * A {@link ConnectionProvider} that returns instances of smtp based {@link SenderConnection}s.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Alias("smtp")
 @DisplayName("SMTP Connection")

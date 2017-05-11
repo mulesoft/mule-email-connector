@@ -12,7 +12,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 /**
  * {@link ModuleException} for the cases in which an attachment couldn't be added to an email
  * 
- * @since 4.0
+ * @since 1.0
  */
 public class EmailAttachmentException extends ModuleException {
 

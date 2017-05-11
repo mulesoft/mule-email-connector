@@ -16,7 +16,7 @@ import javax.mail.Message;
  * {@link ModuleException} for the cases in which there is an error constructing a {@link BaseEmailAttributes} from an email
  * {@link Message}.
  * 
- * @since 4.0
+ * @since 1.0
  */
 public class CannotFetchMetadataException extends ModuleException {
 

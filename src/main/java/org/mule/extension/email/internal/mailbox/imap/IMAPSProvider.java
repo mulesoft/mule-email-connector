@@ -24,7 +24,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
  * <p>
  * The returned connection is secured by TLS.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Alias("imaps")
 @DisplayName("IMAPS Connection")

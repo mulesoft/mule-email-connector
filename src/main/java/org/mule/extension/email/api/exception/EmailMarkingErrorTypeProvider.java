@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Errors that can be thrown when setting a flag on an email
  * 
- * @since 4.0
+ * @since 1.0
  */
 public class EmailMarkingErrorTypeProvider implements ErrorTypeProvider {
 

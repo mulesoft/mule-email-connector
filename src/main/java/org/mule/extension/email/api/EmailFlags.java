@@ -18,7 +18,7 @@ import javax.mail.Flags;
  * The {@link EmailFlags} class represents the set of flags on a Message. Flags are composed of predefined system flags that most
  * folder implementations are expected to support.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class EmailFlags {
 

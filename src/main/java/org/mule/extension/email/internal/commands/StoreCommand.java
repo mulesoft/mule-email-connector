@@ -27,7 +27,7 @@ import javax.mail.MessagingException;
 /**
  * Represents the store emails operation.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class StoreCommand {
 

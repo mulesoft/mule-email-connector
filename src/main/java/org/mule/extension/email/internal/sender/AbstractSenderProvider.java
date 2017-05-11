@@ -13,7 +13,7 @@ import org.mule.runtime.api.connection.PoolingConnectionProvider;
 /**
  * Abstract implementation of a {@link PoolingConnectionProvider} for email sender connection providers.
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class AbstractSenderProvider extends AbstractEmailConnectionProvider<SenderConnection>
     implements PoolingConnectionProvider<SenderConnection> {

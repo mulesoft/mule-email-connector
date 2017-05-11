@@ -35,7 +35,7 @@ import javax.mail.Part;
 /**
  * Given a {@link Message} introspects it's content to obtain the body an the attachments if any.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class EmailContentProcessor {
 

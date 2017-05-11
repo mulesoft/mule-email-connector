@@ -22,7 +22,7 @@ import javax.mail.Message;
 /**
  * Configuration for operations that are performed through the POP3 (Post Office Protocol 3) protocol.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Operations(POP3Operations.class)
 @ConnectionProviders({POP3Provider.class, POP3SProvider.class})

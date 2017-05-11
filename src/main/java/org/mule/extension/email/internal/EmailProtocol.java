@@ -22,7 +22,7 @@ import java.net.Socket;
  * <li>for IMAP <a>https://javamail.java.net/nonav/docs/api/com/sun/mail/imap/package-summary.html#properties</a></li>
  * <ul/>
  *
- * @since 4.0
+ * @since 1.0
  */
 public enum EmailProtocol {
 

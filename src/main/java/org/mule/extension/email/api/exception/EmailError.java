@@ -15,7 +15,7 @@ import java.util.Optional;
 /**
  * Errors for the {@link EmailConnector}
  *
- * @since 4.0
+ * @since 1.0
  */
 public enum EmailError implements ErrorTypeDefinition<EmailError> {
   ATTACHMENT, ACCESSING_FOLDER, FETCHING_ATTRIBUTES, EMAIL_NOT_FOUND, CONNECTIVITY(MuleErrors.CONNECTIVITY), INVALID_CREDENTIALS(

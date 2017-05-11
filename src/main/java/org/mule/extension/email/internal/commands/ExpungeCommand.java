@@ -14,7 +14,7 @@ import org.mule.extension.email.internal.mailbox.MailboxConnection;
  * <p>
  * Removes all the emails from a folder that contains the {@code DELETED} flag.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class ExpungeCommand {
 

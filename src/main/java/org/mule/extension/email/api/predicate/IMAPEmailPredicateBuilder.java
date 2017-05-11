@@ -26,7 +26,7 @@ import java.util.function.Predicate;
  * <p>
  * The class is also given the &quot;imap-matcher&quot; alias to make it DSL/XML friendly.
  *
- * @since 4.0
+ * @since 1.0
  */
 @XmlHints(allowTopLevelDefinition = true)
 @Alias("imap-matcher")

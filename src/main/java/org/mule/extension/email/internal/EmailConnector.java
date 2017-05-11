@@ -22,7 +22,7 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
  * <p>
  * This connector supports the SMTP, SMTPS, IMAP, IMAPS, POP3 and POP3s protocols.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Configurations({SMTPConfiguration.class, POP3Configuration.class, IMAPConfiguration.class})
 @Extension(name = "Email", description = "Connector to send and list email messages to and from mailboxes")

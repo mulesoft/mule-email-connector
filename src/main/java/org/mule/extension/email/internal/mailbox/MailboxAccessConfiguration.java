@@ -14,7 +14,7 @@ import javax.mail.Message;
 /**
  * Generic contract for configurations that contains operations for retrieving and managing emails in a mailbox.
  *
- * @since 4.0
+ * @since 1.0
  */
 public interface MailboxAccessConfiguration {
 

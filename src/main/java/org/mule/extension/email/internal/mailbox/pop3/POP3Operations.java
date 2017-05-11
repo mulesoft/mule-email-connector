@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * A set of operations which perform on top the POP3 email protocol.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class POP3Operations {
 

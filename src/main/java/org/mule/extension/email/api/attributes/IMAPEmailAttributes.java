@@ -19,7 +19,7 @@ import javax.mail.MessagingException;
  * the id in the mailbox and the recipients between others but also this attributes carry flags that mark different states of
  * the email such as SEEN, ANSWERED, DELETED, etc. This flags are represented by an {@link EmailFlags} object.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class IMAPEmailAttributes extends BaseEmailAttributes {
 

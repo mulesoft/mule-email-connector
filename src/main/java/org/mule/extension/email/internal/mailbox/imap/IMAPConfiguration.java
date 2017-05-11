@@ -24,7 +24,7 @@ import javax.mail.Message;
 /**
  * Configuration for operations that are performed through the IMAP (Internet Message Access Protocol) protocol.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Operations(IMAPOperations.class)
 @ConnectionProviders({IMAPProvider.class, IMAPSProvider.class})

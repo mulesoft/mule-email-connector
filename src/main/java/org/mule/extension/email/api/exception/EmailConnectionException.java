@@ -12,7 +12,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 /**
  * Is the base {@link ConnectionException} for the Email Connector,
  *
- * @since 4.0
+ * @since 1.0
  */
 public class EmailConnectionException extends ConnectionException {
 

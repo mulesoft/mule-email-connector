@@ -39,7 +39,7 @@ import javax.mail.MessagingException;
 /**
  * {@link PagingProvider} implementation for list emails operation.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     implements PagingProvider<MailboxConnection, Result<Object, T>> {

@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * Generic contract for all email configurations.
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class AbstractEmailConnectionProvider<T> implements ConnectionProvider<T> {
 

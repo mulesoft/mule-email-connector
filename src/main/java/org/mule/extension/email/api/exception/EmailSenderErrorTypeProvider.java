@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Errors that can be thrown in the {@link SendOperation#send(SenderConnection, SMTPConfiguration, EmailSettings)} operation.
  * 
- * @since 4.0
+ * @since 1.0
  */
 public class EmailSenderErrorTypeProvider implements ErrorTypeProvider {
 

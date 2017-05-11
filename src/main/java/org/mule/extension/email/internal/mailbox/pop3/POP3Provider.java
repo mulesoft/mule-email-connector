@@ -19,7 +19,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 /**
  * A {@link ConnectionProvider} that returns instances of pop3 based {@link MailboxConnection}s.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Alias("pop3")
 @DisplayName("POP3 Connection")

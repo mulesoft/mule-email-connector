@@ -18,7 +18,7 @@ import javax.mail.MessagingException;
  * Contains all the metadata of a received email from a POP3 mailbox, it carries information such as the subject of the email,
  * the unique id in the mailbox and the recipients between others
  *
- * @since 4.0
+ * @since 1.0
  */
 public class POP3EmailAttributes extends BaseEmailAttributes {
 

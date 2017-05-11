@@ -18,7 +18,7 @@ import java.util.Map;
 /**
  * A connection with a mail server for sending emails.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class SenderConnection extends AbstractEmailConnection {
 

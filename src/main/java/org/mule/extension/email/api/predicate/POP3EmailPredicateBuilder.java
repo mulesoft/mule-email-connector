@@ -18,7 +18,7 @@ import java.util.function.Predicate;
  * The class main purpose is to give the &quot;pop3-matcher&quot; alias to make it unique and distinguishable from the other
  * matcher implementations besides that is more DSL/XML friendly.
  *
- * @since 4.0
+ * @since 1.0
  */
 @XmlHints(allowTopLevelDefinition = true)
 @Alias("pop3-matcher")
