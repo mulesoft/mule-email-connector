@@ -48,7 +48,7 @@ import javax.mail.internet.MimeMultipart;
 /**
  * an implementation of the builder design pattern to create a new {@link Message} instance.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class MessageBuilder {
 

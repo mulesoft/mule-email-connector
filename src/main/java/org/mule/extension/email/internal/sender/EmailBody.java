@@ -23,7 +23,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
  * Represents and enables the construction of the body of an email with a body of type "text/*" and a specific character
  * encoding.
  *
- * @since 4.0
+ * @since 1.0
  */
 @XmlHints(allowTopLevelDefinition = true)
 public class EmailBody {

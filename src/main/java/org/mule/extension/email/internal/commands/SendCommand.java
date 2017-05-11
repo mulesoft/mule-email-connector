@@ -24,7 +24,7 @@ import javax.mail.Transport;
 /**
  * Represents the send operation.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class SendCommand {
 

@@ -20,7 +20,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 /**
  * Basic set of operations which perform send email operations over the SMTP or SMTPS protocol.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SendOperation {
 

@@ -13,7 +13,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 /**
  * Represents and enables the construction of an email attachment.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class EmailAttachment {
 

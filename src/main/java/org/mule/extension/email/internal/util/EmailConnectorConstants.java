@@ -11,7 +11,7 @@ import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 /**
  * this class contains common methods for email handling.
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class EmailConnectorConstants {
 

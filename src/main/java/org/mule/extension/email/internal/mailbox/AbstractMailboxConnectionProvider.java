@@ -15,7 +15,7 @@ import org.mule.runtime.extension.api.runtime.ConfigurationProvider;
 /**
  * Generic contract for all email retriever {@link ConfigurationProvider}s.
  *
- * @since 4.0
+ * @since 1.0
  */
 // TODO: Change generic signature for a more specific one. MULE-9874
 public abstract class AbstractMailboxConnectionProvider<C extends AbstractEmailConnection>

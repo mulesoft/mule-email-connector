@@ -12,7 +12,7 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 /**
  * Is the generic {@link RuntimeException} type for the Email Connector, used when an error could not be specified.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class EmailException extends MuleRuntimeException {
 

@@ -19,7 +19,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 /**
  * Groups IMAPS connection parameters
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class IMAPSConnectionSettings extends EmailConnectionSettings {
 

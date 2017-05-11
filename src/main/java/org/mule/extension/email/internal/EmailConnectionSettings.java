@@ -14,7 +14,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 /**
  * A simple POJO with a basic set of parameters required by every email connection.
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class EmailConnectionSettings {
 

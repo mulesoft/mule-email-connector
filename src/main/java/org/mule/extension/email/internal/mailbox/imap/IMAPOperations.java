@@ -47,7 +47,7 @@ import javax.mail.MessagingException;
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class IMAPOperations {
 

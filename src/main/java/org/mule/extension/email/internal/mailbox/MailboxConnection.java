@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * A connection with a mail server for retrieving and managing emails from an specific folder in a mailbox.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class MailboxConnection extends AbstractEmailConnection {
 

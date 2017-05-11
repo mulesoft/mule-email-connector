@@ -38,7 +38,7 @@ import javax.mail.MessagingException;
  * <p>
  * This class aims to be returned as attributes for every email message in a {@link PagingProviderEmailDelegate} operation.
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class BaseEmailAttributes extends BaseAttributes {
 

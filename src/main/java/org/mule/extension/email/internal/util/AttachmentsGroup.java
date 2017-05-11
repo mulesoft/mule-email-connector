@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * Container group for the {@link EmailAttachment}s
  *
- * @since 4.0
+ * @since 1.0
  */
 public final class AttachmentsGroup {
 

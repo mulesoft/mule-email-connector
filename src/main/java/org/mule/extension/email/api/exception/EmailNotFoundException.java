@@ -13,7 +13,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  * 
  * {@link ModuleException} for the cases in which a given email couldn't be found in a mailbox folder.
  * 
- * @since 4.0
+ * @since 1.0
  */
 public class EmailNotFoundException extends ModuleException {
 

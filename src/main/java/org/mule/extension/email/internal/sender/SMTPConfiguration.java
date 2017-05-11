@@ -17,7 +17,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 /**
  * Configuration for operations that are performed through the SMTP (Simple Mail Transfer Protocol) protocol.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Operations(SendOperation.class)
 @ConnectionProviders({SMTPProvider.class, SMTPSProvider.class})

@@ -26,7 +26,7 @@ import javax.mail.UIDFolder;
  * The POP3 protocol does not have support for retrieving an email from it's UID, on the other side
  * the IMAP protocol is fully capable of doing the described action.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class SetFlagCommand {
 

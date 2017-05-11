@@ -31,7 +31,7 @@ import java.util.function.Predicate;
  * evaluation.
  * <p>
  *
- * @since 4.0
+ * @since 1.0
  */
 public abstract class BaseEmailPredicateBuilder {
 

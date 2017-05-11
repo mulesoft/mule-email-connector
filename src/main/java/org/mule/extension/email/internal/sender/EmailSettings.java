@@ -23,7 +23,7 @@ import java.util.Map;
  * Enables the creation of an outgoing email. Users must use this builder
  * to create a email instance from xml to be sent over SMTP.
  *
- * @since 4.0
+ * @since 1.0
  */
 public class EmailSettings {
 

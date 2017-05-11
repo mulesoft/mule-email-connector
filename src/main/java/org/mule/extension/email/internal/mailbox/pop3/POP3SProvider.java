@@ -23,7 +23,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
  * <p>
  * The returned connection is secured by TLS.
  *
- * @since 4.0
+ * @since 1.0
  */
 @Alias("pop3s")
 @DisplayName("POP3S Connection")
