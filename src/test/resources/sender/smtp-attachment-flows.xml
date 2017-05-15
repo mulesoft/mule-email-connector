@@ -19,19 +19,19 @@
             </email:bcc-addresses>
             <email:attachments>#[[
                 {
-                id: "text-attachment",
-                contentType: "text/plain",
-                content: "This is the email text attachment"
-                } as Object {class: "org.mule.extension.email.api.EmailAttachment"} ,
+                    id: "text-attachment",
+                    contentType: "text/plain",
+                    content: "This is the email text attachment"
+                },
                 {
-                id: "json-attachment",
-                content: app.registry.jsonAttachmentResource.url
-                } as Object {class: "org.mule.extension.email.api.EmailAttachment"} ,
+                    id: "json-attachment",
+                    content: app.registry.jsonAttachmentResource.url
+                },
                 {
-                id: "stream-attachment",
-                contentType: "application/octet-stream",
-                content: "This is the email text attachment" as Binary
-                } as Object {class: "org.mule.extension.email.api.EmailAttachment"}
+                    id: "stream-attachment",
+                    contentType: "application/octet-stream",
+                    content: "This is the email text attachment" as Binary
+                }
                 ]]
             </email:attachments>
             <email:body contentType="text/plain">
