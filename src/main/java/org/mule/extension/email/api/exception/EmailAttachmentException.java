@@ -17,7 +17,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 public class EmailAttachmentException extends ModuleException {
 
   public EmailAttachmentException(String message, Exception exception) {
-    super(exception, ATTACHMENT, message);
+    super(message, ATTACHMENT, exception);
   }
 
 }
