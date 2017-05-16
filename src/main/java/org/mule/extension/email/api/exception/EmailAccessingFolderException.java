@@ -17,7 +17,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 public class EmailAccessingFolderException extends ModuleException {
 
   public EmailAccessingFolderException(String message, Exception exception) {
-    super(exception, ACCESSING_FOLDER, message);
+    super(message, ACCESSING_FOLDER, exception);
   }
 
 }
