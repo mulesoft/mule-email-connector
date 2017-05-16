@@ -21,6 +21,6 @@ import javax.mail.Message;
 public class CannotFetchMetadataException extends ModuleException {
 
   public CannotFetchMetadataException(String message, Exception exception) {
-    super(exception, FETCHING_ATTRIBUTES, message);
+    super(message, FETCHING_ATTRIBUTES, exception);
   }
 }
