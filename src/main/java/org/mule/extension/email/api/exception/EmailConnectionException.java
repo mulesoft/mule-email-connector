@@ -32,7 +32,7 @@ public class EmailConnectionException extends ConnectionException {
    * @param error   the correspondent {@link EmailError} with the created exception
    */
   public EmailConnectionException(String message, EmailError error) {
-    super(message, new ModuleException(null, error));
+    super(message, new ModuleException(message, error));
   }
 
   /**
@@ -53,6 +53,6 @@ public class EmailConnectionException extends ConnectionException {
    * @param error   the correspondent {@link EmailError} with the created exception
    */
   public EmailConnectionException(String message, Throwable cause, EmailError error) {
-    super(message, new ModuleException(cause, error));
+    super(message, new ModuleException(error, cause));
   }
 }
