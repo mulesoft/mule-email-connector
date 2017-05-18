@@ -6,6 +6,7 @@
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
     <flow name="sendEmailWithAttachment">
+        <set-payload value="#[jsonStream]"/>
         <email:send config-ref="config">
             <email:to-addresses>
                 <email:to-address value="pablo.musumeci@mulesoft.com"/>
@@ -25,7 +26,8 @@
                 },
                 {
                     id: "json-attachment",
-                    content: app.registry.jsonAttachmentResource.url
+                    contentType: "application/json",
+                    content: payload
                 },
                 {
                     id: "stream-attachment",
@@ -33,6 +35,23 @@
                     content: "This is the email text attachment" as Binary
                 }
                 ]]
+            </email:attachments>
+            <email:body contentType="text/plain">
+                <email:content>Email Content</email:content>
+            </email:body>
+        </email:send>
+    </flow>
+
+    <flow name="noContentTypeAttachment">
+        <email:send config-ref="config">
+            <email:to-addresses>
+                <email:to-address value="pablo.musumeci@mulesoft.com"/>
+            </email:to-addresses>
+            <email:attachments>#[[
+                {
+                id: "text-attachment",
+                content: "This is the email text attachment"
+                }]]
             </email:attachments>
             <email:body contentType="text/plain">
                 <email:content>Email Content</email:content>

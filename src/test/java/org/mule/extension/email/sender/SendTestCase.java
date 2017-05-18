@@ -7,33 +7,28 @@
 package org.mule.extension.email.sender;
 
 import static java.nio.charset.Charset.availableCharsets;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.collection.IsArrayWithSize.arrayWithSize;
+import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import org.mule.runtime.core.util.IOUtils;
 
-import org.junit.Test;
-
 import java.io.InputStream;
+import java.util.Optional;
 
 import javax.activation.DataHandler;
 import javax.mail.Message;
 import javax.mail.Multipart;
 
-public class SendTestCase extends SMTPTestCase {
+import org.junit.Test;
 
-  private static final String SEND_EMAIL = "sendEmail";
-  private static final String SEND_EMAIL_CUSTOM_HEADERS = "sendEmailHeaders";
-  private static final String SEND_EMAIL_WITH_ATTACHMENT = "sendEmailWithAttachment";
-  private static final String SEND_ENCODED_MESSAGE = "sendEncodedMessage";
-  private static final String SEND_EMAIL_WITHOUT_BODY = "sendEmailWithoutBody";
+public class SendTestCase extends SMTPTestCase {
 
   @Test
   public void sendEmail() throws Exception {
-    flowRunner(SEND_EMAIL).run();
+    flowRunner("sendEmail").run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
     assertSubject(sentMessage.getSubject());
@@ -42,7 +37,7 @@ public class SendTestCase extends SMTPTestCase {
 
   @Test
   public void sendEmailCustomHeaders() throws Exception {
-    flowRunner(SEND_EMAIL_CUSTOM_HEADERS).run();
+    flowRunner("sendEmailHeaders").run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
     assertSubject(sentMessage.getSubject());
@@ -54,7 +49,8 @@ public class SendTestCase extends SMTPTestCase {
 
   @Test
   public void sendEmailWithAttachment() throws Exception {
-    flowRunner(SEND_EMAIL_WITH_ATTACHMENT).run();
+    InputStream jsonStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("attachment.json");
+    flowRunner("sendEmailWithAttachment").withVariable("jsonStream", jsonStream).run();
     Message[] messages = getReceivedMessagesAndAssertCount(4);
     for (Message message : messages) {
       Multipart content = (Multipart) message.getContent();
@@ -75,25 +71,33 @@ public class SendTestCase extends SMTPTestCase {
   }
 
   @Test
+  public void sendEmailAttachmentWithNoContentType() throws Exception {
+    flowRunner("noContentTypeAttachment").run();
+    Message[] messages = getReceivedMessagesAndAssertCount(1);
+    Message message = messages[0];
+    Multipart content = (Multipart) message.getContent();
+    assertThat(content.getCount(), is(2));
+    Object body = content.getBodyPart(0).getContent();
+    assertBodyContent((String) body);
+    assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString((InputStream) content.getBodyPart(1).getContent())));
+  }
+
+  @Test
   public void sendEncodedMessage() throws Exception {
-    final String defaultEncoding = muleContext.getConfiguration().getDefaultEncoding();
+    String defaultEncoding = muleContext.getConfiguration().getDefaultEncoding();
     assertThat(defaultEncoding, is(notNullValue()));
+    Optional<String> enconding = availableCharsets().keySet().stream().filter(e -> !e.equals(defaultEncoding)).findFirst();
+    assertThat(enconding.isPresent(), is(true));
 
-    final String customEncoding =
-        availableCharsets().keySet().stream().filter(encoding -> !encoding.equals(defaultEncoding)).findFirst().orElse(null);
-
-    assertThat(customEncoding, is(notNullValue()));
-
-    flowRunner(SEND_ENCODED_MESSAGE).withPayload(WEIRD_CHAR_MESSAGE).withVariable("encoding", customEncoding).run();
-
+    flowRunner("sendEncodedMessage").withPayload(WEIRD_CHAR_MESSAGE).withVariable("encoding", enconding.get()).run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Object content = ((String) messages[0].getContent()).trim();
-    assertThat(content, is(new String(WEIRD_CHAR_MESSAGE.getBytes(customEncoding), customEncoding)));
+    assertThat(content, is(new String(WEIRD_CHAR_MESSAGE.getBytes(enconding.get()), enconding.get())));
   }
 
   @Test
   public void sendEmailWithoutBody() throws Exception {
-    flowRunner(SEND_EMAIL_WITHOUT_BODY).run();
+    flowRunner("sendEmailWithoutBody").run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
     assertSubject(sentMessage.getSubject());
