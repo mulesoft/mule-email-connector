@@ -7,8 +7,9 @@
 package org.mule.extension.email.api;
 
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+
+import java.io.InputStream;
 
 /**
  * Represents and enables the construction of an email attachment.
@@ -22,21 +23,22 @@ public class EmailAttachment {
    */
   @Parameter
   private String id;
+
   /**
    * the content of the attachment.
    */
   @Parameter
-  private Object content;
+  private InputStream content;
+
   /**
    * the content type of the attachment content.
    */
   @Parameter
-  @Optional
   private String contentType;
 
   public EmailAttachment() {}
 
-  public EmailAttachment(String id, Object content, MediaType contentType) {
+  public EmailAttachment(String id, InputStream content, MediaType contentType) {
     this.id = id;
     this.content = content;
     this.contentType = contentType.toString();
@@ -52,7 +54,7 @@ public class EmailAttachment {
   /**
    * @return the content of the attachment.
    */
-  public Object getContent() {
+  public InputStream getContent() {
     return content;
   }
 

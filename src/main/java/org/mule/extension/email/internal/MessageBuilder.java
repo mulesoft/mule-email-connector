@@ -7,6 +7,7 @@
 package org.mule.extension.email.internal;
 
 import static java.lang.String.format;
+import static java.nio.charset.Charset.forName;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
@@ -17,7 +18,6 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.CON
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_CONTENT_TRANSFER_ENCODING;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.MULTIPART;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
-import static org.mule.runtime.core.util.IOUtils.toDataHandler;
 import org.mule.extension.email.api.EmailAttachment;
 import org.mule.extension.email.api.exception.EmailAttachmentException;
 import org.mule.extension.email.api.exception.EmailException;
@@ -25,11 +25,8 @@ import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.util.StringUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -56,10 +53,10 @@ public final class MessageBuilder {
 
   private final MimeMessage message;
 
-  private Map<String, DataHandler> attachments;
+  private List<EmailAttachment> attachments = new ArrayList<>();
   private String content = "";
-  private MediaType contentType;
-  private String charset;
+  private MediaType bodyContentType;
+  private String bodyCharset;
 
   private MessageBuilder(Session s) throws MessagingException {
     this.message = new MimeMessage(s);
@@ -185,31 +182,7 @@ public final class MessageBuilder {
    * @return this {@link MessageBuilder}
    */
   public MessageBuilder withAttachments(List<EmailAttachment> attachments) {
-    Map<String, DataHandler> attachmentsMap = new LinkedHashMap<>();
-    attachments.forEach(a -> {
-      try {
-        MediaType mediaType = a.getContentType() != null
-            ? DataType.builder().mediaType(a.getContentType()).build().getMediaType()
-            : null;
-        DataHandler dataHandler = toDataHandler(a.getId(), a.getContent(), mediaType);
-        attachmentsMap.put(a.getId(), dataHandler);
-      } catch (Exception e) {
-        throw new EmailAttachmentException(ERROR + " could not add attachments", e);
-      }
-    });
-    this.attachments = attachmentsMap;
-    return this;
-  }
-
-  /**
-   * Adds attachments represented as a {@link Map} of {@link String}/{@link DataHandler} to the {@link Message} that is being
-   * built.
-   *
-   * @param attachments the attachments that are going to be added to the email.
-   * @return this {@link MessageBuilder}
-   */
-  public MessageBuilder withAttachments(Map<String, DataHandler> attachments) {
-    this.attachments = attachments;
+    this.attachments.addAll(attachments);
     return this;
   }
 
@@ -229,19 +202,19 @@ public final class MessageBuilder {
    * Adds the text content the {@link Message} that is being built.
    *
    * @param content the text content of the email. If {@code null} is received, {@link StringUtils#EMPTY} will be used instead.
-   * @param contentType the contentType of the {@code content} of the email. One of "text/plain" or "text/html" expected.
+   * @param contentType the bodyContentType of the {@code content} of the email. One of "text/plain" or "text/html" expected.
    * @return this {@link MessageBuilder}
    * @throws MessagingException
    */
   public MessageBuilder withBody(String content, MediaType contentType, String charset) throws MessagingException {
     this.content = content == null ? StringUtils.EMPTY : content;
-    this.contentType = contentType;
-    this.charset = charset;
+    this.bodyContentType = contentType;
+    this.bodyCharset = charset;
     return this;
   }
 
   /**
-   * Adds the text content the {@link Message} that is being built. The contentType of this content will default to "text/plain".
+   * Adds the text content the {@link Message} that is being built. The bodyContentType of this content will default to "text/plain".
    *
    * @param content the text content of the email. If {@code null} is received, {@link StringUtils#EMPTY} will be used instead.
    * @return this {@link MessageBuilder}
@@ -249,7 +222,7 @@ public final class MessageBuilder {
    */
   public MessageBuilder withBody(String content) throws MessagingException {
     this.content = content == null ? StringUtils.EMPTY : content;
-    this.contentType = TEXT;
+    this.bodyContentType = TEXT;
     return this;
   }
 
@@ -272,44 +245,46 @@ public final class MessageBuilder {
    * @throws MessagingException
    */
   public MimeMessage build() throws MessagingException {
+    String bodyContentType = getBodyPartContentType();
     if (attachments != null && !attachments.isEmpty()) {
       MimeMultipart multipart = new MimeMultipart();
-      MimeBodyPart bodyPart = new MimeBodyPart();
-      bodyPart.setDisposition(INLINE);
-      String contentType = getBodyType().toRfcString();
-      bodyPart.setContent(content, getBodyType().toRfcString());
-      bodyPart.setHeader(CONTENT_TYPE_HEADER, contentType);
-      multipart.addBodyPart(bodyPart);
-
-      MimeBodyPart attachmentPart;
-      for (String attachment : attachments.keySet()) {
-        try {
-          attachmentPart = new MimeBodyPart();
-          attachmentPart.setDisposition(ATTACHMENT);
-          attachmentPart.setFileName(attachment);
-          DataHandler attachmentDataHandler = attachments.get(attachment);
-          attachmentPart.setDataHandler(attachmentDataHandler);
-          setAttachmentHeaders(attachmentPart, attachmentDataHandler);
-          multipart.addBodyPart(attachmentPart);
-        } catch (Exception e) {
-          throw new EmailAttachmentException("Error while adding attachment: " + attachment, e);
-        }
-      }
-
-      this.message.setContent(multipart, MULTIPART);
+      MimeBodyPart body = new MimeBodyPart();
+      body.setDisposition(INLINE);
+      body.setContent(content, bodyContentType);
+      body.setHeader(CONTENT_TYPE_HEADER, bodyContentType);
+      multipart.addBodyPart(body);
+      attachments.forEach(a -> addAttachment(multipart, a));
+      message.setContent(multipart, MULTIPART);
     } else {
-      this.message.setDisposition(INLINE);
-      this.message.setContent(content, getBodyType().toRfcString());
+      message.setDisposition(INLINE);
+      message.setContent(content, bodyContentType);
     }
-
     return message;
   }
 
-  private MediaType getBodyType() {
-    if (charset != null) {
-      return DataType.builder().mediaType(contentType).charset(Charset.forName(charset)).build().getMediaType();
+  /**
+   * @return the final email body content type.
+   */
+  private String getBodyPartContentType() {
+    if (bodyCharset != null) {
+      return DataType.builder().mediaType(bodyContentType).charset(forName(bodyCharset)).build().getMediaType().toRfcString();
     }
-    return contentType;
+    return bodyContentType.toRfcString();
+  }
+
+  private void addAttachment(MimeMultipart multipart, EmailAttachment attachment) {
+    MimeBodyPart part = new MimeBodyPart();
+    try {
+      part.setDisposition(ATTACHMENT);
+      part.setFileName(attachment.getId());
+      DataHandler dataHandler = new DataHandler(new EmailAttachmentDataSource(attachment));
+      part.setDataHandler(dataHandler);
+      part.setHeader(CONTENT_TYPE_HEADER, dataHandler.getContentType());
+      part.setHeader(CONTENT_TRANSFER_ENCODING, DEFAULT_CONTENT_TRANSFER_ENCODING);
+      multipart.addBodyPart(part);
+    } catch (Exception e) {
+      throw new EmailAttachmentException("Error while adding attachment: " + attachment, e);
+    }
   }
 
   /**
@@ -334,20 +309,5 @@ public final class MessageBuilder {
    */
   private Address[] toAddressArray(List<String> addresses) {
     return addresses.stream().map(this::toAddress).toArray(Address[]::new);
-  }
-
-  /**
-   * Sets headers to attachment the {@link MimeBodyPart}
-   * 
-   * @param part {@link MimeBodyPart} that contains the attachment
-   * @param dataHandler {@link DataHandler} for the content of the attachment
-   * @throws MessagingException
-   * @throws IOException
-   */
-  private void setAttachmentHeaders(MimeBodyPart part, DataHandler dataHandler) throws MessagingException, IOException {
-    part.setHeader(CONTENT_TYPE_HEADER, dataHandler.getContentType());
-    if (dataHandler.getContent() instanceof InputStream) {
-      part.setHeader(CONTENT_TRANSFER_ENCODING, DEFAULT_CONTENT_TRANSFER_ENCODING);
-    }
   }
 }
