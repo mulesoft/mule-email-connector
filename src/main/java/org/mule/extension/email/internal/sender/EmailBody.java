@@ -7,9 +7,10 @@
 package org.mule.extension.email.internal.sender;
 
 
-import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEXT_PLAIN;
+import static java.util.Objects.isNull;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.core.util.IOUtils;
 import org.mule.runtime.extension.api.annotation.dsl.xml.XmlHints;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -18,6 +19,8 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+
+import java.io.InputStream;
 
 /**
  * Represents and enables the construction of the body of an email with a body of type "text/*" and a specific character
@@ -29,23 +32,22 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 public class EmailBody {
 
   /**
-   * Text body of the message
+   * Text body of the message. Aims to be text in any format
    */
   @Parameter
   @Content(primary = true)
   @Placement(order = 1)
   @Summary("Text body of the message")
-  private String content;
+  private InputStream content;
 
   /**
-   * ContentType of the body text. Example: "text/html" or "text/plain".
+   * ContentType of the body text. Example: "text/plain".
    */
   @Parameter
-  @Optional(defaultValue = TEXT_PLAIN)
+  @Optional(defaultValue = "text/html")
   @DisplayName("ContentType")
   @Placement(order = 2)
   @Summary("The content type of the body's content text")
-  @Example("text/html")
   private String contentType;
 
   /**
@@ -60,17 +62,17 @@ public class EmailBody {
 
   public EmailBody() {}
 
-  public EmailBody(String content, MediaType contentType, String encoding) {
+  public EmailBody(InputStream content, String contentType, String encoding) {
     this.content = content;
-    this.contentType = contentType.toString();
+    this.contentType = contentType;
     this.encoding = encoding;
   }
 
   /**
    * @return the body of the message content. The body aims to be text.
    */
-  public String getContent() {
-    return content;
+  public String getContentAsString() {
+    return isNull(content) ? "" : IOUtils.toString(content);
   }
 
   /**

@@ -6,11 +6,12 @@
  */
 package org.mule.extension.email.internal.commands;
 
+import static java.util.Objects.isNull;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
-import org.mule.extension.email.internal.sender.EmailBody;
-import org.mule.extension.email.internal.sender.EmailSettings;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.MessageBuilder;
+import org.mule.extension.email.internal.sender.EmailBody;
+import org.mule.extension.email.internal.sender.EmailSettings;
 import org.mule.extension.email.internal.sender.SMTPConfiguration;
 import org.mule.extension.email.internal.sender.SenderConnection;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
@@ -40,6 +41,7 @@ public final class SendCommand {
   public void send(SenderConnection connection, SMTPConfiguration smtpConfiguration,
                    EmailSettings settings, EmailBody body, AttachmentsGroup attachments) {
     try {
+      String encoding = isNull(body.getEncoding()) ? smtpConfiguration.getDefaultEncoding() : body.getEncoding();
       Message message = MessageBuilder.newMessage(connection.getSession())
           .withSentDate(Calendar.getInstance().getTime())
           .fromAddresses(isNotBlank(settings.getFromAddress()) ? settings.getFromAddress() : smtpConfiguration.getFrom())
@@ -48,11 +50,9 @@ public final class SendCommand {
           .bcc(settings.getBccAddresses())
           .withSubject(settings.getSubject())
           .withAttachments(attachments.getAttachments())
-          .withBody(body.getContent(), body.getContentType(),
-                    body.getEncoding() == null ? smtpConfiguration.getDefaultEncoding() : body.getEncoding())
+          .withBody(body.getContentAsString(), body.getContentType(), encoding)
           .withHeaders(settings.getHeaders())
           .build();
-
       Transport.send(message);
     } catch (MessagingException e) {
       throw new EmailException("Error while sending email: " + e.getMessage(), e);

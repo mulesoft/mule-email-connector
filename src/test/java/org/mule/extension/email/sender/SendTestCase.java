@@ -12,14 +12,18 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import org.mule.runtime.core.util.IOUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
 import javax.activation.DataHandler;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 
 import org.junit.Test;
@@ -29,6 +33,16 @@ public class SendTestCase extends SMTPTestCase {
   @Test
   public void sendEmail() throws Exception {
     flowRunner("sendEmail").run();
+    assertSingleMail();
+  }
+
+  @Test
+  public void sendInputStreamEmail() throws Exception {
+    flowRunner("sendStreamEmail").withVariable("stream", new ByteArrayInputStream(EMAIL_CONTENT.getBytes())).run();
+    assertSingleMail();
+  }
+
+  private void assertSingleMail() throws MessagingException, IOException {
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
     assertSubject(sentMessage.getSubject());
