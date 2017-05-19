@@ -31,11 +31,6 @@ public final class EmailConnectorConstants {
   public static final String TEXT = "text/*";
 
   /**
-   * Default email content type
-   */
-  public static final String TEXT_PLAIN = "text/plain";
-
-  /**
    * Default port value for SMTP servers.
    */
   public static final String SMTP_PORT = "25";

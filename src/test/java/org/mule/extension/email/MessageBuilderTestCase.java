@@ -29,6 +29,7 @@ import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.MG_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.PABLON_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
+import static org.mule.runtime.api.metadata.MediaType.HTML;
 import org.mule.extension.email.api.EmailAttachment;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.util.IOUtils;
@@ -73,7 +74,7 @@ public class MessageBuilderTestCase {
     InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("attachment.json");
     EmailAttachment attachment = new EmailAttachment(EMAIL_JSON_ATTACHMENT_NAME, is, MediaType.BINARY);
     Message m = newMessage(testSession)
-        .withBody(html, MediaType.HTML, "UTF-8")
+        .withBody(html, HTML, "UTF-8")
         .withSubject(EMAIL_SUBJECT)
         .to(asList(ESTEBAN_EMAIL, ALE_EMAIL))
         .withAttachments(singletonList(attachment))

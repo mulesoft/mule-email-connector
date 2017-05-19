@@ -17,6 +17,28 @@
         </email:send>
     </flow>
 
+    <flow name="sendStreamEmail">
+        <email:send config-ref="config" subject="Email Subject">
+            <email:to-addresses>
+                <email:to-address value="juan.desimoni@mulesoft.com"/>
+            </email:to-addresses>
+            <email:body contentType="text/plain">
+                <email:content>#[stream]</email:content>
+            </email:body>
+        </email:send>
+    </flow>
+
+    <flow name="sendJson">
+        <email:send config-ref="config">
+            <email:to-addresses>
+                <email:to-address value="juan.desimoni@mulesoft.com"/>
+            </email:to-addresses>
+            <email:body contentType="text/json">
+                <email:content>#[json]</email:content>
+            </email:body>
+        </email:send>
+    </flow>
+
     <flow name="sendEmailHeaders">
         <email:send config-ref="config-custom-headers" subject="Email Subject">
             <email:to-addresses>

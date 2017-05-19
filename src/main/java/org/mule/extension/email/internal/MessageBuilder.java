@@ -17,7 +17,7 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.CON
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_CONTENT_TRANSFER_ENCODING;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.MULTIPART;
-import static org.mule.runtime.api.metadata.MediaType.TEXT;
+import static org.mule.runtime.api.metadata.MediaType.HTML;
 import org.mule.extension.email.api.EmailAttachment;
 import org.mule.extension.email.api.exception.EmailAttachmentException;
 import org.mule.extension.email.api.exception.EmailException;
@@ -207,7 +207,7 @@ public final class MessageBuilder {
    * @throws MessagingException
    */
   public MessageBuilder withBody(String content, MediaType contentType, String charset) throws MessagingException {
-    this.content = content == null ? StringUtils.EMPTY : content;
+    this.content = content;
     this.bodyContentType = contentType;
     this.bodyCharset = charset;
     return this;
@@ -221,8 +221,8 @@ public final class MessageBuilder {
    * @throws MessagingException
    */
   public MessageBuilder withBody(String content) throws MessagingException {
-    this.content = content == null ? StringUtils.EMPTY : content;
-    this.bodyContentType = TEXT;
+    this.content = content;
+    this.bodyContentType = HTML;
     return this;
   }
 
