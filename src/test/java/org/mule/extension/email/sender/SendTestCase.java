@@ -42,6 +42,14 @@ public class SendTestCase extends SMTPTestCase {
     assertSingleMail();
   }
 
+  @Test
+  public void sendJson() throws Exception {
+    String json = "{\"key\":\"value\"}";
+    flowRunner("sendJson").withVariable("json", new ByteArrayInputStream(json.getBytes())).run();
+    Message[] messages = getReceivedMessagesAndAssertCount(1);
+    assertThat(IOUtils.toString(messages[0].getInputStream()).trim(), is(json));
+  }
+
   private void assertSingleMail() throws MessagingException, IOException {
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
