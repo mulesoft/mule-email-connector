@@ -7,21 +7,21 @@
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
 
-    <email:smtp name="config">
+    <email:smtp-config name="config">
         <email:smtps-connection host="127.0.0.1" port="${port}">
             <tls:context enabledProtocols="TLSv1.2,SSLv3">
                 <tls:trust-store path="greenmail.jks" password="changeit"/>
             </tls:context>
         </email:smtps-connection>
-    </email:smtp>
+    </email:smtp-config>
 
-    <email:smtp name="config-custom-headers">
+    <email:smtp-config name="config-custom-headers">
         <email:smtps-connection host="127.0.0.1" port="${port}">
             <tls:context enabledProtocols="TLSv1.2,SSLv3">
                 <tls:trust-store path="greenmail.jks" password="changeit"/>
             </tls:context>
         </email:smtps-connection>
-    </email:smtp>
+    </email:smtp-config>
 
     <spring:beans>
         <spring:import resource="smtp-flows.xml"/>

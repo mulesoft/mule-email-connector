@@ -6,13 +6,13 @@
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
 
-    <email:smtp name="config">
+    <email:smtp-config name="config">
         <email:smtp-connection host="127.0.0.1" port="${port}"/>
-    </email:smtp>
+    </email:smtp-config>
 
-    <email:smtp name="config-custom-headers">
+    <email:smtp-config name="config-custom-headers">
         <email:smtp-connection host="127.0.0.1" port="${port}"/>
-    </email:smtp>
+    </email:smtp-config>
 
     <spring:beans>
         <spring:import resource="smtp-flows.xml"/>
