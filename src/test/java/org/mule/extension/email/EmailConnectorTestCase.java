@@ -19,6 +19,7 @@ import static org.mule.functional.junit4.rules.ExpectedError.none;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.functional.junit4.rules.ExpectedError;
 import org.mule.tck.junit4.rule.DynamicPort;
+import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
@@ -26,6 +27,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 import org.junit.Rule;
 
+@ArtifactClassLoaderRunnerConfig(sharedRuntimeLibs = {"com.sun.mail:javax.mail"})
 public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
   protected static final String NAMESPACE = "EMAIL";
