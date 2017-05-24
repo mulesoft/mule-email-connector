@@ -6,17 +6,17 @@
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
 
-    <email:imap name="config">
+    <email:imap-config name="config">
         <email:imap-connection host="127.0.0.1" port="${port}" password="password" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 
-    <email:imap name="config-dont-read"  eagerlyFetchContent="false">
+    <email:imap-config name="config-dont-read"  eagerlyFetchContent="false">
         <email:imap-connection host="127.0.0.1" port="${port}" password="password" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 
-    <email:imap name="configSpecialCharacterCredentials" eagerlyFetchContent="false">
+    <email:imap-config name="configSpecialCharacterCredentials" eagerlyFetchContent="false">
         <email:imap-connection host="127.0.0.1" port="${port}" password="${specialCharacterPassword}" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 
     <spring:beans>
         <spring:import resource="imap-flows.xml"/>

@@ -7,26 +7,26 @@
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
 
-    <email:imap name="configIncorrectCredentials">
+    <email:imap-config name="configIncorrectCredentials">
         <email:imap-connection host="127.0.0.1" port="${port}" password="password" user="XXXXXXXXXXX@mulesoft.com"/>
-    </email:imap>
-    <email:imap name="configIncorrectCredentialsOnlyPassword">
+    </email:imap-config>
+    <email:imap-config name="configIncorrectCredentialsOnlyPassword">
         <email:imap-connection host="127.0.0.1" port="${port}" password="password" />
-    </email:imap>
+    </email:imap-config>
 
-    <email:imap name="configUnknownHost">
+    <email:imap-config name="configUnknownHost">
         <email:imap-connection host="adasdasdsadsa" port="${port}" password="password" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 
-    <email:imap name="configCannotReach">
+    <email:imap-config name="configCannotReach">
         <email:imap-connection host="127.0.0.1" port="12323" password="password" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 
-    <email:imap name="configSocketTimeout">
+    <email:imap-config name="configSocketTimeout">
         <email:imap-connection host="127.0.0.1" readTimeout="1" timeoutUnit="MILLISECONDS" port="${port}" password="password" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 
-    <email:imap name="configInvalidPort">
+    <email:imap-config name="configInvalidPort">
         <email:imap-connection host="127.0.0.1" port="12344423" password="password" user="juan.desimoni@mulesoft.com"/>
-    </email:imap>
+    </email:imap-config>
 </mule>
