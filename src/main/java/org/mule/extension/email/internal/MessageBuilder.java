@@ -23,7 +23,7 @@ import org.mule.extension.email.api.exception.EmailAttachmentException;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.util.StringUtils;
+import org.mule.runtime.core.api.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
