@@ -32,7 +32,7 @@ import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.runtime.api.metadata.MediaType.HTML;
 import org.mule.extension.email.api.EmailAttachment;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.util.IOUtils;
+import org.mule.runtime.core.api.util.IOUtils;
 
 import java.io.InputStream;
 import java.util.stream.Stream;
