@@ -9,6 +9,7 @@ package org.mule.extension.email;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
@@ -29,12 +30,17 @@ import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.MG_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.PABLON_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
+import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.HTML;
-import org.mule.extension.email.api.EmailAttachment;
-import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.api.metadata.DataType;
+import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
 
+import org.junit.Test;
+
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import javax.mail.Address;
@@ -44,11 +50,11 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.InternetAddress;
 
-import org.junit.Test;
-
 public class MessageBuilderTestCase {
 
   private static final String JUANI_NAME = "Juan Desimoni";
+  private static final Charset UTF8 = Charset.forName("UTF-8");
+  private static final String BIT7 = "7bit";
 
   @Test
   public void buildSimpleMessage() throws Exception {
@@ -72,12 +78,15 @@ public class MessageBuilderTestCase {
   public void buildAttachmentMessage() throws Exception {
     String html = "<h1>Mulesoft</h1>";
     InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("attachment.json");
-    EmailAttachment attachment = new EmailAttachment(EMAIL_JSON_ATTACHMENT_NAME, is, MediaType.BINARY);
+    Map<String, TypedValue<InputStream>> attachments = singletonMap(EMAIL_JSON_ATTACHMENT_NAME,
+                                                                    new TypedValue<>(is, DataType.builder().fromObject(is)
+                                                                        .mediaType(BINARY).build()));
+
     Message m = newMessage(testSession)
-        .withBody(html, HTML, "UTF-8")
+        .withBody(html, HTML.withCharset(UTF8), BIT7)
         .withSubject(EMAIL_SUBJECT)
         .to(asList(ESTEBAN_EMAIL, ALE_EMAIL))
-        .withAttachments(singletonList(attachment))
+        .withAttachments(attachments, BIT7)
         .bcc(singletonList(JUANI_EMAIL))
         .build();
 
@@ -93,8 +102,8 @@ public class MessageBuilderTestCase {
 
     Part attachmentPart = multipart.getBodyPart(1);
     assertThat(IOUtils.toString((InputStream) attachmentPart.getContent()), is(EMAIL_JSON_ATTACHMENT_CONTENT));
-    assertThat(attachmentPart.getContentType(), is(MediaType.BINARY.toString()));
-    assertThat(attachmentPart.getDataHandler().getContentType(), is(MediaType.BINARY.toString()));
+    assertThat(attachmentPart.getContentType(), is(BINARY.toString()));
+    assertThat(attachmentPart.getDataHandler().getContentType(), is(BINARY.toString()));
   }
 
   private void assertRecipients(Message m, Message.RecipientType type, String... emails) throws Exception {

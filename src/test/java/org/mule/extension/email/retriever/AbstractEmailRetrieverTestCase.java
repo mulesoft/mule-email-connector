@@ -30,26 +30,30 @@ import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentContent;
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
+import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.message.MultiPartPayload;
+import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.object.CursorIterator;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 import org.mule.runtime.core.message.DefaultMultiPartPayload;
 import org.mule.tck.junit4.rule.SystemProperty;
-
-import java.util.List;
-
-import javax.mail.Flags.Flag;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+
+import java.nio.charset.Charset;
+import java.util.List;
+
+import javax.mail.Flags.Flag;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 
 public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestCase {
 
@@ -60,6 +64,9 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   protected static final String RETRIEVE_WITH_ATTACHMENTS = "retrieveWithAttachments";
   protected static final String STORE_MESSAGES = "storeMessages";
   protected static final String STORE_SINGLE_MESSAGE = "storeSingleMessage";
+  private static final String TEXT_PLAIN = MediaType.TEXT.toRfcString();
+  private static final MediaType TEXT_JSON = MediaType.create("text", "json", Charset.forName("UTF-8"));
+  private static final String JSON_OBJECT = "{\"this is a\" : \"json object\"}";
   protected final int pageSize = Integer.valueOf(DEFAULT_PAGE_SIZE);
 
   @ClassRule
@@ -90,7 +97,8 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   public void retrieveMatchingSubjectAndFromAddress() throws Exception {
     for (int i = 0; i < pageSize; i++) {
       String fromAddress = format("address.%s@enterprise.com", i);
-      MimeMessage mimeMessage = getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, "Non Matching Subject", fromAddress);
+      MimeMessage mimeMessage =
+          getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, "Non Matching Subject", fromAddress);
       user.deliver(mimeMessage);
     }
 
@@ -99,11 +107,12 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(pageSize));
   }
 
-  private MimeMessage getMimeMessage(String to, String cc, String body, String subject, String from) throws MessagingException {
+  private MimeMessage getMimeMessage(String to, String cc, String body, String contentType, String subject, String from)
+      throws MessagingException {
     MimeMessage mimeMessage = new MimeMessage(testSession);
     mimeMessage.setRecipient(TO, new InternetAddress(to));
     mimeMessage.setRecipient(CC, new InternetAddress(cc));
-    mimeMessage.setContent(body, "text/plain");
+    mimeMessage.setContent(body, contentType);
     mimeMessage.setSubject(subject);
     mimeMessage.setFrom(new InternetAddress(from));
     return mimeMessage;
@@ -146,6 +155,19 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(pageSize * 2));
   }
 
+  @Test
+  public void retrieveEmailsContainsContentType() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, JSON_OBJECT, TEXT_JSON.toRfcString(), EMAIL_SUBJECT, ESTEBAN_EMAIL));
+
+    CursorIterator<Message> messageCursorIterator = runFlowAndGetMessages(RETRIEVE_AND_READ);
+    Message next = messageCursorIterator.next();
+
+    TypedValue<Object> payload = next.getPayload();
+    assertThat(payload.getValue(), is(JSON_OBJECT));
+    assertThat(payload.getDataType(), is(like(String.class, TEXT_JSON)));
+  }
+
   protected CursorIterator<Message> runFlowAndGetMessages(String flowName) throws Exception {
     CursorIteratorProvider provider =
         (CursorIteratorProvider) flowRunner(flowName).keepStreamsOpen().run().getMessage().getPayload().getValue();
@@ -172,14 +194,15 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   private void sendEmails(int amount) throws MessagingException {
     for (int i = 0; i < amount; i++) {
-      user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, EMAIL_SUBJECT, ESTEBAN_EMAIL));
+      user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, EMAIL_SUBJECT, ESTEBAN_EMAIL));
     }
   }
 
   private void sendNonMatchingEmails(int amount) throws MessagingException {
     for (int i = 0; i < amount; i++) {
       String fromAddress = format("address.%s@enterprise.com", i);
-      MimeMessage mimeMessage = getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, "Non Matching Subject", fromAddress);
+      MimeMessage mimeMessage =
+          getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, "Non Matching Subject", fromAddress);
       user.deliver(mimeMessage);
     }
   }

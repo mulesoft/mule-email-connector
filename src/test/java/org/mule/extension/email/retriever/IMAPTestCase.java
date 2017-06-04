@@ -26,7 +26,6 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
-
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.runtime.api.message.Message;
@@ -35,6 +34,10 @@ import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,10 +45,6 @@ import java.util.Collection;
 
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {

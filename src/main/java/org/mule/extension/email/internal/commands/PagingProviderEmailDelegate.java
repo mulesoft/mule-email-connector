@@ -11,6 +11,8 @@ import static java.util.Collections.emptyList;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
+import static org.mule.runtime.api.metadata.MediaType.ANY;
 import static org.mule.runtime.core.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
@@ -20,6 +22,7 @@ import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.util.EmailContentProcessor;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.message.DefaultMultiPartPayload;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
@@ -104,6 +107,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
           Result<Object, T> result = Result.<Object, T>builder()
               .output(emailContent)
               .attributes(attributes)
+              .mediaType(getMediaType(attributes))
               .build();
 
           retrievedEmails.add(result);
@@ -120,23 +124,6 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     } catch (MessagingException me) {
       throw new EmailException("Error while retrieving emails: " + me.getMessage(), me);
     }
-  }
-
-  private Object readContent(javax.mail.Message m) {
-    Object emailContent;
-    EmailContentProcessor processor = EmailContentProcessor.getInstance(m);
-    String body = processor.getBody();
-    List<Message> parts = new ArrayList<>();
-    List<Message> attachments = processor.getAttachments();
-
-    if (!attachments.isEmpty()) {
-      parts.add(Message.builder().payload(body).attributes(BODY_ATTRIBUTES).build());
-      parts.addAll(attachments);
-      emailContent = new DefaultMultiPartPayload(parts);
-    } else {
-      emailContent = body;
-    }
-    return emailContent;
   }
 
   @Override
@@ -186,5 +173,27 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   @Override
   public void close() throws IOException {
 
+  }
+
+  private MediaType getMediaType(BaseEmailAttributes attributes) {
+    String contentType = attributes.getHeaders().get(CONTENT_TYPE_HEADER);
+    return contentType == null ? ANY : MediaType.parse(contentType);
+  }
+
+  private Object readContent(javax.mail.Message m) {
+    Object emailContent;
+    EmailContentProcessor processor = EmailContentProcessor.getInstance(m);
+    String body = processor.getBody();
+    List<Message> parts = new ArrayList<>();
+    List<Message> attachments = processor.getAttachments();
+
+    if (!attachments.isEmpty()) {
+      parts.add(Message.builder().payload(body).attributes(BODY_ATTRIBUTES).build());
+      parts.addAll(attachments);
+      emailContent = new DefaultMultiPartPayload(parts);
+    } else {
+      emailContent = body;
+    }
+    return emailContent;
   }
 }

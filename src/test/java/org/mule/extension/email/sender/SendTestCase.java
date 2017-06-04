@@ -10,30 +10,68 @@ import static java.nio.charset.Charset.availableCharsets;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
-import org.mule.runtime.core.api.util.IOUtils;
+import org.mule.runtime.api.metadata.DataType;
+import org.mule.runtime.api.metadata.MediaType;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-import javax.activation.DataHandler;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
-
-import org.junit.Test;
+import javax.mail.internet.MimeMultipart;
 
 public class SendTestCase extends SMTPTestCase {
+
+  private static final String JSON_VALUE = "{\n  \"key\": \"value\"\n}";
+  private static final String ZIP = "this is supposedly a zip file";
+  private static final Charset UTF8 = Charset.forName("UTF-8");
+  private static final MediaType OCTET_STREAM_UTF8 = MediaType.create("application", "octet-stream", UTF8);
+  private static final MediaType JSON_UTF8 = MediaType.create("application", "json", UTF8);
+  private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
+  private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
+
 
   @Test
   public void sendEmail() throws Exception {
     flowRunner("sendEmail").run();
     assertSingleMail();
+  }
+
+  @Test
+  public void sendEmailWithLargePayloads() throws Exception {
+    String random = getLargeString();
+    byte[] bytes = random.getBytes(UTF8);
+    flowRunner("sendEmailWithLargePayloads")
+        .withVariable("jpg", random.getBytes(), DataType.builder().type(byte[].class).mediaType(OCTET_STREAM_UTF8).build())
+        .withVariable("text", random, DataType.builder().type(String.class).mediaType(TEXT_PLAIN).build())
+        .withVariable("zip", new ByteArrayInputStream(random.getBytes()),
+                      DataType.builder().type(InputStream.class).mediaType(JSON_UTF8).build())
+        .withPayload(random).withMediaType(MediaType.parse("text/html"))
+        .run();
+
+    Message[] messages = getReceivedMessagesAndAssertCount(1);
+    Message message = messages[0];
+    MimeMultipart content = (MimeMultipart) message.getContent();
+    Map<String, BodyPart> bodyParts = getBodyParts(content);
+    assertThat(getByteArray(bodyParts, "image.jpg"), is(bytes));
+    assertThat(getByteArray(bodyParts, "text.txt"), is(bytes));
+    assertThat(getByteArray(bodyParts, "zip.zip"), is(bytes));
+    assertThat(getByteArray(bodyParts, null), is(bytes));
   }
 
   @Test
@@ -47,14 +85,22 @@ public class SendTestCase extends SMTPTestCase {
     String json = "{\"key\":\"value\"}";
     flowRunner("sendJson").withVariable("json", new ByteArrayInputStream(json.getBytes())).run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
-    assertThat(IOUtils.toString(messages[0].getInputStream()).trim(), is(json));
+    Message message = messages[0];
+    assertMessage(message, json, MediaType.create("text", "json", UTF8));
   }
 
-  private void assertSingleMail() throws MessagingException, IOException {
+  @Test
+  public void sendZipFile() throws Exception {
+    flowRunner("sendZipFile")
+        .withVariable("zipFile", new ByteArrayInputStream("this is supposedly a zip file".getBytes()),
+                      DataType.builder().type(InputStream.class).mediaType(OCTET_STREAM_UTF8).build())
+        .run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
-    Message sentMessage = messages[0];
-    assertSubject(sentMessage.getSubject());
-    assertBodyContent(sentMessage.getContent().toString().trim());
+    Message message = messages[0];
+    assertMessage(message, MULTIPART_MIXED);
+    MimeMultipart content = (MimeMultipart) message.getContent();
+    assertMessage(content.getBodyPart(0), "Email Content", TEXT_PLAIN);
+    assertMessage(content.getBodyPart(1), ZIP, OCTET_STREAM_UTF8);
   }
 
   @Test
@@ -71,24 +117,25 @@ public class SendTestCase extends SMTPTestCase {
 
   @Test
   public void sendEmailWithAttachment() throws Exception {
-    InputStream jsonStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("attachment.json");
-    flowRunner("sendEmailWithAttachment").withVariable("jsonStream", jsonStream).run();
+    flowRunner("sendEmailWithAttachment").run();
     Message[] messages = getReceivedMessagesAndAssertCount(4);
     for (Message message : messages) {
       Multipart content = (Multipart) message.getContent();
-      assertThat(content.getCount(), is(4));
+      int count = content.getCount();
+      assertThat(count, is(4));
+
+      Map<String, BodyPart> bodyParts = new HashMap<>();
+      for (int i = 0; i < count; i++) {
+        BodyPart bodyPart = content.getBodyPart(i);
+        bodyParts.put(bodyPart.getFileName(), bodyPart);
+      }
 
       Object body = content.getBodyPart(0).getContent();
       assertBodyContent((String) body);
 
-      String textAttachment = (String) content.getBodyPart(1).getContent();
-      assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(textAttachment));
-
-      DataHandler jsonAttachment = content.getBodyPart(2).getDataHandler();
-      assertJsonAttachment(jsonAttachment);
-
-      DataHandler streamAttachment = content.getBodyPart(3).getDataHandler();
-      assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString((InputStream) streamAttachment.getContent())));
+      assertMessage(bodyParts.get("json-attachment"), JSON_VALUE, JSON_UTF8);
+      assertMessage(bodyParts.get("text-attachment"), EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, TEXT_PLAIN);
+      assertMessage(bodyParts.get("stream-attachment"), EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, OCTET_STREAM_UTF8);
     }
   }
 
@@ -101,7 +148,7 @@ public class SendTestCase extends SMTPTestCase {
     assertThat(content.getCount(), is(2));
     Object body = content.getBodyPart(0).getContent();
     assertBodyContent((String) body);
-    assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString((InputStream) content.getBodyPart(1).getContent())));
+    assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString(content.getBodyPart(1).getInputStream())));
   }
 
   @Test
@@ -113,8 +160,11 @@ public class SendTestCase extends SMTPTestCase {
 
     flowRunner("sendEncodedMessage").withPayload(WEIRD_CHAR_MESSAGE).withVariable("encoding", enconding.get()).run();
     Message[] messages = getReceivedMessagesAndAssertCount(1);
-    Object content = ((String) messages[0].getContent()).trim();
-    assertThat(content, is(new String(WEIRD_CHAR_MESSAGE.getBytes(enconding.get()), enconding.get())));
+    InputStream content = messages[0].getInputStream();
+    Charset charset = MediaType.parse(messages[0].getContentType()).getCharset().get();
+    String actual = IOUtils.toString(content, charset);
+    String value = new String(WEIRD_CHAR_MESSAGE.getBytes(UTF8), enconding.get());
+    assertThat(actual, containsString(value));
   }
 
   @Test
@@ -123,6 +173,38 @@ public class SendTestCase extends SMTPTestCase {
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
     assertSubject(sentMessage.getSubject());
-    assertThat(sentMessage.getContent().toString().trim(), isEmptyString());
+    assertThat(IOUtils.toString(sentMessage.getInputStream()), isEmptyString());
+  }
+
+  private void assertSingleMail() throws IOException, javax.mail.MessagingException {
+    Message[] messages = getReceivedMessagesAndAssertCount(1);
+    Message sentMessage = messages[0];
+    assertSubject(sentMessage.getSubject());
+    assertBodyContent(sentMessage.getContent().toString().trim());
+  }
+
+  private static Map<String, BodyPart> getBodyParts(MimeMultipart content) throws MessagingException {
+    Map<String, BodyPart> bodyParts = new HashMap<>();
+    for (int i = 0; i < content.getCount(); i++) {
+      BodyPart bodyPart = content.getBodyPart(i);
+      bodyParts.put(bodyPart.getFileName(), bodyPart);
+    }
+    return bodyParts;
+  }
+
+  /**
+   * @return a 5000 character one liner string, useful to test restrictions with 7bit, 8bit and binary
+   * transfer encodings.
+   */
+  private String getLargeString() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (int i = 0; i < 1000; i++) {
+      stringBuilder.append("abcde12345");
+    }
+    return stringBuilder.toString();
+  }
+
+  private byte[] getByteArray(Map<String, BodyPart> bodyParts, String partName) throws IOException, MessagingException {
+    return IOUtils.toByteArray(bodyParts.get(partName).getInputStream());
   }
 }
