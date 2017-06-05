@@ -12,10 +12,10 @@ import static java.util.Collections.list;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
+import static org.mule.runtime.core.util.collection.Collectors.toImmutableList;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.runtime.core.message.BaseAttributes;
-import org.mule.runtime.core.util.collection.ImmutableListCollector;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -214,7 +214,7 @@ public abstract class BaseEmailAttributes extends BaseAttributes {
   }
 
   private List<String> addressesAsList(Address[] toAddresses) {
-    return toAddresses != null ? stream(toAddresses).map(Object::toString).collect(new ImmutableListCollector<>()) : emptyList();
+    return toAddresses != null ? stream(toAddresses).map(Object::toString).collect(toImmutableList()) : emptyList();
   }
 
   private LocalDateTime asDateTime(Date date) {
