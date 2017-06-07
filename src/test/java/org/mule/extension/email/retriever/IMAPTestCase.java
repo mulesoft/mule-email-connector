@@ -26,26 +26,25 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
-
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.object.CursorIterator;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
+import java.util.Iterator;
 
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
@@ -97,7 +96,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void retrieveAndRead() throws Exception {
-    CursorIterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
+    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
     int size = 0;
     while (messages.hasNext()) {
       size++;
@@ -111,7 +110,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void retrieveAndDontRead() throws Exception {
-    CursorIterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DONT_READ);
+    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DONT_READ);
     int count = 0;
     while (messages.hasNext()) {
       Message m = messages.next();
@@ -204,7 +203,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
       message.setFlag(flag, flagState);
     }
 
-    CursorIterator<Message> messages = runFlowAndGetMessages(flowName);
+    Iterator<Message> messages = runFlowAndGetMessages(flowName);
     assertThat(server.getReceivedMessages(), arrayWithSize(pageSize));
     int count = 0;
     while (messages.hasNext()) {

@@ -7,32 +7,18 @@
 package org.mule.extension.email.sender;
 
 import static java.lang.String.format;
-import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
-import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import org.mule.extension.email.EmailConnectorTestCase;
-import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.test.runner.RunnerDelegateTo;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
-
-import javax.activation.DataHandler;
-import javax.mail.MessagingException;
 
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunnerDelegateTo(Parameterized.class)
 public abstract class SMTPTestCase extends EmailConnectorTestCase {
@@ -62,17 +48,5 @@ public abstract class SMTPTestCase extends EmailConnectorTestCase {
     javax.mail.Message[] messages = server.getReceivedMessages();
     assertThat(messages, arrayWithSize(receivedNumber));
     return messages;
-  }
-
-  BaseEmailAttributes getTestAttributes() throws MessagingException {
-    BaseEmailAttributes attributes = mock(BaseEmailAttributes.class);
-    when(attributes.getCcAddresses()).thenReturn(singletonList(ALE_EMAIL));
-    when(attributes.getToAddresses()).thenReturn(singletonList(JUANI_EMAIL));
-    when(attributes.getSubject()).thenReturn(EMAIL_SUBJECT);
-    return attributes;
-  }
-
-  void assertJsonAttachment(DataHandler jsonAttachment) throws IOException {
-    assertThat(EMAIL_JSON_ATTACHMENT_CONTENT, is(IOUtils.toString((InputStream) jsonAttachment.getContent())));
   }
 }

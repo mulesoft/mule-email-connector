@@ -68,12 +68,12 @@ public final class EmailConnectorConstants {
   /**
    * Content transfer encoding header name.
    */
-  public static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
+  public static final String CONTENT_TRANSFER_ENCODING_HEADER = "Content-Transfer-Encoding";
 
   /**
    * Default value for the Content-Transfer-Encoding header.
    */
-  public static final String DEFAULT_CONTENT_TRANSFER_ENCODING = "7BIT";
+  public static final String DEFAULT_CONTENT_TRANSFER_ENCODING = "Base64";
 
   /**
    * Default page size to be fetched by the {@link PagingProviderEmailDelegate}
@@ -81,6 +81,11 @@ public final class EmailConnectorConstants {
   public static final String DEFAULT_PAGE_SIZE = "10";
 
   public static final String PAGE_SIZE_ERROR_MESSAGE = "Page size attribute must be greater than zero but '%d' was received";
+
+  /**
+   * Display name for parameters that describe the Content-Transfer-Encoding of a Email part
+   */
+  public static final String CONTENT_TRANSFER_ENCODING_DISPLAY_NAME = "Content Transfer Encoding";
 
   /**
    * Hide constructor

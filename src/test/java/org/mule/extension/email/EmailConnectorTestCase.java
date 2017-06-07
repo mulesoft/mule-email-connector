@@ -18,6 +18,7 @@ import static org.mule.extension.email.util.EmailTestUtils.setUpServer;
 import static org.mule.functional.junit4.rules.ExpectedError.none;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.functional.junit4.rules.ExpectedError;
+import org.mule.runtime.api.metadata.MediaType;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
@@ -25,7 +26,14 @@ import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
+
+import java.io.IOException;
+
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 
 @ArtifactClassLoaderRunnerConfig(sharedRuntimeLibs = {"com.sun.mail:javax.mail"})
 public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestCase {
@@ -61,6 +69,22 @@ public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestC
 
   protected void assertSubject(String content) {
     assertThat(content, is(EMAIL_SUBJECT));
+  }
+
+  protected void assertMessage(Message message, MediaType mediaType) throws MessagingException {
+    assertThat(MediaType.parse(message.getHeader("Content-Type")[0]).withoutParameters(), is(mediaType));
+  }
+
+  protected void assertMessage(Message message, String expectedMessageBody, MediaType expectedMediaType)
+      throws IOException, MessagingException {
+    assertThat(IOUtils.toString(message.getInputStream()).trim(), is(expectedMessageBody));
+    assertThat(message.getHeader("Content-Type")[0], is(expectedMediaType.toRfcString()));
+  }
+
+  protected void assertMessage(BodyPart bodyPart, String expectedMessageBody, MediaType expectedMediaType)
+      throws IOException, MessagingException {
+    assertThat(IOUtils.toString(bodyPart.getInputStream()).trim(), is(expectedMessageBody));
+    assertThat(bodyPart.getContentType(), is(expectedMediaType.toRfcString()));
   }
 
   public abstract String getProtocol();

@@ -7,15 +7,29 @@
 package org.mule.extension.email.internal.sender;
 
 
+import static org.mule.runtime.api.metadata.DataType.INPUT_STREAM;
+import static org.mule.runtime.api.metadata.DataType.fromObject;
 import org.mule.extension.email.api.exception.EmailSenderErrorTypeProvider;
 import org.mule.extension.email.internal.commands.SendCommand;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
+import org.mule.runtime.api.metadata.DataType;
+import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.core.api.TransformationService;
+import org.mule.runtime.core.api.transformer.MessageTransformerException;
+import org.mule.runtime.core.api.transformer.TransformerException;
+import org.mule.runtime.core.exception.MessagingException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 /**
  * Basic set of operations which perform send email operations over the SMTP or SMTPS protocol.
@@ -25,6 +39,9 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 public class SendOperation {
 
   private final SendCommand sendCommand = new SendCommand();
+
+  @Inject
+  private TransformationService transformationService;
 
   /**
    * Sends an email message. The message will be sent to all recipient {@code toAddresses}, {@code ccAddresses},
@@ -43,8 +60,37 @@ public class SendOperation {
                    @Config SMTPConfiguration configuration,
                    @Placement(order = 1) @ParameterGroup(name = "Settings") EmailSettings settings,
                    @Placement(order = 2) @ParameterGroup(name = "Body", showInDsl = true) EmailBody body,
-                   @Placement(order = 3) @ParameterGroup(name = "Attachments") AttachmentsGroup attachments) {
-
+                   @Placement(order = 3) @ParameterGroup(name = "Attachments") AttachmentsGroup attachments)
+      throws MessageTransformerException, MessagingException, TransformerException {
+    attachments.setAttachments(transformAttachments(attachments));
     sendCommand.send(connection, configuration, settings, body, attachments);
+  }
+
+  /**
+   * A utility method that ensures that all attachments are of type {@link InputStream},
+   * otherwise they will be transformed.
+   *
+   * @param attachments to ensure and transform.
+   * @return a new {@link Map} of attachments represented in {@link InputStream}
+   */
+  private Map<String, TypedValue<InputStream>> transformAttachments(AttachmentsGroup attachments)
+      throws MessageTransformerException, MessagingException, TransformerException {
+    Map<String, TypedValue<InputStream>> newAttachments = new HashMap<>();
+    for (Map.Entry<String, TypedValue<InputStream>> attachment : attachments.getAttachments().entrySet()) {
+      newAttachments.put(attachment.getKey(), getTransformTypedValue(attachment.getValue()));
+    }
+    return newAttachments;
+  }
+
+  private TypedValue<InputStream> getTransformTypedValue(TypedValue typedValue)
+      throws MessageTransformerException, MessagingException, TransformerException {
+
+    Object value = typedValue.getValue();
+    if (value instanceof InputStream) {
+      return typedValue;
+    }
+    InputStream result = (InputStream) transformationService.transform(value, fromObject(value), INPUT_STREAM);
+    return new TypedValue<>(result, DataType.builder().type(result.getClass()).mediaType(typedValue.getDataType().getMediaType())
+        .build());
   }
 }

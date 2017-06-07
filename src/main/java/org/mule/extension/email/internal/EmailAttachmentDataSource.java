@@ -6,9 +6,6 @@
  */
 package org.mule.extension.email.internal;
 
-import static org.mule.runtime.api.metadata.MediaType.ANY;
-import org.mule.extension.email.api.EmailAttachment;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,10 +23,10 @@ class EmailAttachmentDataSource implements DataSource {
   private final InputStream content;
   private final String contentType;
 
-  EmailAttachmentDataSource(EmailAttachment attachment) {
-    name = attachment.getId();
-    content = attachment.getContent();
-    contentType = attachment.getContentType() != null ? attachment.getContentType() : ANY.toString();
+  EmailAttachmentDataSource(String name, InputStream content, String contentType) {
+    this.name = name;
+    this.content = content;
+    this.contentType = contentType;
   }
 
   @Override

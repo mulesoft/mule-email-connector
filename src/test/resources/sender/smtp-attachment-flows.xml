@@ -6,7 +6,10 @@
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
     <flow name="sendEmailWithAttachment">
-        <set-payload value="#[jsonStream]"/>
+        <set-variable variableName="json" value="#[output application/json --- {key: 'value'}]" mimeType="application/json"/>
+        <set-variable variableName="textPlain" value="This is the email text attachment" mimeType="text/plain"/>
+        <set-variable variableName="octetStream" value="#[textPlain]" mimeType="application/octet-stream"/>
+
         <email:send config-ref="config">
             <email:to-addresses>
                 <email:to-address value="pablo.musumeci@mulesoft.com"/>
@@ -21,28 +24,18 @@
             <email:body contentType="text/plain">
                 <email:content>Email Content</email:content>
             </email:body>
-            <email:attachments>#[[
+            <email:attachments>#[
                 {
-                    id: "text-attachment",
-                    contentType: "text/plain",
-                    content: "This is the email text attachment"
-                },
-                {
-                    id: "json-attachment",
-                    contentType: "application/json",
-                    content: payload
-                },
-                {
-                    id: "stream-attachment",
-                    contentType: "application/octet-stream",
-                    content: "This is the email text attachment" as Binary
-                }
-                ]]
+                'text-attachment' : textPlain,
+                'json-attachment' : json,
+                'stream-attachment' : octetStream
+                }]
             </email:attachments>
         </email:send>
     </flow>
 
     <flow name="noContentTypeAttachment">
+        <set-variable variableName="textAttachment" value="This is the email text attachment" mimeType="text/plain"/>
         <email:send config-ref="config">
             <email:to-addresses>
                 <email:to-address value="pablo.musumeci@mulesoft.com"/>
@@ -50,11 +43,40 @@
             <email:body contentType="text/plain">
                 <email:content>Email Content</email:content>
             </email:body>
-            <email:attachments>#[[
-                {
-                id: "text-attachment",
-                content: "This is the email text attachment"
-                }]]
+            <email:attachments>
+                #[{'text-attachment' : textAttachment}]
+            </email:attachments>
+        </email:send>
+    </flow>
+
+    <flow name="sendEmailWithLargePayloads">
+        <email:send config-ref="config" subject="Email Subject" attachmentsContentTransferEncoding="#[contentTransferEncoding]">
+            <email:to-addresses>
+                <email:to-address value="juan.desimoni@mulesoft.com"/>
+            </email:to-addresses>
+            <email:body contentTransferEncoding="#[contentTransferEncoding]">
+                <email:content>#[payload]</email:content>
+            </email:body>
+            <email:attachments>
+                #[{
+                    'zip.zip' : zip,
+                    'image.jpg' : jpg,
+                    'text.txt' : text
+                }]
+            </email:attachments>
+        </email:send>
+    </flow>
+
+    <flow name="sendZipFile">
+        <email:send config-ref="config" subject="Email Subject">
+            <email:to-addresses>
+                <email:to-address value="juan.desimoni@mulesoft.com"/>
+            </email:to-addresses>
+            <email:body contentType="text/plain">
+                <email:content>Email Content</email:content>
+            </email:body>
+            <email:attachments>
+                #[{zipFile : zipFile}]
             </email:attachments>
         </email:send>
     </flow>

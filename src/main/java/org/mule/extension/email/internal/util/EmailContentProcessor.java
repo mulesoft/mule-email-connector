@@ -142,7 +142,8 @@ public class EmailContentProcessor {
     attachmentParts.add(Message.builder()
         .payload(IOUtils.toByteArray(part.getInputStream()))
         .mediaType(MediaType.parse(part.getContentType()))
-        .attributes(new PartAttributes(part.getFileName(), part.getFileName(), part.getSize(), headers))
+        .attributes(new PartAttributes(part.getFileName() == null ? "null" : part.getFileName(), part.getFileName(),
+                                       part.getSize(), headers))
         .build());
   }
 
@@ -153,9 +154,8 @@ public class EmailContentProcessor {
    * @return true is the part is dispositioned as inline, false otherwise
    */
   private boolean isInline(Part part) throws MessagingException {
-    return part.getDisposition().equalsIgnoreCase(Part.INLINE);
+    return !isAttachment(part);
   }
-
 
   /**
    * Evaluates whether a {@link Part} is an attachment or not.

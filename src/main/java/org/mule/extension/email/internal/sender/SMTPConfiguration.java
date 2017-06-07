@@ -40,6 +40,10 @@ public class SMTPConfiguration {
   @DefaultEncoding
   private String defaultEncoding;
 
+  @Parameter
+  @Optional
+  private String defaultContentTransferEncoding;
+
   /**
    * @return the address of the person that is going to send the messages.
    */
@@ -49,5 +53,13 @@ public class SMTPConfiguration {
 
   public String getDefaultEncoding() {
     return defaultEncoding;
+  }
+
+  public String getDefaultContentTransferEncoding() {
+    return defaultContentTransferEncoding;
+  }
+
+  public void setDefaultContentTransferEncoding(String defaultContentTransferEncoding) {
+    this.defaultContentTransferEncoding = defaultContentTransferEncoding;
   }
 }
