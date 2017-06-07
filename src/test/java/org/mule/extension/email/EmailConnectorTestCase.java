@@ -27,7 +27,6 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Rule;
 
 import java.io.IOException;
@@ -73,19 +72,19 @@ public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestC
   }
 
   protected void assertMessage(Message message, MediaType mediaType) throws MessagingException {
-    Assert.assertThat(MediaType.parse(message.getHeader("Content-Type")[0]).withoutParameters(), is(mediaType));
+    assertThat(MediaType.parse(message.getHeader("Content-Type")[0]).withoutParameters(), is(mediaType));
   }
 
   protected void assertMessage(Message message, String expectedMessageBody, MediaType expectedMediaType)
       throws IOException, MessagingException {
-    Assert.assertThat(IOUtils.toString(message.getInputStream()).trim(), is(expectedMessageBody));
-    Assert.assertThat(message.getHeader("Content-Type")[0], is(expectedMediaType.toRfcString()));
+    assertThat(IOUtils.toString(message.getInputStream()).trim(), is(expectedMessageBody));
+    assertThat(message.getHeader("Content-Type")[0], is(expectedMediaType.toRfcString()));
   }
 
   protected void assertMessage(BodyPart bodyPart, String expectedMessageBody, MediaType expectedMediaType)
       throws IOException, MessagingException {
-    Assert.assertThat(IOUtils.toString(bodyPart.getInputStream()).trim(), is(expectedMessageBody));
-    Assert.assertThat(bodyPart.getContentType(), is(expectedMediaType.toRfcString()));
+    assertThat(IOUtils.toString(bodyPart.getInputStream()).trim(), is(expectedMessageBody));
+    assertThat(bodyPart.getContentType(), is(expectedMediaType.toRfcString()));
   }
 
   public abstract String getProtocol();
