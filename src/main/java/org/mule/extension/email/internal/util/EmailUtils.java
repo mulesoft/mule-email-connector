@@ -8,6 +8,11 @@ import org.mule.runtime.api.metadata.MediaType;
 
 import java.nio.charset.Charset;
 
+/**
+ * Utility class to share logic
+ *
+ * @since 1.0
+ */
 public class EmailUtils {
 
   private EmailUtils() {}
@@ -25,7 +30,7 @@ public class EmailUtils {
         .getDataType()
         .getMediaType()
         .getCharset()
-        .orElse(forName(resolveOverride(configCharset, body.getOverrideEncoding())));
+        .orElseGet(() -> forName(resolveOverride(configCharset, body.getOverrideEncoding())));
 
     MediaType mediaType = body.getContentType()
         .orElse(body.getContent().getDataType().getMediaType());

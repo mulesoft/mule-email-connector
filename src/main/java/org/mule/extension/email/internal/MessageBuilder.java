@@ -257,12 +257,14 @@ public final class MessageBuilder {
       body.setDisposition(INLINE);
       body.setContent(content, bodyContentType);
       body.setHeader(CONTENT_TYPE_HEADER, bodyContentType);
+      body.setHeader(CONTENT_TRANSFER_ENCODING_HEADER, bodyContentTransferEncoding);
       multipart.addBodyPart(body);
       attachments.entrySet().forEach(attachment -> addAttachment(multipart, attachment));
       message.setContent(multipart, MULTIPART);
     } else {
       message.setDisposition(INLINE);
       message.setContent(content, bodyContentType);
+      message.setHeader(CONTENT_TYPE_HEADER, bodyContentType);
       message.setHeader(CONTENT_TRANSFER_ENCODING_HEADER, bodyContentTransferEncoding);
     }
     return message;

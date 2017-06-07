@@ -7,6 +7,7 @@
 package org.mule.extension.email.sender;
 
 import static java.nio.charset.Charset.availableCharsets;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -19,6 +20,7 @@ import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -45,7 +47,6 @@ public class SendTestCase extends SMTPTestCase {
   private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
   private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
 
-
   @Test
   public void sendEmail() throws Exception {
     flowRunner("sendEmail").run();
@@ -53,25 +54,25 @@ public class SendTestCase extends SMTPTestCase {
   }
 
   @Test
-  public void sendEmailWithLargePayloads() throws Exception {
-    String random = getLargeString();
+  public void sendEmailWithLargePayloadsBase64() throws Exception {
+    String random = RandomStringUtils.random(100);
     byte[] bytes = random.getBytes(UTF8);
-    flowRunner("sendEmailWithLargePayloads")
-        .withVariable("jpg", random.getBytes(), DataType.builder().type(byte[].class).mediaType(OCTET_STREAM_UTF8).build())
-        .withVariable("text", random, DataType.builder().type(String.class).mediaType(TEXT_PLAIN).build())
-        .withVariable("zip", new ByteArrayInputStream(random.getBytes()),
-                      DataType.builder().type(InputStream.class).mediaType(JSON_UTF8).build())
-        .withPayload(random).withMediaType(MediaType.parse("text/html"))
-        .run();
-
-    Message[] messages = getReceivedMessagesAndAssertCount(1);
-    Message message = messages[0];
-    MimeMultipart content = (MimeMultipart) message.getContent();
-    Map<String, BodyPart> bodyParts = getBodyParts(content);
+    Map<String, BodyPart> bodyParts = sendAttachments("Base64", bytes);
     assertThat(getByteArray(bodyParts, "image.jpg"), is(bytes));
     assertThat(getByteArray(bodyParts, "text.txt"), is(bytes));
     assertThat(getByteArray(bodyParts, "zip.zip"), is(bytes));
     assertThat(getByteArray(bodyParts, null), is(bytes));
+  }
+
+  @Test
+  public void sendEmailWithLargePayloads7BitGetsCorrupted() throws Exception {
+    String random = RandomStringUtils.random(100);
+    byte[] bytes = random.getBytes(UTF8);
+    Map<String, BodyPart> bodyParts = sendAttachments("7BIT", bytes);
+    assertThat(getByteArray(bodyParts, "image.jpg"), is(not(bytes)));
+    assertThat(getByteArray(bodyParts, "text.txt"), is(not(bytes)));
+    assertThat(getByteArray(bodyParts, "zip.zip"), is(not(bytes)));
+    assertThat(getByteArray(bodyParts, null), is(not(bytes)));
   }
 
   @Test
@@ -198,7 +199,7 @@ public class SendTestCase extends SMTPTestCase {
    */
   private String getLargeString() {
     StringBuilder stringBuilder = new StringBuilder();
-    for (int i = 0; i < 1000; i++) {
+    for (int i = 0; i < 5000; i++) {
       stringBuilder.append("abcde12345");
     }
     return stringBuilder.toString();
@@ -206,5 +207,22 @@ public class SendTestCase extends SMTPTestCase {
 
   private byte[] getByteArray(Map<String, BodyPart> bodyParts, String partName) throws IOException, MessagingException {
     return IOUtils.toByteArray(bodyParts.get(partName).getInputStream());
+  }
+
+  private Map<String, BodyPart> sendAttachments(String contentTransferEncoding, byte[] bytes) throws Exception {
+    String text = new String(bytes, UTF8);
+    flowRunner("sendEmailWithLargePayloads")
+        .withVariable("contentTransferEncoding", contentTransferEncoding)
+        .withVariable("jpg", bytes, DataType.builder().type(byte[].class).mediaType("image/jpeg").build())
+        .withVariable("text", text, DataType.builder().type(String.class).mediaType(TEXT_PLAIN).build())
+        .withVariable("zip", new ByteArrayInputStream(bytes),
+                      DataType.builder().type(InputStream.class).mediaType(JSON_UTF8).build())
+        .withPayload(text).withMediaType(MediaType.parse("text/html").withCharset(UTF8))
+        .run();
+
+    Message[] messages = getReceivedMessagesAndAssertCount(1);
+    Message message = messages[0];
+    MimeMultipart content = (MimeMultipart) message.getContent();
+    return getBodyParts(content);
   }
 }

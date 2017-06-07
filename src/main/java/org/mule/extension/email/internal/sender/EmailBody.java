@@ -66,6 +66,7 @@ public class EmailBody {
   @Optional
   @Placement(order = 3)
   @Example("UTF-8")
+  @Summary("The character encoding of the body. If it is configured, it overrides the one inferred from the body")
   private String encoding;
 
   /**

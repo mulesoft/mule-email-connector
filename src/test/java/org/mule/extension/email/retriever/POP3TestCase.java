@@ -11,16 +11,16 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.object.CursorIterator;
 import org.mule.test.runner.RunnerDelegateTo;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 @RunnerDelegateTo(Parameterized.class)
 public class POP3TestCase extends AbstractEmailRetrieverTestCase {
@@ -45,7 +45,7 @@ public class POP3TestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void retrieveAndRead() throws Exception {
-    CursorIterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
+    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
     int count = 0;
     while (messages.hasNext()) {
       assertBodyContent((String) messages.next().getPayload().getValue());
