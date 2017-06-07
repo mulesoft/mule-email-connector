@@ -53,7 +53,7 @@ public final class SendCommand {
           .bcc(settings.getBccAddresses())
           .withSubject(settings.getSubject())
           .withAttachments(attachments.getAttachments(), attachments.getContentTransferEncoding())
-          .withBody(body.getContentAsString(contentType.getCharset().get()), contentType, body.getBodyContentTransferEncoding())
+          .withBody(body.getContentAsString(contentType.getCharset().get()), contentType, body.getContentTransferEncoding())
           .withHeaders(settings.getHeaders())
           .build();
       Transport.send(message);

@@ -89,7 +89,7 @@ public class EmailBody {
   @DisplayName(CONTENT_TRANSFER_ENCODING_DISPLAY_NAME)
   @Placement(order = 4)
   @Summary("Transfer encoding used to send the body content. Base64 is recommended for large payloads.")
-  private String bodyContentTransferEncoding;
+  private String contentTransferEncoding;
 
   public EmailBody() {}
 
@@ -124,7 +124,7 @@ public class EmailBody {
     return isNull(content) || isNull(content.getValue()) ? "" : IOUtils.toString(content.getValue(), charset);
   }
 
-  public String getBodyContentTransferEncoding() {
-    return bodyContentTransferEncoding;
+  public String getContentTransferEncoding() {
+    return contentTransferEncoding;
   }
 }

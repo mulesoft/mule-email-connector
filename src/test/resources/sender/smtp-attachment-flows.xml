@@ -54,7 +54,7 @@
             <email:to-addresses>
                 <email:to-address value="juan.desimoni@mulesoft.com"/>
             </email:to-addresses>
-            <email:body bodyContentTransferEncoding="#[contentTransferEncoding]">
+            <email:body contentTransferEncoding="#[contentTransferEncoding]">
                 <email:content>#[payload]</email:content>
             </email:body>
             <email:attachments>
