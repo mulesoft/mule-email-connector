@@ -15,7 +15,7 @@
     <packaging>mule-extension</packaging>
     <version>0.8.0-SNAPSHOT</version>
 
-    <name>Mule Email Connector</name>
+    <name>Email Connector</name>
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
 
     <properties>
