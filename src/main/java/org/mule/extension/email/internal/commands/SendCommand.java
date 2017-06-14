@@ -6,7 +6,7 @@
  */
 package org.mule.extension.email.internal.commands;
 
-import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mule.extension.email.internal.util.EmailUtils.getMediaType;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.MessageBuilder;

@@ -21,7 +21,7 @@
     <properties>
         <commonsIoVersion>2.4</commonsIoVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
-        <commonsLangVersion>2.4</commonsLangVersion>
+        <commonsLangVersion>3.6</commonsLangVersion>
         <javaMailVersion>1.5.6</javaMailVersion>
         <javaxActivationVersion>1.1</javaxActivationVersion>
         <guavaVersion>18.0</guavaVersion>
@@ -47,8 +47,8 @@
             <version>${commonsCollectionsVersion}</version>
         </dependency>
         <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <version>${commonsLangVersion}</version>
         </dependency>
         <dependency>
