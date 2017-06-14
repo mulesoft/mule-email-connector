@@ -6,7 +6,7 @@
  */
 package org.mule.extension.email.internal;
 
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.mule.extension.email.api.exception.EmailError.INVALID_CREDENTIALS;
 import static org.mule.extension.email.api.exception.EmailError.SSL_ERROR;
 import org.mule.extension.email.api.exception.EmailConnectionException;
