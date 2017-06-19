@@ -17,12 +17,21 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 public class EmailConnectionException extends ConnectionException {
 
   /**
-   * Creates a new instance with the specified detail {@code message}
+   * Creates a new instance with using the {@link Throwable} message.
    *
-   * @param message the detail message
+   * @param throwable the cause exception
    */
-  public EmailConnectionException(String message) {
-    super(message);
+  public EmailConnectionException(Throwable throwable) {
+    super(throwable.getMessage(), throwable);
+  }
+
+  /**
+   * Creates a new instance with using the {@link Throwable} message and the provided {@code error}
+   *
+   * @param throwable the cause exception
+   */
+  public EmailConnectionException(Throwable throwable, EmailError error) {
+    super(throwable.getMessage(), new ModuleException(error, throwable));
   }
 
   /**
