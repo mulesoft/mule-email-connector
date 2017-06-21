@@ -13,7 +13,7 @@ import static javax.mail.Folder.READ_WRITE;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
-import static org.mule.runtime.core.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
+import static org.mule.runtime.core.api.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailException;
@@ -23,7 +23,7 @@ import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.util.EmailContentProcessor;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.message.DefaultMultiPartPayload;
+import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 

@@ -15,7 +15,7 @@ import static javax.mail.Message.RecipientType.TO;
 import static org.mule.runtime.core.api.util.collection.Collectors.toImmutableList;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
-import org.mule.runtime.core.message.BaseAttributes;
+import org.mule.runtime.core.api.message.BaseAttributes;
 
 import com.google.common.collect.ImmutableMap;
 
