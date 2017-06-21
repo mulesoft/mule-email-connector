@@ -31,20 +31,6 @@ import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentConte
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
-import org.mule.extension.email.EmailConnectorTestCase;
-import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.message.MultiPartPayload;
-import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
-import org.mule.runtime.core.message.DefaultMultiPartPayload;
-import org.mule.tck.junit4.rule.SystemProperty;
-
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -54,6 +40,22 @@ import javax.mail.Flags.Flag;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import org.mule.extension.email.EmailConnectorTestCase;
+import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.message.MultiPartPayload;
+import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
+import org.mule.runtime.core.message.DefaultMultiPartPayload;
+import org.mule.tck.junit4.rule.SystemProperty;
 
 public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestCase {
 
@@ -137,6 +139,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertAttachmentContent(emailAttachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes());
   }
 
+  @Ignore
   @Test
   public void retrieveAndDelete() throws Exception {
     assertThat(server.getReceivedMessages(), arrayWithSize(pageSize));

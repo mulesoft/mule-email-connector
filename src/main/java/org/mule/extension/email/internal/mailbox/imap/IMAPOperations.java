@@ -63,7 +63,6 @@ public class IMAPOperations {
    * @param connection The corresponding {@link MailboxConnection} instance.
    * @param mailboxFolder Mailbox folder where the emails are going to be fetched
    * @param imapMatcher Email Matcher which gives the capability of filter the retrieved emails
-   * @param deleteAfterRetrieve Specifies if the returned emails must be deleted after being retrieved or not.
    * @return an {@link PagingProvider} composed with an {@link Result} with a {@link List} carrying all the emails content and
    *         it's corresponding {@link IMAPEmailAttributes}.
    */
@@ -74,15 +73,14 @@ public class IMAPOperations {
                                                                                          @Optional(
                                                                                              defaultValue = INBOX_FOLDER) String mailboxFolder,
                                                                                          @DisplayName("Match with") @Optional IMAPEmailPredicateBuilder imapMatcher,
-                                                                                         @Optional(
-                                                                                             defaultValue = "false") boolean deleteAfterRetrieve,
                                                                                          @MetadataKeyId @Optional(
                                                                                              defaultValue = "ANY") @Placement(
                                                                                                  tab = ADVANCED_TAB) EmailMetadataKey outputType,
                                                                                          @Optional(
                                                                                              defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+    // TODO MULE-12884: deleteAfterRetrieve only deletes half of the listed emails
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
-    return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, deleteAfterRetrieve,
+    return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, false,
                                              attributes -> setFlagCommand.setByUID(connection, mailboxFolder, DELETED,
                                                                                    attributes.getId()));
   }
