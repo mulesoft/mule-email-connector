@@ -20,7 +20,7 @@
     </flow>
 
     <flow name="retrieveAndDelete">
-        <email:list-pop3 config-ref="config" deleteAfterRetrieve="true"/>
+        <email:list-pop3 config-ref="config"/>
     </flow>
 
 </mule>

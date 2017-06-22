@@ -73,7 +73,7 @@
     </flow>
 
     <flow name="retrieveAndDelete">
-        <email:list-imap config-ref="config" deleteAfterRetrieve="true"/>
+        <email:list-imap config-ref="config"/>
     </flow>
 
     <flow name="retrieveAndDeleteSelected">

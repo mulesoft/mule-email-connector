@@ -48,14 +48,12 @@ public class POP3Operations {
    * List all the emails (with pagination) in the configured pop3 mailBoxFolder that match with the specified {@code pop3Matcher}
    * criteria.
    * <p>
-   * As the POP3 protocol does not support the capability to find specific emails from its UID in a folder to move/delete it. a
-   * parameter {@code deleteAfterRetrieve} is available for deleting the emails from the server right after being retrieved.
+   * As the POP3 protocol does not support the capability to find specific emails from its UID in a folder to move/delete it.
    *
    * @param config The {@link MailboxAccessConfiguration} associated to this operation.
    * @param connection The corresponding {@link MailboxConnection} instance.
    * @param mailboxFolder Mailbox folder where the emails are going to be fetched
    * @param pop3Matcher Email Matcher which gives the capability of filter the retrieved emails
-   * @param deleteAfterRetrieve Specifies if the returned emails must be deleted after being retrieved or not.
    * @return an {@link PagingProvider} composed with an {@link Result} with a {@link List} carrying all the emails content and
    *         it's corresponding {@link IMAPEmailAttributes}.
    */
@@ -66,15 +64,14 @@ public class POP3Operations {
                                                                                          @Optional(
                                                                                              defaultValue = INBOX_FOLDER) String mailboxFolder,
                                                                                          @DisplayName("Match with") @Optional POP3EmailPredicateBuilder pop3Matcher,
-                                                                                         @Optional(
-                                                                                             defaultValue = "false") boolean deleteAfterRetrieve,
                                                                                          @MetadataKeyId @Optional(
                                                                                              defaultValue = "ANY") @Placement(
                                                                                                  tab = ADVANCED_TAB) EmailMetadataKey outputType,
                                                                                          @Optional(
                                                                                              defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+    // TODO MULE-12884: deleteAfterRetrieve only deletes half of the listed emails
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
-    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, deleteAfterRetrieve,
+    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, false,
                                              attributes -> setFlagCommand.setByNumber(connection, mailboxFolder, DELETED,
                                                                                       attributes.getNumber()));
   }

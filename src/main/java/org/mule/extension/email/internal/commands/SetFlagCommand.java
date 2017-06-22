@@ -56,7 +56,7 @@ public class SetFlagCommand {
   /**
    * Sets the specified {@code flag} to the email of mailbox number {@code number}
    * <p>
-   * This method only works for {@link UIDFolder}s, that are handled by the IMAP protocol
+   * This method only works for {@link UIDFolder}s, that are handled by the POP3 protocol
    *
    * @param connection the associated {@link MailboxConnection}.
    * @param folderName the name of the folder where the emails are stored.

@@ -111,10 +111,10 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
               .build();
 
           retrievedEmails.add(result);
-        }
 
-        if (deleteAfterRetrieve) {
-          deleteAfterReadCallback.accept(attributes);
+          if (deleteAfterRetrieve) {
+            deleteAfterReadCallback.accept(attributes);
+          }
         }
       }
 
