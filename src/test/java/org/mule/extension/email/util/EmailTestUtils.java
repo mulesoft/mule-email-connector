@@ -13,7 +13,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.message.MultiPartPayload;
-import org.mule.runtime.core.message.DefaultMultiPartPayload;
+import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 
 import com.icegreen.greenmail.util.ServerSetup;
 

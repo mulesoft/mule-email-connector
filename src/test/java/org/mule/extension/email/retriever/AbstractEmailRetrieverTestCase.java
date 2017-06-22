@@ -37,7 +37,7 @@ import org.mule.runtime.api.message.MultiPartPayload;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
-import org.mule.runtime.core.message.DefaultMultiPartPayload;
+import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 import org.mule.tck.junit4.rule.SystemProperty;
 
 import org.junit.Before;
