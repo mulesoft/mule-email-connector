@@ -171,7 +171,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   protected Iterator<Message> runFlowAndGetMessages(String flowName) throws Exception {
     Message message =
         (Message) flowRunner(flowName).keepStreamsOpen().run().getMessage().getPayload().getValue();
-    return  (Iterator<Message>) message.getPayload().getValue();
+    return (Iterator<Message>) message.getPayload().getValue();
   }
 
   protected int paginationSize(Iterator<?> iterator) {
