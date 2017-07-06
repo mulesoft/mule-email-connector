@@ -13,14 +13,14 @@ import static org.junit.Assert.assertThat;
 import org.mule.runtime.api.message.Message;
 import org.mule.test.runner.RunnerDelegateTo;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 
 @RunnerDelegateTo(Parameterized.class)
 public class POP3TestCase extends AbstractEmailRetrieverTestCase {
@@ -34,8 +34,8 @@ public class POP3TestCase extends AbstractEmailRetrieverTestCase {
   }
 
   @Override
-  protected String getConfigFile() {
-    return format("retriever/%s.xml", protocol);
+  protected String[] getConfigFiles() {
+    return new String[] {format("retriever/%s.xml", protocol), "retriever/pop3-flows.xml"};
   }
 
   @Override

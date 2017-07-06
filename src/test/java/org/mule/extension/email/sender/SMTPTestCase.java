@@ -13,12 +13,12 @@ import static org.hamcrest.core.Is.is;
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.test.runner.RunnerDelegateTo;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
-
-import java.util.Arrays;
-import java.util.Collection;
 
 @RunnerDelegateTo(Parameterized.class)
 public abstract class SMTPTestCase extends EmailConnectorTestCase {
@@ -34,8 +34,8 @@ public abstract class SMTPTestCase extends EmailConnectorTestCase {
   }
 
   @Override
-  protected String getConfigFile() {
-    return format("sender/%s.xml", protocol);
+  protected String[] getConfigFiles() {
+    return new String[] {format("sender/%s.xml", protocol), "sender/smtp-flows.xml", "sender/smtp-attachment-flows.xml"};
   }
 
   @Override

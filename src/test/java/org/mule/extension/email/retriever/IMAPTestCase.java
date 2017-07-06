@@ -33,10 +33,6 @@ import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,6 +41,10 @@ import java.util.Iterator;
 
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
+
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
@@ -77,9 +77,10 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   }
 
   @Override
-  protected String getConfigFile() {
-    return format("retriever/%s.xml", protocol);
+  protected String[] getConfigFiles() {
+    return new String[] {format("retriever/%s.xml", protocol), "retriever/imap-flows.xml"};
   }
+
 
   @Override
   public String getProtocol() {
