@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:email="http://www.mulesoft.org/schema/mule/email"
-      xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:spring="http://www.springframework.org/schema/beans"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
@@ -14,9 +14,5 @@
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
-
-    <spring:beans>
-        <spring:import resource="pop3-flows.xml"/>
-    </spring:beans>
 
 </mule>
