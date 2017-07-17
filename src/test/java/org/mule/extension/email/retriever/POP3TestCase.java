@@ -51,6 +51,6 @@ public class POP3TestCase extends AbstractEmailRetrieverTestCase {
       assertBodyContent((String) messages.next().getPayload().getValue());
       count++;
     }
-    assertThat(count, is(pageSize));
+    assertThat(count, is(DEFAULT_TEST_PAGE_SIZE));
   }
 }
