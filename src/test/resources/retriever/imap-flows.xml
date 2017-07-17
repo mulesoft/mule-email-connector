@@ -19,20 +19,12 @@
     <flow name="retrieveAndThenExpungeDelete">
         <email:list-imap config-ref="config"/>
         <foreach>
-            <email:mark-as-deleted config-ref="config" emailId="#[attributes.id]"/>
-        </foreach>
-        <email:expunge-folder config-ref="config"/>
-    </flow>
-
-    <flow name="retrieveAndMarkDelete">
-        <email:list-imap config-ref="config"/>
-        <foreach>
-            <email:mark-as-deleted config-ref="config" emailId="#[attributes.id]"/>
+            <email:delete config-ref="config" emailId="#[attributes.id]"/>
         </foreach>
     </flow>
 
     <flow name="failMarkingEmail">
-        <email:mark-as-deleted config-ref="config" emailId="0"/>
+        <email:delete config-ref="config" emailId="0"/>
     </flow>
 
     <flow name="retrieveOnlyNotReadEmails">
@@ -41,9 +33,9 @@
         </email:list-imap>
     </flow>
 
-    <flow name="retrieveOnlyRecentEmails">
+        <flow name="retrieveOnlyAnsweredEmails">
         <email:list-imap config-ref="config">
-            <email:imap-matcher recent="REQUIRE"/>
+            <email:imap-matcher answered="REQUIRE"/>
         </email:list-imap>
     </flow>
 
@@ -59,17 +51,6 @@
 
     <flow name="retrieveWithAttachments">
         <email:list-imap config-ref="config"/>
-    </flow>
-
-    <flow name="storeSingleMessage">
-        <email:store config-ref="config" localDirectory="${storePath}" emailId="1"/>
-    </flow>
-
-    <flow name="storeMessages">
-        <email:list-imap config-ref="config"/>
-        <foreach>
-            <email:store config-ref="config" localDirectory="${storePath}" emailId="#[attributes.id]"/>
-        </foreach>
     </flow>
 
     <flow name="retrieveAndDelete">

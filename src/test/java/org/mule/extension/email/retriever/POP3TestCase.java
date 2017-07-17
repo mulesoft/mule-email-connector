@@ -8,27 +8,25 @@
 package org.mule.extension.email.retriever;
 
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
+
+import org.mule.extension.email.api.IncomingEmail;
 import org.mule.runtime.api.message.Message;
 import org.mule.test.runner.RunnerDelegateTo;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.junit.Test;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 @RunnerDelegateTo(Parameterized.class)
 public class POP3TestCase extends AbstractEmailRetrieverTestCase {
 
-  @Parameter
-  public String protocol;
+  @Parameterized.Parameter
+  public String protocol = "pop3";
 
-  @Parameters(name = "{0}")
+  @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {{"pop3"}, {"pop3s"}});
   }
@@ -45,12 +43,8 @@ public class POP3TestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void retrieveAndRead() throws Exception {
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
-    int count = 0;
-    while (messages.hasNext()) {
-      assertBodyContent((String) messages.next().getPayload().getValue());
-      count++;
-    }
-    assertThat(count, is(pageSize));
+    List<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
+    messages.forEach(msg -> assertBodyContent(((IncomingEmail) msg.getPayload().getValue())));
+    assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE));
   }
 }

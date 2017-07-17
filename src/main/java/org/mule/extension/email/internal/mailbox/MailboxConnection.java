@@ -7,31 +7,31 @@
 package org.mule.extension.email.internal.mailbox;
 
 import static java.lang.String.format;
-import static org.mule.extension.email.api.exception.EmailError.CONNECTION_TIMEOUT;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static javax.mail.Folder.READ_WRITE;
+import static org.mule.extension.email.api.exception.EmailError.ACCESSING_FOLDER;
 import static org.mule.extension.email.api.exception.EmailError.DISCONNECTED;
-import static org.mule.extension.email.api.exception.EmailError.INVALID_CREDENTIALS;
-import static org.mule.extension.email.api.exception.EmailError.UNKNOWN_HOST;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
+
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.extension.email.internal.AbstractEmailConnection;
 import org.mule.extension.email.internal.EmailProtocol;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
-
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Map;
-
-import javax.mail.AuthenticationFailedException;
+import org.mule.runtime.extension.api.exception.ModuleException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Store;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 /**
  * A connection with a mail server for retrieving and managing emails from an specific folder in a mailbox.
@@ -41,13 +41,12 @@ import org.slf4j.LoggerFactory;
 public class MailboxConnection extends AbstractEmailConnection {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MailboxConnection.class);
-  private static final String PORT_OUT_OF_RANGE = "port out of range";
 
-  private Store store;
-  private Folder folder;
+  private final LoadingCache<String, Folder> folders;
+  private final Store store;
 
   /**
-   * Creates a new instance of the of the {@link MailboxConnection} secured by TLS.
+   * Creates a new instance of the of thee {@link MailboxConnection} secured by TLS.
    *
    * @param protocol          the desired protocol to use. One of imap or pop3 (and its secure versions)
    * @param username          the username to establish the connection.
@@ -60,29 +59,22 @@ public class MailboxConnection extends AbstractEmailConnection {
    * @param properties        additional custom properties.
    * @param tlsContextFactory the tls context factory for creating the context to secure the connection
    */
-  public MailboxConnection(EmailProtocol protocol, String username, String password, String host, String port,
-                           long connectionTimeout, long readTimeout, long writeTimeout, Map<String, String> properties,
+  public MailboxConnection(EmailProtocol protocol,
+                           String username,
+                           String password,
+                           String host,
+                           String port,
+                           long connectionTimeout,
+                           long readTimeout,
+                           long writeTimeout,
+                           Map<String, String> properties,
                            TlsContextFactory tlsContextFactory)
       throws EmailConnectionException {
     super(protocol, username, password, host, port, connectionTimeout, readTimeout, writeTimeout, properties, tlsContextFactory);
-
-    try {
-      this.store = session.getStore(protocol.getName());
-
-      if (username != null && password != null) {
-        this.store.connect(username, password);
-      } else {
-        this.store.connect();
-      }
-    } catch (AuthenticationFailedException e) {
-      throw new EmailConnectionException(e, INVALID_CREDENTIALS);
-    } catch (MessagingException e) {
-      handleEmailMessagingException(e);
-    } catch (IllegalArgumentException e) {
-      handleIllegalArgumentException(e);
-    } catch (Exception e) {
-      throw new EmailConnectionException(e);
-    }
+    this.folders = CacheBuilder.newBuilder().expireAfterAccess(1, MINUTES)
+        .removalListener(new FolderRemovalListener(true))
+        .build(new FolderCacheLoader());
+    this.store = MailboxStoreFactory.getStore(session, protocol, username, password);
   }
 
   /**
@@ -98,53 +90,32 @@ public class MailboxConnection extends AbstractEmailConnection {
    * @param writeTimeout      the socket write timeout
    * @param properties        additional custom properties.
    */
-  public MailboxConnection(EmailProtocol protocol, String username, String password, String host, String port,
-                           long connectionTimeout, long readTimeout, long writeTimeout, Map<String, String> properties)
+  public MailboxConnection(EmailProtocol protocol,
+                           String username,
+                           String password,
+                           String host,
+                           String port,
+                           long connectionTimeout,
+                           long readTimeout,
+                           long writeTimeout,
+                           Map<String, String> properties)
       throws EmailConnectionException {
     this(protocol, username, password, host, port, connectionTimeout, readTimeout, writeTimeout, properties, null);
   }
 
-
-  /**
-   * Opens and return the email {@link Folder} of name {@code mailBoxFolder}. The folder can contain Messages, other Folders or
-   * both.
-   * <p>
-   * If there was an already opened folder and a different one is requested the opened folder will be closed and the new one will
-   * be opened.
-   *
-   * @param mailBoxFolder the name of the folder to be opened.
-   * @param openMode      open the folder in READ_ONLY or READ_WRITE mode
-   * @return the opened {@link Folder}
-   */
-  public synchronized Folder getFolder(String mailBoxFolder, int openMode) {
+  public Folder getFolder(String folder) {
     try {
-      if (folder != null) {
-        if (isCurrentFolder(mailBoxFolder) && folder.isOpen() && folder.getMode() == openMode) {
-          return folder;
-        }
-        closeFolder(false);
-      }
-
-      folder = store.getFolder(mailBoxFolder);
-      folder.open(openMode);
-      return folder;
-    } catch (MessagingException e) {
-      throw new EmailAccessingFolderException(format("Error while opening folder %s", mailBoxFolder), e);
+      return folders.get(folder);
+    } catch (Exception e) {
+      throw new EmailAccessingFolderException(format("Error getting mailbox folder [%s]", folder), e);
     }
   }
 
-  /**
-   * Closes the current connection folder.
-   *
-   * @param expunge whether to remove all the emails marked as DELETED.
-   */
-  public synchronized void closeFolder(boolean expunge) {
+  public void forceClose(String folder) {
     try {
-      if (folder != null && folder.isOpen()) {
-        folder.close(expunge);
-      }
-    } catch (MessagingException e) {
-      throw new EmailAccessingFolderException(format("Error while closing mailbox folder %s", folder.getName()), e);
+      folders.invalidate(folder);
+    } catch (Exception e) {
+      throw new EmailAccessingFolderException(format("Error closing folder [%s]", folder), e);
     }
   }
 
@@ -154,9 +125,9 @@ public class MailboxConnection extends AbstractEmailConnection {
   @Override
   public synchronized void disconnect() {
     try {
-      closeFolder(false);
+      folders.invalidateAll();
     } catch (Exception e) {
-      LOGGER.error(format("Error closing mailbox folder [%s] when disconnecting: %s", folder.getName(), e.getMessage()));
+      LOGGER.error(format("Error closing mailbox folders when disconnecting: %s", e.getMessage()));
     } finally {
       try {
         store.close();
@@ -175,30 +146,39 @@ public class MailboxConnection extends AbstractEmailConnection {
     return store.isConnected() ? success() : failure(errorMessage, new EmailConnectionException(errorMessage, DISCONNECTED));
   }
 
-  /**
-   * Checks if a mailBoxFolder name is the same name as the current folder.
-   *
-   * @param mailBoxFolder the name of the folder
-   * @return true if is the same folder, false otherwise.
-   */
-  private boolean isCurrentFolder(String mailBoxFolder) {
-    return folder.getName().equalsIgnoreCase(mailBoxFolder);
+  private class FolderRemovalListener implements RemovalListener<String, Folder> {
+
+    private final boolean shouldExpunge;
+
+    FolderRemovalListener(boolean shouldExpunge) {
+      this.shouldExpunge = shouldExpunge;
+    }
+
+    @Override
+    public void onRemoval(RemovalNotification<String, Folder> notification) {
+      Folder folder = notification.getValue();
+      try {
+        if (folder != null && folder.isOpen()) {
+          folder.close(shouldExpunge);
+        }
+      } catch (MessagingException e) {
+        throw new ModuleException(ACCESSING_FOLDER, e);
+      }
+    }
   }
 
-  private void handleIllegalArgumentException(IllegalArgumentException e) throws EmailConnectionException {
-    if (e.getMessage().contains(PORT_OUT_OF_RANGE)) {
-      throw new EmailConnectionException(e, UNKNOWN_HOST);
-    }
-    throw new EmailConnectionException(e);
-  }
 
-  private void handleEmailMessagingException(MessagingException e) throws EmailConnectionException {
-    if (e.getCause() instanceof SocketTimeoutException) {
-      throw new EmailConnectionException(e, CONNECTION_TIMEOUT);
+  public class FolderCacheLoader extends CacheLoader<String, Folder> {
+
+    @Override
+    public Folder load(String folderName) throws Exception {
+      try {
+        Folder folder = store.getFolder(folderName);
+        folder.open(READ_WRITE);
+        return folder;
+      } catch (MessagingException e) {
+        throw new ModuleException(ACCESSING_FOLDER, e);
+      }
     }
-    if (e.getCause() instanceof ConnectException || e.getCause() instanceof UnknownHostException) {
-      throw new EmailConnectionException(e, UNKNOWN_HOST);
-    }
-    throw new EmailConnectionException(e);
   }
 }

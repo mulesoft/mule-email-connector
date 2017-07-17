@@ -131,9 +131,7 @@ public class SendTestCase extends SMTPTestCase {
         bodyParts.put(bodyPart.getFileName(), bodyPart);
       }
 
-      Object body = content.getBodyPart(0).getContent();
-      assertBodyContent((String) body);
-
+      assertBodyContent(((String) content.getBodyPart(0).getContent()));
       assertMessage(bodyParts.get("json-attachment"), JSON_VALUE, JSON_UTF8);
       assertMessage(bodyParts.get("text-attachment"), EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, TEXT_PLAIN);
       assertMessage(bodyParts.get("stream-attachment"), EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, OCTET_STREAM_UTF8);
@@ -147,8 +145,7 @@ public class SendTestCase extends SMTPTestCase {
     Message message = messages[0];
     Multipart content = (Multipart) message.getContent();
     assertThat(content.getCount(), is(2));
-    Object body = content.getBodyPart(0).getContent();
-    assertBodyContent((String) body);
+    assertBodyContent(((String) content.getBodyPart(0).getContent()));
     assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString(content.getBodyPart(1).getInputStream())));
   }
 

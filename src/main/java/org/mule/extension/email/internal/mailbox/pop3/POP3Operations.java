@@ -13,8 +13,11 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.INB
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.email.api.EmailMetadataKey;
 import org.mule.extension.email.api.EmailMetadataResolver;
+import org.mule.extension.email.api.IncomingEmail;
+import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.api.predicate.POP3EmailPredicateBuilder;
@@ -25,15 +28,14 @@ import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.runtime.extension.api.annotation.metadata.MetadataKeyId;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
-import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * A set of operations which perform on top the POP3 email protocol.
@@ -52,7 +54,6 @@ public class POP3Operations {
    * parameter {@code deleteAfterRetrieve} is available for deleting the emails from the server right after being retrieved.
    *
    * @param config The {@link MailboxAccessConfiguration} associated to this operation.
-   * @param connection The corresponding {@link MailboxConnection} instance.
    * @param mailboxFolder Mailbox folder where the emails are going to be fetched
    * @param pop3Matcher Email Matcher which gives the capability of filter the retrieved emails
    * @param deleteAfterRetrieve Specifies if the returned emails must be deleted after being retrieved or not.
@@ -61,21 +62,24 @@ public class POP3Operations {
    */
   @Summary("List all the emails in the given POP3 Mailbox Folder")
   @OutputResolver(output = EmailMetadataResolver.class)
-  public PagingProvider<MailboxConnection, Result<Object, POP3EmailAttributes>> listPop3(@Config POP3Configuration config,
-                                                                                         @Connection MailboxConnection connection,
-                                                                                         @Optional(
-                                                                                             defaultValue = INBOX_FOLDER) String mailboxFolder,
-                                                                                         @DisplayName("Match with") @Optional POP3EmailPredicateBuilder pop3Matcher,
-                                                                                         @Optional(
-                                                                                             defaultValue = "false") boolean deleteAfterRetrieve,
-                                                                                         @MetadataKeyId @Optional(
-                                                                                             defaultValue = "ANY") @Placement(
-                                                                                                 tab = ADVANCED_TAB) EmailMetadataKey outputType,
-                                                                                         @Optional(
-                                                                                             defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+  @DisplayName("List")
+  public PagingProvider<MailboxConnection, Result<IncomingEmail, POP3EmailAttributes>> listPop3(@Config POP3Configuration config,
+                                                                                                @Optional(
+                                                                                                    defaultValue = INBOX_FOLDER) String mailboxFolder,
+                                                                                                @DisplayName("Match with") @Optional POP3EmailPredicateBuilder pop3Matcher,
+                                                                                                @Optional(
+                                                                                                    defaultValue = "false") boolean deleteAfterRetrieve,
+                                                                                                @MetadataKeyId @Optional(
+                                                                                                    defaultValue = "ANY") @Placement(
+                                                                                                        tab = ADVANCED_TAB) EmailMetadataKey outputType,
+                                                                                                @Optional(
+                                                                                                    defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
-    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, deleteAfterRetrieve,
-                                             attributes -> setFlagCommand.setByNumber(connection, mailboxFolder, DELETED,
-                                                                                      attributes.getNumber()));
+    BiConsumer<MailboxConnection, BaseEmailAttributes> delegate = (connection, attributes) -> {
+      if (deleteAfterRetrieve) {
+        setFlagCommand.setByNumber(connection, mailboxFolder, DELETED, attributes.getNumber());
+      }
+    };
+    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, delegate);
   }
 }

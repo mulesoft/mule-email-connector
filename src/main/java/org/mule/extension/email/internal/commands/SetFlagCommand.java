@@ -42,7 +42,7 @@ public class SetFlagCommand {
    */
   public void setByUID(MailboxConnection connection, String folderName, Flag flag, long emailId) {
     try {
-      UIDFolder folder = (UIDFolder) connection.getFolder(folderName, READ_WRITE);
+      UIDFolder folder = (UIDFolder) connection.getFolder(folderName);
       javax.mail.Message message = folder.getMessageByUID(emailId);
       if (message == null) {
         throw new EmailNotFoundException(format("No email was found with id:[%s]", emailId));
@@ -65,7 +65,7 @@ public class SetFlagCommand {
    */
   public void setByNumber(MailboxConnection connection, String folderName, Flag flag, int number) {
     try {
-      Folder folder = connection.getFolder(folderName, READ_WRITE);
+      Folder folder = connection.getFolder(folderName);
       javax.mail.Message message = folder.getMessage(number);
       if (message == null) {
         throw new EmailNotFoundException(format("No email was found in the mailbox of number:[%s]", number));

@@ -7,6 +7,8 @@
 package org.mule.extension.email.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
+import org.mule.runtime.api.connection.CachedConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -20,7 +22,7 @@ import java.util.Map;
  *
  * @since 1.0
  */
-public abstract class AbstractEmailConnectionProvider<T> implements ConnectionProvider<T> {
+public abstract class AbstractEmailConnectionProvider<T> implements CachedConnectionProvider<T> {
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
 

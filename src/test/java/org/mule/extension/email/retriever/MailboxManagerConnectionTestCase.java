@@ -6,7 +6,6 @@
  */
 package org.mule.extension.email.retriever;
 
-import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
@@ -25,25 +24,12 @@ import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
+
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
-import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailConnectionException;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-
 import com.sun.mail.imap.IMAPFolder;
-
-import java.util.Properties;
-import java.util.concurrent.Executor;
-
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,6 +38,14 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import javax.mail.Flags;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
+import java.util.Properties;
+import java.util.concurrent.Executor;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Session.class, Store.class})
@@ -97,29 +91,22 @@ public class MailboxManagerConnectionTestCase {
 
   @Test
   public void getFolder() {
-    Folder folder = connection.getFolder(INBOX_FOLDER, READ_WRITE);
+    Folder folder = connection.getFolder(INBOX_FOLDER);
     assertFolder(folder, INBOX_FOLDER, READ_WRITE);
   }
 
   @Test
-  public void changeFolder() throws MessagingException {
+  public void openMultiple() throws MessagingException {
     getFolder();
-    Folder recent = connection.getFolder(RECENT_FOLDER, READ_WRITE);
+    Folder recent = connection.getFolder(RECENT_FOLDER);
     assertFolder(recent, RECENT_FOLDER, READ_WRITE);
-    assertThat(store.getFolder(INBOX_FOLDER).isOpen(), is(false));
+    assertThat(store.getFolder(INBOX_FOLDER).isOpen(), is(true));
   }
 
   @Test
   public void getSameFolder() throws MessagingException {
     getFolder();
     getFolder();
-  }
-
-  @Test
-  public void changeFolderMode() throws MessagingException {
-    getFolder();
-    Folder inbox = connection.getFolder(INBOX_FOLDER, READ_ONLY);
-    assertFolder(inbox, INBOX_FOLDER, READ_ONLY);
   }
 
   @Test
@@ -138,10 +125,8 @@ public class MailboxManagerConnectionTestCase {
 
   @Test
   public void errorOpeningFolder() throws MessagingException, EmailConnectionException {
-    expectedException.expect(EmailAccessingFolderException.class);
-    expectedException.expectCause(instanceOf(MessagingException.class));
     expectedException.expectMessage(containsString("Error while opening folder"));
-    connection.getFolder(ERROR_FOLDER, READ_ONLY);
+    connection.getFolder(ERROR_FOLDER);
   }
 
   @Test
