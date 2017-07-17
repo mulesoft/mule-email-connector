@@ -64,14 +64,15 @@ public class POP3Operations {
                                                                                          @Optional(
                                                                                              defaultValue = INBOX_FOLDER) String mailboxFolder,
                                                                                          @DisplayName("Match with") @Optional POP3EmailPredicateBuilder pop3Matcher,
+                                                                                         @Optional(
+                                                                                             defaultValue = "false") boolean deleteAfterRetrieve,
                                                                                          @MetadataKeyId @Optional(
                                                                                              defaultValue = "ANY") @Placement(
                                                                                                  tab = ADVANCED_TAB) EmailMetadataKey outputType,
                                                                                          @Optional(
                                                                                              defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
-    // TODO MULE-12884: deleteAfterRetrieve only deletes half of the listed emails
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
-    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, false,
+    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, deleteAfterRetrieve,
                                              attributes -> setFlagCommand.setByNumber(connection, mailboxFolder, DELETED,
                                                                                       attributes.getNumber()));
   }

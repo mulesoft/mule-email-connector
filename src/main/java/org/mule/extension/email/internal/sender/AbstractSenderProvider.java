@@ -15,8 +15,7 @@ import org.mule.runtime.api.connection.PoolingConnectionProvider;
  *
  * @since 1.0
  */
-public abstract class AbstractSenderProvider extends AbstractEmailConnectionProvider<SenderConnection>
-    implements PoolingConnectionProvider<SenderConnection> {
+public abstract class AbstractSenderProvider extends AbstractEmailConnectionProvider<SenderConnection> {
 
   /**
    * {@inheritDoc}
