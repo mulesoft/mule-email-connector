@@ -121,8 +121,7 @@ public class IMAPOperations {
     try {
       folder.expunge();
     } catch (MessagingException e) {
-      // TODO FIX
-      throw new EmailException("");
+      throw new EmailException("Error expunging marked as deleted email", e);
     }
   }
 }

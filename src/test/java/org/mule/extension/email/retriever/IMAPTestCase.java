@@ -8,6 +8,7 @@
 package org.mule.extension.email.retriever;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static javax.mail.Flags.Flag.ANSWERED;
 import static javax.mail.Flags.Flag.DELETED;
@@ -25,13 +26,16 @@ import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
+import org.mule.test.runner.RunnerDelegateTo;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
 import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
+import java.util.Collection;
 import java.util.List;
 
-//@RunnerDelegateTo(Parameterized.class)
+@RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   private static final String RETRIEVE_AND_DONT_READ = "retrieveAndDontRead";
@@ -49,13 +53,13 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   @Rule
   public SystemProperty specialCharacterPassword = new SystemProperty("specialCharacterPassword", SPECIAL_CHARACTER_PASSWORD);
 
-  //  @Parameterized.Parameter
+  @Parameterized.Parameter
   public String protocol = "imap";
 
-  //  @Parameterized.Parameters(name = "{0}")
-  //  public static Collection<Object[]> data() {
-  //    return asList(new Object[][] {{"imap"}, {"imaps"}});
-  //  }
+  @Parameterized.Parameters(name = "{0}")
+  public static Collection<Object[]> data() {
+    return asList(new Object[][] {{"imap"}, {"imaps"}});
+  }
 
   @Override
   protected String[] getConfigFiles() {
