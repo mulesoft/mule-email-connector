@@ -15,6 +15,7 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.INB
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.email.api.EmailMetadataKey;
 import org.mule.extension.email.api.EmailMetadataResolver;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
@@ -25,7 +26,6 @@ import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.internal.commands.ExpungeCommand;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.extension.email.internal.commands.SetFlagCommand;
-import org.mule.extension.email.internal.commands.StoreCommand;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.runtime.extension.api.annotation.error.Throws;
@@ -39,10 +39,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-
-import java.util.List;
-
 import javax.mail.MessagingException;
+import java.util.List;
 
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
@@ -52,7 +50,6 @@ import javax.mail.MessagingException;
 public class IMAPOperations {
 
   private final ExpungeCommand expungeCommand = new ExpungeCommand();
-  private final StoreCommand storeCommand = new StoreCommand();
   private final SetFlagCommand setFlagCommand = new SetFlagCommand();
 
   /**
@@ -136,30 +133,6 @@ public class IMAPOperations {
   public void expungeFolder(@Connection MailboxConnection connection,
                             @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder) {
     expungeCommand.expunge(connection, mailboxFolder);
-  }
-
-  /**
-   * Stores the specified email of id {@code emailId} into the configured {@code localDirectory}.
-   * <p>
-   * The emails are stored as mime message in a ".txt" format.
-   * <p>
-   * The name of the email file is composed by the subject and the received date of the email.
-   *
-   * @param connection The associated {@link MailboxConnection}.
-   * @param mailboxFolder Name of the folder where the email(s) is going to be stored.
-   * @param localDirectory Local directory where the emails are going to be stored.
-   * @param fileName Name of the file that is going to be stored. The operation will append the email number and received date in
-   *        the end.
-   * @param emailId Email ID Number of the email to store.
-   * @param overwrite Whether to overwrite a file that already exist
-   */
-  // TODO: annotated the parameter localDirectory with @Path when available
-  @Summary("Stores an specified email into a local directory")
-  public void store(@Connection MailboxConnection connection, String localDirectory,
-                    @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder, @Optional String fileName,
-                    @Summary("Email ID Number of the email to delete") @DisplayName("Email ID") long emailId,
-                    @Optional(defaultValue = "false") @DisplayName("Should Overwrite") boolean overwrite) {
-    storeCommand.store(connection, mailboxFolder, localDirectory, fileName, emailId, overwrite);
   }
 
   /**

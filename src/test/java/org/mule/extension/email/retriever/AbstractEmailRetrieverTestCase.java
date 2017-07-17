@@ -31,6 +31,7 @@ import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentConte
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
+
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.message.MultiPartPayload;
@@ -39,35 +40,31 @@ import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 import org.mule.tck.junit4.rule.SystemProperty;
-
+import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.List;
-
 import javax.mail.Flags.Flag;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.List;
 
 public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestCase {
 
+  final static int DEFAULT_TEST_PAGE_SIZE = Integer.valueOf(DEFAULT_PAGE_SIZE);
   protected static final String RETRIEVE_AND_READ = "retrieveAndRead";
   protected static final String RETRIEVE_AND_DELETE = "retrieveAndDelete";
   protected static final String RETRIEVE_AND_THEN_EXPUNGE_DELETE = "retrieveAndThenExpungeDelete";
   protected static final String RETRIEVE_MATCH_SUBJECT_AND_FROM = "retrieveMatchingSubjectAndFromAddress";
   protected static final String RETRIEVE_WITH_ATTACHMENTS = "retrieveWithAttachments";
-  protected static final String STORE_MESSAGES = "storeMessages";
-  protected static final String STORE_SINGLE_MESSAGE = "storeSingleMessage";
   private static final String TEXT_PLAIN = MediaType.TEXT.toRfcString();
   private static final MediaType TEXT_JSON = MediaType.create("text", "json", Charset.forName("UTF-8"));
   private static final String JSON_OBJECT = "{\"this is a\" : \"json object\"}";
-  protected final int pageSize = Integer.valueOf(DEFAULT_PAGE_SIZE);
 
   @ClassRule
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -82,7 +79,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   @Before
   public void sendInitialEmailBatch() throws MessagingException {
-    sendEmails(pageSize);
+    sendEmails(DEFAULT_TEST_PAGE_SIZE);
   }
 
   @Test
@@ -95,7 +92,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   @Test
   public void retrieveMatchingSubjectAndFromAddress() throws Exception {
-    for (int i = 0; i < pageSize; i++) {
+    for (int i = 0; i < DEFAULT_TEST_PAGE_SIZE; i++) {
       String fromAddress = format("address.%s@enterprise.com", i);
       MimeMessage mimeMessage =
           getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, "Non Matching Subject", fromAddress);
@@ -103,8 +100,8 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     }
 
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_SUBJECT_AND_FROM);
-    assertThat(server.getReceivedMessages(), arrayWithSize(pageSize * 2));
-    assertThat(paginationSize(messages), is(pageSize));
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE * 2));
+    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
   }
 
   private MimeMessage getMimeMessage(String to, String cc, String body, String contentType, String subject, String from)
@@ -139,20 +136,20 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   @Test
   public void retrieveAndDelete() throws Exception {
-    assertThat(server.getReceivedMessages(), arrayWithSize(pageSize));
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DELETE);
-    assertThat(paginationSize(messages), is(pageSize));
+    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
     assertThat(server.getReceivedMessages(), arrayWithSize(0));
   }
 
   @Test
   public void retrieveEmptyPageInBetween() throws Exception {
-    sendNonMatchingEmails(pageSize);
-    sendEmails(pageSize);
+    sendNonMatchingEmails(DEFAULT_TEST_PAGE_SIZE);
+    sendEmails(DEFAULT_TEST_PAGE_SIZE);
 
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_SUBJECT_AND_FROM);
-    assertThat(server.getReceivedMessages(), arrayWithSize(pageSize * 3));
-    assertThat(paginationSize(messages), is(pageSize * 2));
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE * 3));
+    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
   }
 
   @Test
@@ -166,6 +163,15 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     TypedValue<Object> payload = next.getPayload();
     assertThat(payload.getValue(), is(JSON_OBJECT));
     assertThat(payload.getDataType(), is(like(String.class, TEXT_JSON)));
+  }
+
+  @Test
+  public void retrieveMultiplePagesReadAndDeleteAfter() throws Exception {
+    sendEmails(100);
+    List<Message> messages = Lists.newArrayList(runFlowAndGetMessages(RETRIEVE_AND_DELETE));
+    messages.forEach(msg -> assertBodyContent(((String) msg.getPayload().getValue())));
+    assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE + 100));
+    assertThat(server.getReceivedMessages(), arrayWithSize(0));
   }
 
   protected Iterator<Message> runFlowAndGetMessages(String flowName) throws Exception {
