@@ -11,42 +11,41 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentContent;
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
-import org.mule.runtime.api.message.Message;
+import static org.mule.runtime.api.metadata.MediaType.ANY;
+
 import org.mule.extension.email.internal.util.EmailContentProcessor;
+import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.tck.junit4.AbstractMuleTestCase;
-
-import java.util.List;
-
 import org.junit.Test;
+import java.io.InputStream;
+import java.util.List;
 
 public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void emailTextBodyFromMultipart() throws Exception {
     javax.mail.Message message = getMultipartTestMessage();
-    String messageBody = EmailContentProcessor.getInstance(message).getBody();
+    String messageBody = EmailContentProcessor.getInstance(message).getBody(ANY).getValue();
     assertThat(messageBody, is(EMAIL_CONTENT));
   }
 
   @Test
   public void emailTextBodyFromSinglePart() throws Exception {
     javax.mail.Message message = getSinglePartTestMessage();
-    String messageBody = EmailContentProcessor.getInstance(message).getBody();
+    String messageBody = EmailContentProcessor.getInstance(message).getBody(ANY).getValue();
     assertThat(messageBody, is(EMAIL_CONTENT));
   }
 
   @Test
   public void emailAttachmentsFromMultipart() throws Exception {
     javax.mail.Message message = getMultipartTestMessage();
-    List<Message> attachments = EmailContentProcessor.getInstance(message).getAttachments();
+    List<TypedValue<InputStream>> attachments = EmailContentProcessor.getInstance(message).getAttachments();
     assertThat(attachments, hasSize(2));
-    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes());
-    assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT.getBytes());
+    assertAttachmentContent(attachments.get(0), EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, null);
+    assertAttachmentContent(attachments.get(1), EMAIL_JSON_ATTACHMENT_CONTENT, null);
   }
 }

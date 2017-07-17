@@ -7,6 +7,7 @@
 
 package org.mule.extension.email;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -16,6 +17,8 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.setUpServer;
 import static org.mule.functional.junit4.rules.ExpectedError.none;
+
+import org.mule.extension.email.api.IncomingEmail;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.functional.junit4.rules.ExpectedError;
 import org.mule.runtime.api.metadata.MediaType;
@@ -61,6 +64,10 @@ public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestC
   protected void doTearDownAfterMuleContextDispose() throws Exception {
     assertThat(server, is(not(nullValue())));
     server.stop();
+  }
+
+  protected void assertBodyContent(IncomingEmail content) {
+    assertBodyContent(content.getBody().getValue());
   }
 
   protected void assertBodyContent(String content) {

@@ -10,66 +10,51 @@ package org.mule.extension.email.retriever;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
+import static javax.mail.Flags.Flag.ANSWERED;
 import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.RECENT;
 import static javax.mail.Flags.Flag.SEEN;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.api.exception.EmailError.EMAIL_NOT_FOUND;
-import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
-import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
+
+import org.mule.extension.email.api.IncomingEmail;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Collection;
-import java.util.Iterator;
-
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeMessage;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
+import javax.mail.Flags.Flag;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
+import java.util.List;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   private static final String RETRIEVE_AND_DONT_READ = "retrieveAndDontRead";
-  private static final String RETRIEVE_AND_MARK_AS_DELETE = "retrieveAndMarkDelete";
   private static final String RETRIEVE_AND_MARK_AS_READ = "retrieveAndMarkRead";
   private static final String RETRIEVE_MATCH_NOT_READ = "retrieveOnlyNotReadEmails";
   private static final String RETRIEVE_AND_DELETE_INCOMING_AND_SCHEDULED = "retrieveAndDeleteIncomingAndScheduled";
-  private static final String RETRIEVE_MATCH_RECENT = "retrieveOnlyRecentEmails";
+  private static final String RETRIEVE_MATCH_ANSWERED = "retrieveOnlyAnsweredEmails";
   private static final String FAIL_MARKING_FLAG = "failMarkingEmail";
   private static final String RETRIEVE_DELETE_SELECTED = "retrieveAndDeleteSelected";
-
-  private TestConnectivityUtils connectivityUtils;
+  private static final String SPECIAL_CHARACTER_PASSWORD = "*uawH*IDXlh2p%21xSPOx%23%25zLpL";
 
   @Rule
   public SystemProperty rule = TestConnectivityUtils.disableAutomaticTestConnectivity();
-
-  private static final String SPECIAL_CHARACTER_PASSWORD = "*uawH*IDXlh2p%21xSPOx%23%25zLpL";
 
   @Rule
   public SystemProperty specialCharacterPassword = new SystemProperty("specialCharacterPassword", SPECIAL_CHARACTER_PASSWORD);
 
   @Parameterized.Parameter
-  public String protocol;
+  public String protocol = "imap";
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {
@@ -81,7 +66,6 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     return new String[] {format("retriever/%s.xml", protocol), "retriever/imap-flows.xml"};
   }
 
-
   @Override
   public String getProtocol() {
     return protocol;
@@ -89,36 +73,25 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void specialCharacterPassword() {
-    connectivityUtils = new TestConnectivityUtils(muleContext);
     user = server.setUser(JUANI_EMAIL, JUANI_EMAIL, SPECIAL_CHARACTER_PASSWORD);
-    connectivityUtils.assertSuccessConnection("configSpecialCharacterCredentials");
+    new TestConnectivityUtils(muleContext).assertSuccessConnection("configSpecialCharacterCredentials");
   }
-
 
   @Test
   public void retrieveAndRead() throws Exception {
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
-    int size = 0;
-    while (messages.hasNext()) {
-      size++;
-      Message m = messages.next();
-      assertBodyContent((String) m.getPayload().getValue());
-      assertThat(((IMAPEmailAttributes) m.getAttributes().getValue()).getFlags().isSeen(), is(true));
-    }
-
-    assertThat(size, is(pageSize));
+    List<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
+    assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE));
+    messages.forEach(msg -> {
+      assertBodyContent(((IncomingEmail) msg.getPayload().getValue()));
+      assertThat(((IMAPEmailAttributes) msg.getAttributes().getValue()).getFlags().isSeen(), is(true));
+    });
   }
 
   @Test
   public void retrieveAndDontRead() throws Exception {
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DONT_READ);
-    int count = 0;
-    while (messages.hasNext()) {
-      Message m = messages.next();
-      assertThat(((IMAPEmailAttributes) m.getAttributes().getValue()).getFlags().isSeen(), is(false));
-      count++;
-    }
-    assertThat(count, is(pageSize));
+    List<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DONT_READ);
+    assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE));
+    messages.forEach(msg -> assertThat(((IMAPEmailAttributes) msg.getAttributes().getValue()).getFlags().isSeen(), is(false)));
   }
 
   @Test
@@ -130,24 +103,16 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   }
 
   @Test
-  public void retrieveAndMarkAsDelete() throws Exception {
-    stream(server.getReceivedMessages()).forEach(m -> assertFlag(m, DELETED, false));
-    runFlow(RETRIEVE_AND_MARK_AS_DELETE);
-    assertThat(server.getReceivedMessages(), arrayWithSize(pageSize));
-    stream(server.getReceivedMessages()).forEach(m -> assertFlag(m, DELETED, true));
-  }
-
-  @Test
   public void failSettingFlag() throws Exception {
-    expectedError.expectError(NAMESPACE, EMAIL_NOT_FOUND.getType(), EmailNotFoundException.class,
-                              "No email was found with id:[0]");
+    expectedError.expectError(NAMESPACE, EMAIL_NOT_FOUND.getType(),
+                              EmailNotFoundException.class, "No email was found with id:[0]");
     runFlow(FAIL_MARKING_FLAG);
   }
 
   @Test
   public void retrieveAndDeleteIncomingAndScheduled() throws Exception {
     MimeMessage[] startMessageBatch = server.getReceivedMessages();
-    assertThat(startMessageBatch, arrayWithSize(pageSize));
+    assertThat(startMessageBatch, arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
     // Scheduled for deletion
     startMessageBatch[0].setFlag(DELETED, true);
     runFlow(RETRIEVE_AND_DELETE_INCOMING_AND_SCHEDULED);
@@ -156,12 +121,18 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void retrieveOnlyNotRead() throws Exception {
-    testMatcherFlag(RETRIEVE_MATCH_NOT_READ, SEEN, true);
+    mark3As(SEEN, true);
+    List<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_NOT_READ);
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
+    assertThat(messages, hasSize(7));
   }
 
   @Test
-  public void retrieveOnlyRecent() throws Exception {
-    testMatcherFlag(RETRIEVE_MATCH_RECENT, RECENT, false);
+  public void retrieveOnlyAnswered() throws Exception {
+    mark3As(ANSWERED, true);
+    List<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_ANSWERED);
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
+    assertThat(messages, hasSize(3));
   }
 
   @Test
@@ -172,55 +143,16 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   }
 
   @Test
-  public void storeEmailsInDirectory() throws Exception {
-    flowRunner(STORE_MESSAGES).run();
-    File[] storedEmails = temporaryFolder.getRoot().listFiles();
-    assertThat(storedEmails, is(not(nullValue())));
-    assertThat(storedEmails, arrayWithSize(pageSize));
-    for (File storedEmail : storedEmails) {
-      assertStoredEmail(storedEmail);
-    }
-  }
-
-  @Test
-  public void storeSingleEmailInDirectory() throws Exception {
-    flowRunner(STORE_SINGLE_MESSAGE).run();
-    File[] storedEmails = temporaryFolder.getRoot().listFiles();
-    assertThat(storedEmails, is(not(nullValue())));
-    assertThat(storedEmails, arrayWithSize(1));
-    assertStoredEmail(storedEmails[0]);
-  }
-
-  @Test
   public void retrieveAndDeleteSelectedEmails() throws Exception {
-    assertThat(server.getReceivedMessages(), arrayWithSize(pageSize));
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
     runFlow(RETRIEVE_DELETE_SELECTED);
     assertThat(server.getReceivedMessages(), arrayWithSize(5));
   }
 
-  private void testMatcherFlag(String flowName, Flag flag, boolean flagState) throws Exception {
+  private void mark3As(Flag flag, boolean flagState) throws Exception {
     for (int i = 0; i < 3; i++) {
       MimeMessage message = server.getReceivedMessages()[i];
       message.setFlag(flag, flagState);
     }
-
-    Iterator<Message> messages = runFlowAndGetMessages(flowName);
-    assertThat(server.getReceivedMessages(), arrayWithSize(pageSize));
-    int count = 0;
-    while (messages.hasNext()) {
-      messages.next();
-      count++;
-    }
-    assertThat(count, is(7));
-  }
-
-  private void assertStoredEmail(File storedEmail) throws IOException {
-    assertThat(storedEmail.getName(), startsWith(EMAIL_SUBJECT));
-    String fileContent = new String(Files.readAllBytes(storedEmail.toPath()));
-    assertThat(fileContent, containsString("To: " + JUANI_EMAIL));
-    assertThat(fileContent, containsString("From: " + ESTEBAN_EMAIL));
-    assertThat(fileContent, containsString("Cc: " + ALE_EMAIL));
-    assertThat(fileContent, containsString("Subject: " + EMAIL_SUBJECT));
-    assertThat(fileContent, containsString(EMAIL_CONTENT));
   }
 }
