@@ -8,6 +8,7 @@ package org.mule.extension.email.internal.commands;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.mule.extension.email.internal.util.EmailUtils.getMediaType;
+
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.MessageBuilder;
 import org.mule.extension.email.internal.sender.EmailBody;
@@ -16,13 +17,11 @@ import org.mule.extension.email.internal.sender.SMTPConfiguration;
 import org.mule.extension.email.internal.sender.SenderConnection;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
 import org.mule.runtime.api.metadata.MediaType;
-
-import java.io.IOException;
-import java.util.Calendar;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Transport;
+import java.io.IOException;
+import java.util.Calendar;
 
 /**
  * Represents the send operation.

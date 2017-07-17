@@ -61,19 +61,8 @@
         <email:list-imap config-ref="config"/>
     </flow>
 
-    <flow name="storeSingleMessage">
-        <email:store config-ref="config" localDirectory="${storePath}" emailId="1"/>
-    </flow>
-
-    <flow name="storeMessages">
-        <email:list-imap config-ref="config"/>
-        <foreach>
-            <email:store config-ref="config" localDirectory="${storePath}" emailId="#[attributes.id]"/>
-        </foreach>
-    </flow>
-
     <flow name="retrieveAndDelete">
-        <email:list-imap config-ref="config"/>
+        <email:list-imap config-ref="config" deleteAfterRetrieve="true"/>
     </flow>
 
     <flow name="retrieveAndDeleteSelected">

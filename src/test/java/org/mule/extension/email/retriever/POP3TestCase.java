@@ -10,14 +10,11 @@ package org.mule.extension.email.retriever;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
 import org.mule.runtime.api.message.Message;
 import org.mule.test.runner.RunnerDelegateTo;
-
 import org.junit.Test;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,10 +22,10 @@ import java.util.Iterator;
 @RunnerDelegateTo(Parameterized.class)
 public class POP3TestCase extends AbstractEmailRetrieverTestCase {
 
-  @Parameter
+  @Parameterized.Parameter
   public String protocol;
 
-  @Parameters(name = "{0}")
+  @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {{"pop3"}, {"pop3s"}});
   }
@@ -51,6 +48,6 @@ public class POP3TestCase extends AbstractEmailRetrieverTestCase {
       assertBodyContent((String) messages.next().getPayload().getValue());
       count++;
     }
-    assertThat(count, is(pageSize));
+    assertThat(count, is(DEFAULT_TEST_PAGE_SIZE));
   }
 }

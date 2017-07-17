@@ -10,10 +10,10 @@ import static java.lang.Math.min;
 import static java.util.Collections.emptyList;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
-import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
 import static org.mule.runtime.core.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
+
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailException;
@@ -26,7 +26,8 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.message.DefaultMultiPartPayload;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-
+import javax.mail.Folder;
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -34,9 +35,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-
-import javax.mail.Folder;
-import javax.mail.MessagingException;
 
 
 /**
@@ -52,20 +50,22 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   private Folder folder;
   private final String folderName;
   private final BaseEmailPredicateBuilder matcherBuilder;
-  private int startIndex = 1;
-  private int endIndex;
+  private int bottom = 1;
+  private int top;
   private final boolean deleteAfterRetrieve;
   private final Consumer<BaseEmailAttributes> deleteAfterReadCallback;
-  private final ExpungeCommand expungeCommand = new ExpungeCommand();
+
+  // TODO: MULE-13097 - REMOVE WHEN SDK Injects the connection on PagingProvider#close() method
+  private MailboxConnection connection;
 
   /**
-   * @param configuration The {@link MailboxAccessConfiguration} associated to this operation.
-   * @param folderName the name of the folder where the emails are stored.
-   * @param matcherBuilder a {@link Predicate} of {@link BaseEmailAttributes} used to filter the output list
-   * @param pageSize size of the block that would be retrieved from the email server. This page doesn't represent the page size to
-   *        be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
-   *        matcher after retrieval to see if they fulfill matcher's condition.
-   * @param deleteAfterRetrieve whether the emails should be deleted after retrieval
+   * @param configuration           The {@link MailboxAccessConfiguration} associated to this operation.
+   * @param folderName              the name of the folder where the emails are stored.
+   * @param matcherBuilder          a {@link Predicate} of {@link BaseEmailAttributes} used to filter the output list
+   * @param pageSize                size of the block that would be retrieved from the email server. This page doesn't represent the page size to
+   *                                be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
+   *                                matcher after retrieval to see if they fulfill matcher's condition.
+   * @param deleteAfterRetrieve     whether the emails should be deleted after retrieval
    * @param deleteAfterReadCallback callback for deleting each email
    */
   public PagingProviderEmailDelegate(MailboxAccessConfiguration configuration, String folderName,
@@ -76,13 +76,13 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     this.folderName = folderName;
     this.matcherBuilder = matcherBuilder;
     this.pageSize = pageSize;
-    this.endIndex = pageSize;
+    this.top = pageSize;
     this.deleteAfterRetrieve = deleteAfterRetrieve;
     this.deleteAfterReadCallback = deleteAfterReadCallback;
   }
 
   /**
-   * Retrieves emails numbered from {@code startIndex} up to {@code endIndex} in the specified {@code folderName}.
+   * Retrieves emails numbered from {@code bottom} up to {@code top} in the specified {@code folderName}.
    * <p>
    * A new {@link Result} is created for each fetched email from the folder, where the payload is the text body of the email and
    * the other metadata is carried by an {@link BaseEmailAttributes} instance.
@@ -96,7 +96,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     try {
       List<Result<Object, T>> retrievedEmails = new LinkedList<>();
       for (javax.mail.Message m : folder.getMessages(startIndex, endIndex)) {
-        Object emailContent = EMPTY;
+        Object emailContent = "";
         T attributes = configuration.parseAttributesFromMessage(m, folder);
         if (matcher.test(attributes)) {
           if (configuration.isEagerlyFetchContent()) {
@@ -128,42 +128,31 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public List<Result<Object, T>> getPage(MailboxConnection connection) {
-    boolean shouldExpunge = false;
+    this.connection = connection;
     try {
       folder = connection.getFolder(folderName, deleteAfterRetrieve ? READ_WRITE : READ_ONLY);
-      if (folder.getMessageCount() == 0) {
-        return emptyList();
-      }
-
-      endIndex = min(endIndex, folder.getMessageCount());
-
-      while (startIndex <= endIndex) {
-        List<Result<Object, T>> emails = list(startIndex, endIndex);
-        startIndex += pageSize;
-        endIndex = min(endIndex + pageSize, folder.getMessageCount());
-
-        if (!emails.isEmpty()) {
-          shouldExpunge = true;
-          return emails;
+      int count = folder.getMessageCount();
+      if (count != 0) {
+        top = min(top, count);
+        while (bottom <= top) {
+          List<Result<Object, T>> emails = list(bottom, top);
+          bottom += pageSize;
+          top = min(top + pageSize, count);
+          if (!emails.isEmpty()) {
+            return emails;
+          }
         }
       }
     } catch (MessagingException e) {
       throw new EmailException("Error while retrieving emails: ", e);
-    } finally {
-      if (deleteAfterRetrieve && shouldExpunge) {
-        expungeCommand.expunge(connection, folderName);
-      } else {
-        connection.closeFolder(false);
-      }
     }
-
     return emptyList();
   }
 
   /**
    * @param connection The connection to be used to do the query.
    * @return {@link Optional#empty()} because a priori there is no way for knowing how many emails are going to be tested
-   *         {@code true} against the {@link BaseEmailPredicateBuilder} matcher.
+   * {@code true} against the {@link BaseEmailPredicateBuilder} matcher.
    */
   @Override
   public Optional<Integer> getTotalResults(MailboxConnection connection) {
@@ -172,7 +161,12 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public void close() throws IOException {
+    connection.closeFolder(true);
+  }
 
+  @Override
+  public boolean useStickyConnections() {
+    return true;
   }
 
   private MediaType getMediaType(BaseEmailAttributes attributes) {
