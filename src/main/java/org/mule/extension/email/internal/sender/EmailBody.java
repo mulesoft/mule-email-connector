@@ -12,6 +12,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TRANSFER_ENCODING_DISPLAY_NAME;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_CONTENT_TRANSFER_ENCODING;
+import org.mule.extension.email.internal.value.ContentTransferEncodingValueProvider;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -23,6 +24,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.values.OfValues;
 
 import org.apache.commons.io.IOUtils;
 
@@ -89,6 +91,7 @@ public class EmailBody {
   @DisplayName(CONTENT_TRANSFER_ENCODING_DISPLAY_NAME)
   @Placement(order = 4)
   @Summary("Transfer encoding used to send the body content. Base64 is recommended for large payloads.")
+  @OfValues(ContentTransferEncodingValueProvider.class)
   private String contentTransferEncoding;
 
   public EmailBody() {}
