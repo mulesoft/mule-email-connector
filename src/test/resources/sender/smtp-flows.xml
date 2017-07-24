@@ -23,7 +23,7 @@
                 <email:to-address value="juan.desimoni@mulesoft.com"/>
             </email:to-addresses>
             <email:body contentType="text/plain">
-                <email:content>#[stream]</email:content>
+                <email:content>#[vars.stream]</email:content>
             </email:body>
         </email:send>
     </flow>
@@ -34,7 +34,7 @@
                 <email:to-address value="juan.desimoni@mulesoft.com"/>
             </email:to-addresses>
             <email:body contentType="text/json">
-                <email:content>#[json]</email:content>
+                <email:content>#[vars.json]</email:content>
             </email:body>
         </email:send>
     </flow>
@@ -58,7 +58,7 @@
             <email:to-addresses>
                 <email:to-address value="pablo.musumeci@mulesoft.com"/>
             </email:to-addresses>
-            <email:body encoding="#[variables.encoding]">
+            <email:body encoding="#[vars.encoding]">
                 <email:content>#[payload]</email:content>
             </email:body>
         </email:send>
