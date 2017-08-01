@@ -140,10 +140,10 @@ public class EmailContentProcessor {
     }
 
     attachmentParts.add(Message.builder()
-        .payload(IOUtils.toByteArray(part.getInputStream()))
+        .value(IOUtils.toByteArray(part.getInputStream()))
         .mediaType(MediaType.parse(part.getContentType()))
-        .attributes(new PartAttributes(part.getFileName() == null ? "null" : part.getFileName(), part.getFileName(),
-                                       part.getSize(), headers))
+        .attributesValue(new PartAttributes(part.getFileName() == null ? "null" : part.getFileName(), part.getFileName(),
+                                            part.getSize(), headers))
         .build());
   }
 
