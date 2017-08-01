@@ -6,15 +6,16 @@
  */
 package org.mule.extension.email.internal.commands;
 
-import static java.lang.Math.min;
+import static java.lang.Integer.max;
+import static java.lang.Integer.min;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
 import static org.mule.runtime.core.api.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
-
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailException;
@@ -27,15 +28,17 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-import javax.mail.Folder;
-import javax.mail.MessagingException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+
+import javax.mail.Folder;
+import javax.mail.MessagingException;
 
 
 /**
@@ -48,16 +51,17 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
+  private final List<BaseEmailAttributes> emailsToBeDeleted;
   private Folder folder;
   private final String folderName;
-  private final BaseEmailPredicateBuilder matcherBuilder;
-  private int bottom = 1;
+  private int bottom;
   private int top;
+  private int limit;
+  private int retrievedEmailCount;
   private final boolean deleteAfterRetrieve;
-  private final Consumer<BaseEmailAttributes> deleteAfterReadCallback;
-
-  // TODO: MULE-13097 - REMOVE WHEN SDK Injects the connection on PagingProvider#close() method
-  private MailboxConnection connection;
+  private final BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback;
+  private final Predicate<BaseEmailAttributes> matcher;
+  private boolean initialized = false;
 
   /**
    * @param configuration           The {@link MailboxAccessConfiguration} associated to this operation.
@@ -66,20 +70,26 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * @param pageSize                size of the block that would be retrieved from the email server. This page doesn't represent the page size to
    *                                be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
    *                                matcher after retrieval to see if they fulfill matcher's condition.
+   * @param limit                   The maximum amount of emails that will be retrieved by htis {@link PagingProvider}
    * @param deleteAfterRetrieve     whether the emails should be deleted after retrieval
    * @param deleteAfterReadCallback callback for deleting each email
    */
   public PagingProviderEmailDelegate(MailboxAccessConfiguration configuration, String folderName,
                                      BaseEmailPredicateBuilder matcherBuilder,
                                      int pageSize,
-                                     boolean deleteAfterRetrieve, Consumer<BaseEmailAttributes> deleteAfterReadCallback) {
+                                     int limit,
+                                     boolean deleteAfterRetrieve,
+                                     BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback) {
     this.configuration = configuration;
     this.folderName = folderName;
-    this.matcherBuilder = matcherBuilder;
+    this.matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
     this.pageSize = pageSize;
     this.top = pageSize;
+    this.limit = limit;
+    this.retrievedEmailCount = 0;
     this.deleteAfterRetrieve = deleteAfterRetrieve;
     this.deleteAfterReadCallback = deleteAfterReadCallback;
+    this.emailsToBeDeleted = new LinkedList<>();
   }
 
   /**
@@ -93,7 +103,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * callback {@code deleteAfterReadCallback} is applied to each email.
    */
   private <T extends BaseEmailAttributes> List<Result<Object, T>> list(int startIndex, int endIndex) {
-    Predicate<BaseEmailAttributes> matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
+
     try {
       List<Result<Object, T>> retrievedEmails = new LinkedList<>();
       for (javax.mail.Message m : folder.getMessages(startIndex, endIndex)) {
@@ -112,10 +122,9 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
               .build();
 
           retrievedEmails.add(result);
-        }
-
-        if (deleteAfterRetrieve) {
-          deleteAfterReadCallback.accept(attributes);
+          if (deleteAfterRetrieve) {
+            emailsToBeDeleted.add(attributes);
+          }
         }
       }
 
@@ -129,25 +138,47 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public List<Result<Object, T>> getPage(MailboxConnection connection) {
-    this.connection = connection;
+
+    if (limit > 0 && retrievedEmailCount >= limit) {
+      return tearDown(connection);
+    }
+
     try {
       folder = connection.getFolder(folderName, deleteAfterRetrieve ? READ_WRITE : READ_ONLY);
-      int count = folder.getMessageCount();
-      if (count != 0) {
-        top = min(top, count);
-        while (bottom <= top) {
-          List<Result<Object, T>> emails = list(bottom, top);
-          bottom += pageSize;
-          top = min(top + pageSize, count);
-          if (!emails.isEmpty()) {
-            return emails;
-          }
+
+      // initialize mailbox indexes
+      if (!initialized) {
+        initialized = true;
+        top = folder.getMessageCount();
+        bottom = max(1, top - pageSize + 1);
+
+        if (top == 0)
+          return tearDown(connection);
+      }
+
+      while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom >= 1) {
+        List<Result<Object, T>> emails = list(bottom, top);
+
+        top -= pageSize;
+        bottom = max(1, top - pageSize + 1);
+
+        int retrievedPageSize = emails.size();
+        retrievedEmailCount += retrievedPageSize;
+        if (retrievedPageSize > 0) {
+          // if limited and the limit was exceeded, return the amount that is left until reaching the limit
+          int limitedPage =
+              limit > 0 && retrievedEmailCount > limit ? min(retrievedPageSize, retrievedEmailCount - limit) : retrievedPageSize;
+          emails = emails.subList(0, limitedPage);
+          reverse(emails);
+          return emails;
         }
       }
+
     } catch (MessagingException e) {
       throw new EmailException("Error while retrieving emails: ", e);
     }
-    return emptyList();
+
+    return tearDown(connection);
   }
 
   /**
@@ -162,7 +193,13 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public void close() throws IOException {
+    // TODO: MULE-13097 expunge folder and delete emails here
+  }
+
+  private List<Result<Object, T>> tearDown(MailboxConnection connection) {
+    emailsToBeDeleted.forEach(e -> deleteAfterReadCallback.accept(connection, e));
     connection.closeFolder(true);
+    return emptyList();
   }
 
   @Override

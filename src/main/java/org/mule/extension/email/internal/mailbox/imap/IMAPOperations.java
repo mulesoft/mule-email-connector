@@ -13,9 +13,9 @@ import static javax.mail.Folder.READ_WRITE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
-
 import org.mule.extension.email.api.EmailMetadataKey;
 import org.mule.extension.email.api.EmailMetadataResolver;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
@@ -39,8 +39,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+
 import javax.mail.MessagingException;
-import java.util.List;
 
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
@@ -57,17 +57,19 @@ public class IMAPOperations {
    * criteria.
    *
    * @param config The {@link MailboxAccessConfiguration} associated to this operation.
-   * @param connection The corresponding {@link MailboxConnection} instance.
    * @param mailboxFolder Mailbox folder where the emails are going to be fetched
    * @param imapMatcher Email Matcher which gives the capability of filter the retrieved emails
    * @param deleteAfterRetrieve Specifies if the returned emails must be deleted after being retrieved or not.
-   * @return an {@link PagingProvider} composed with an {@link Result} with a {@link List} carrying all the emails content and
-   *         it's corresponding {@link IMAPEmailAttributes}.
+   * @param pageSize Size of the page used by the {@link PagingProvider} implementation for fetching the emails from the IMAP server
+   * @param limit Maximum amount of emails retrieved by the operation. Take into account that this limit only applies to the emails effectively
+   *              retrieved by the operation (the ones which matched the {@link IMAPEmailPredicateBuilder} criteria) and doesn't
+   *             imply any restriction over the amount of emails being retrieved from the mailbox server.
+   *
+   * @return an {@link PagingProvider} which provides {@link Result}s composed by the email's body and its corresponding {@link IMAPEmailAttributes}.
    */
-  @Summary("List all the emails in the given POP3 Mailbox Folder")
+  @Summary("Lists the emails in the given POP3 Mailbox Folder")
   @OutputResolver(output = EmailMetadataResolver.class)
   public PagingProvider<MailboxConnection, Result<Object, IMAPEmailAttributes>> listImap(@Config IMAPConfiguration config,
-                                                                                         @Connection MailboxConnection connection,
                                                                                          @Optional(
                                                                                              defaultValue = INBOX_FOLDER) String mailboxFolder,
                                                                                          @DisplayName("Match with") @Optional IMAPEmailPredicateBuilder imapMatcher,
@@ -77,11 +79,14 @@ public class IMAPOperations {
                                                                                              defaultValue = "ANY") @Placement(
                                                                                                  tab = ADVANCED_TAB) EmailMetadataKey outputType,
                                                                                          @Optional(
-                                                                                             defaultValue = DEFAULT_PAGE_SIZE) int pageSize) {
+                                                                                             defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
+                                                                                         @Optional(
+                                                                                             defaultValue = UNLIMITED) int limit) {
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
-    return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, deleteAfterRetrieve,
-                                             attributes -> setFlagCommand.setByUID(connection, mailboxFolder, DELETED,
-                                                                                   attributes.getId()));
+    return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, limit, deleteAfterRetrieve,
+                                             (connection, attributes) -> setFlagCommand.setByUID(connection, mailboxFolder,
+                                                                                                 DELETED,
+                                                                                                 attributes.getId()));
   }
 
   /**

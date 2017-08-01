@@ -5,14 +5,14 @@
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
+    <email:pop3-matcher name="matcher" subjectRegex="Email Subject" fromRegex="@mulesoft"/>
+
     <flow name="retrieveAndRead">
         <email:list-pop3 config-ref="config"/>
     </flow>
 
     <flow name="retrieveMatchingSubjectAndFromAddress">
-        <email:list-pop3 config-ref="config">
-            <email:pop3-matcher subjectRegex="Email Subject" fromRegex="@mulesoft"/>
-        </email:list-pop3>
+        <email:list-pop3 config-ref="config" pop3Matcher="matcher"/>
     </flow>
 
     <flow name="retrieveWithAttachments">
@@ -23,4 +23,17 @@
         <email:list-pop3 config-ref="config" deleteAfterRetrieve="true"/>
     </flow>
 
+    <flow name="retrieveWithLimit">
+        <email:list-pop3 config-ref="config" limit="#[vars.limit]"/>
+    </flow>
+
+    <flow name="retrieveWithPageSize">
+        <email:list-pop3 config-ref="config" pageSize="#[vars.pageSize]" pop3Matcher="matcher"/>
+    </flow>
+
+    <flow name="retrieveNumberedWithPageSize">
+        <email:list-pop3 config-ref="config" pageSize="#[vars.pageSize]">
+            <email:pop3-matcher subjectRegex="[0-9]+"/>
+        </email:list-pop3>
+    </flow>
 </mule>
