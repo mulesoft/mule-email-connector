@@ -9,8 +9,8 @@ import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.runtime.api.component.location.Location;
 import org.mule.runtime.api.value.ValueProviderService;
 import org.mule.runtime.api.value.ValueResult;
-import org.mule.runtime.core.internal.value.MuleValueProviderService;
 import org.mule.tck.junit4.rule.SystemProperty;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class ContentTransferEncodingValueProviderTestCase extends EmailConnector
 
   @Before
   public void init() throws Exception {
-    service = muleContext.getRegistry().lookupObject(MuleValueProviderService.class);
+    service = muleContext.getRegistry().lookupObject(ValueProviderService.class);
   }
 
   @Override
