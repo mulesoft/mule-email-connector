@@ -183,7 +183,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     List<Message> attachments = processor.getAttachments();
 
     if (!attachments.isEmpty()) {
-      parts.add(Message.builder().payload(body).attributes(BODY_ATTRIBUTES).build());
+      parts.add(Message.builder().value(body).attributesValue(BODY_ATTRIBUTES).build());
       parts.addAll(attachments);
       emailContent = new DefaultMultiPartPayload(parts);
     } else {
