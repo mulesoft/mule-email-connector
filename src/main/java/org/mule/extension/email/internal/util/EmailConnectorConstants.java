@@ -61,6 +61,11 @@ public final class EmailConnectorConstants {
   public static final String IMAPS_PORT = "993";
 
   /**
+   * Email retrieval operations don't have by default a limit for the amount of emails that can be retrieved.
+   */
+  public static final String UNLIMITED = "-1";
+
+  /**
    * The content type header name.
    */
   public static final String CONTENT_TYPE_HEADER = "Content-Type";
