@@ -35,6 +35,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import javax.mail.MessagingException;
 
 /**
@@ -72,12 +73,14 @@ public class IMAPOperations {
                                                                                                      @Optional(
                                                                                                          defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
                                                                                                      @Optional(
-                                                                                                         defaultValue = UNLIMITED) int limit) {
+                                                                                                         defaultValue = UNLIMITED) int limit,
+                                                                                                     StreamingHelper streamingHelper) {
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
     return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, limit, deleteAfterRetrieve,
                                              (connection, attributes) -> setFlagCommand.setByUID(connection, mailboxFolder,
                                                                                                  DELETED,
-                                                                                                 attributes.getId()));
+                                                                                                 attributes.getId()),
+                                             streamingHelper);
   }
 
   /**

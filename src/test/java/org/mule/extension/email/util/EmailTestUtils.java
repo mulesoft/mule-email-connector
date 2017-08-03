@@ -14,7 +14,9 @@ import static org.junit.Assert.assertThat;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
 import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.api.streaming.CursorProvider;
 import com.icegreen.greenmail.util.ServerSetup;
+import org.apache.commons.io.IOUtils;
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -83,10 +85,10 @@ public class EmailTestUtils {
     return message;
   }
 
-  public static void assertAttachmentContent(Map<String, TypedValue<InputStream>> attachments, String name, String expected)
+  public static void assertAttachmentContent(Map<String, TypedValue<CursorProvider>> attachments, String name, String expected)
       throws IOException {
-    TypedValue<InputStream> attachment = attachments.get(name);
-    assertThat(org.apache.commons.io.IOUtils.toString(attachment.getValue()), is(expected));
+    TypedValue<CursorProvider> attachment = attachments.get(name);
+    assertThat(IOUtils.toString(((InputStream) attachment.getValue().openCursor())), is(expected));
   }
 
   public static ServerSetup setUpServer(int port, String protocol) {

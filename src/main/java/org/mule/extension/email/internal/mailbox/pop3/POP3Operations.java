@@ -28,6 +28,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 /**
  * A set of operations which perform on top the POP3 email protocol.
@@ -66,11 +67,13 @@ public class POP3Operations {
                                                                                                      @Optional(
                                                                                                          defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
                                                                                                      @Optional(
-                                                                                                         defaultValue = UNLIMITED) int limit) {
+                                                                                                         defaultValue = UNLIMITED) int limit,
+                                                                                                     StreamingHelper streamingHelper) {
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
     return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, limit, deleteAfterRetrieve,
                                              (connection, attributes) -> setFlagCommand.setByNumber(connection, mailboxFolder,
                                                                                                     DELETED,
-                                                                                                    attributes.getNumber()));
+                                                                                                    attributes.getNumber()),
+                                             streamingHelper);
   }
 }

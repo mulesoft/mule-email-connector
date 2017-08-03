@@ -22,6 +22,7 @@ import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -49,6 +50,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   private int bottom;
   private int top;
   private int limit;
+  private final StreamingHelper streamingHelper;
   private int retrievedEmailCount;
   private final boolean deleteAfterRetrieve;
   private final BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback;
@@ -71,13 +73,15 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
                                      int pageSize,
                                      int limit,
                                      boolean deleteAfterRetrieve,
-                                     BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback) {
+                                     BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback,
+                                     StreamingHelper streamingHelper) {
     this.configuration = configuration;
     this.folderName = folderName;
     this.matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
     this.pageSize = pageSize;
     this.top = pageSize;
     this.limit = limit;
+    this.streamingHelper = streamingHelper;
     this.retrievedEmailCount = 0;
     this.deleteAfterRetrieve = deleteAfterRetrieve;
     this.deleteAfterReadCallback = deleteAfterReadCallback;
@@ -103,7 +107,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
         T attributes = configuration.parseAttributesFromMessage(message, folder);
         if (matcher.test(attributes)) {
           if (configuration.isEagerlyFetchContent()) {
-            content = new StoredEmailContent(message);
+            content = new StoredEmailContent(message, streamingHelper);
             // Attributes are parsed again since they may change after the email has been read.
             attributes = configuration.parseAttributesFromMessage(message, folder);
           }

@@ -8,15 +8,17 @@ package org.mule.extension.email.internal.util;
 
 import static javax.mail.Part.ATTACHMENT;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEXT;
-import static org.mule.runtime.api.metadata.DataType.*;
+import static org.mule.runtime.api.metadata.DataType.HTML_STRING;
+import static org.mule.runtime.api.metadata.DataType.builder;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
-import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.core.api.util.IOUtils;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -34,7 +35,7 @@ import java.util.StringJoiner;
 
 
 /**
- * Given a {@link Message} introspects it's content to obtain the body an the attachments if any.
+ * Given a {@link Message} that lives in a mailbox introspects it's content to obtain the body an the attachments if any.
  *
  * @since 1.0
  */
@@ -44,7 +45,7 @@ public class StoredEmailContent {
 
   public static final StoredEmailContent EMPTY = new StoredEmailContent();
 
-  private final Map<String, TypedValue<InputStream>> attachmentParts = new LinkedHashMap<>();
+  private final Map<String, TypedValue<CursorProvider>> attachmentParts = new LinkedHashMap<>();
   private final TypedValue<String> body;
 
   /**
@@ -52,9 +53,9 @@ public class StoredEmailContent {
    *
    * @param message the {@link Message} to be processed.
    */
-  public StoredEmailContent(Message message) {
+  public StoredEmailContent(Message message, StreamingHelper streamingHelper) {
     StringJoiner body = new StringJoiner("\n");
-    processPart(message, body);
+    processPart(message, body, streamingHelper);
     this.body = new TypedValue<>(body.toString().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());
   }
 
@@ -72,28 +73,26 @@ public class StoredEmailContent {
   /**
    * @return a {@link List} with the attachments of an email bounded into {@link Message}s.
    */
-  public Map<String, TypedValue<InputStream>> getAttachments() {
+  public Map<String, TypedValue<CursorProvider>> getAttachments() {
     return ImmutableMap.copyOf(attachmentParts);
   }
 
   /**
    * Processes a single {@link Part} and adds it to the body of the message or as a new attachment depending on it's disposition
    * type.
-   *
-   * @param part the part to be processed
    */
-  private void processPart(Part part, StringJoiner bodyCollector) {
+  private void processPart(Part part, StringJoiner bodyCollector, StreamingHelper streamingHelper) {
     try {
       Object content = part.getContent();
       if (isMultipart(content)) {
         Multipart mp = (Multipart) part.getContent();
         for (int i = 0; i < mp.getCount(); i++) {
-          processPart(mp.getBodyPart(i), bodyCollector);
+          processPart(mp.getBodyPart(i), bodyCollector, streamingHelper);
         }
       }
 
       if (isAttachment(part)) {
-        processAttachment(part);
+        processAttachment(part, streamingHelper);
       } else {
         processBodyPart(part, bodyCollector, content);
       }
@@ -123,10 +122,10 @@ public class StoredEmailContent {
    *
    * @param part the attachment part to be processed
    */
-  private void processAttachment(Part part) throws MessagingException, IOException {
-    ByteArrayInputStream stream = new ByteArrayInputStream(toByteArray(part.getInputStream()));
+  private void processAttachment(Part part, StreamingHelper streamingHelper) throws MessagingException, IOException {
+    CursorProvider cursorProvider = ((CursorProvider) streamingHelper.resolveCursorProvider(part.getInputStream()));
     DataType dataType = builder().mediaType(part.getContentType()).build();
-    attachmentParts.put(part.getFileName(), new TypedValue<>(stream, dataType));
+    attachmentParts.put(part.getFileName(), new TypedValue<>(cursorProvider, dataType));
   }
 
   /**

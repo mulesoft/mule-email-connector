@@ -57,7 +57,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   public SystemProperty specialCharacterPassword = new SystemProperty("specialCharacterPassword", SPECIAL_CHARACTER_PASSWORD);
 
   @Parameterized.Parameter
-  public String protocol;
+  public String protocol = "imap";
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {

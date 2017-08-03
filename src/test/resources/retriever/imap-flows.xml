@@ -59,6 +59,10 @@
 
     <flow name="retrieveWithAttachments">
         <email:list-imap config-ref="config"/>
+        <foreach>
+            <set-variable variableName="json" value="#[write(payload.attachments['attachment.json'], 'text/plain')]" />
+            <set-variable variableName="text" value="#[write(payload.attachments['text-attachment'], 'text/plain')]" />
+        </foreach>
     </flow>
 
     <flow name="retrieveAndDelete">
