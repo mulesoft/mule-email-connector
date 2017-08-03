@@ -13,7 +13,7 @@ import static java.lang.String.format;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -35,30 +35,29 @@ import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentConte
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
+
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
+import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.message.MultiPartPayload;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
-import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 import org.mule.tck.junit4.rule.SystemProperty;
-
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.mail.Flags.Flag;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import javax.mail.Flags.Flag;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestCase {
 
@@ -132,15 +131,13 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
     Message message = messages.next();
     assertThat(messages.hasNext(), is(false));
-    assertThat(message.getPayload().getValue(), instanceOf(MultiPartPayload.class));
-    List<Message> emailAttachments = ((MultiPartPayload) message.getPayload().getValue()).getParts();
-
-    assertThat(emailAttachments, hasSize(3));
-    assertThat(((DefaultMultiPartPayload) message.getPayload().getValue()).hasBodyPart(), is(true));
-    assertThat(((MultiPartPayload) message.getPayload().getValue()).getPartNames(),
-               hasItems(EMAIL_JSON_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME));
-    assertAttachmentContent(emailAttachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT.getBytes());
-    assertAttachmentContent(emailAttachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes());
+    StoredEmailContent email = (StoredEmailContent) message.getPayload().getValue();
+    Map<String, TypedValue<InputStream>> attachments = email.getAttachments();
+    assertThat(email.getBody().getValue(), is(notNullValue()));
+    assertThat(attachments.entrySet(), hasSize(2));
+    assertThat(attachments.keySet(), hasItems(EMAIL_JSON_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME));
+    assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
   }
 
   @Test
@@ -240,16 +237,16 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     Iterator<Message> messageIterator = runFlowAndGetMessages(RETRIEVE_AND_READ);
     Message next = messageIterator.next();
 
-    TypedValue<Object> payload = next.getPayload();
-    assertThat(payload.getValue(), is(JSON_OBJECT));
-    assertThat(payload.getDataType(), is(like(String.class, TEXT_JSON)));
+    TypedValue<String> body = ((StoredEmailContent) next.getPayload().getValue()).getBody();
+    assertThat(body.getValue(), is(JSON_OBJECT));
+    assertThat(body.getDataType(), is(like(String.class, TEXT_JSON)));
   }
 
   @Test
   public void retrieveMultiplePagesReadAndDeleteAfter() throws Exception {
     sendEmails(100);
     List<Message> messages = newArrayList(runFlowAndGetMessages(RETRIEVE_AND_DELETE));
-    messages.forEach(msg -> assertBodyContent(((String) msg.getPayload().getValue())));
+    messages.forEach(msg -> assertBodyContent(((StoredEmailContent) msg.getPayload().getValue()).getBody().getValue()));
     assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE + 100));
     assertThat(server.getReceivedMessages(), arrayWithSize(0));
   }

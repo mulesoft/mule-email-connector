@@ -10,17 +10,17 @@ package org.mule.extension.email.retriever;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.test.runner.RunnerDelegateTo;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 
 @RunnerDelegateTo(Parameterized.class)
 public class POP3TestCase extends AbstractEmailRetrieverTestCase {
@@ -48,7 +48,7 @@ public class POP3TestCase extends AbstractEmailRetrieverTestCase {
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
     int count = 0;
     while (messages.hasNext()) {
-      assertBodyContent((String) messages.next().getPayload().getValue());
+      assertBodyContent(((StoredEmailContent) messages.next().getPayload().getValue()).getBody().getValue());
       count++;
     }
     assertThat(count, is(DEFAULT_TEST_PAGE_SIZE));

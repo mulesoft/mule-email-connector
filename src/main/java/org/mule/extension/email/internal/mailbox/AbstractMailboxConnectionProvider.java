@@ -34,11 +34,4 @@ public abstract class AbstractMailboxConnectionProvider<C extends AbstractEmailC
   public ConnectionValidationResult validate(C connection) {
     return connection.validate();
   }
-
-  @Override
-  public void onBorrow(C connection) {
-    if (connection instanceof MailboxConnection) {
-      ((MailboxConnection) connection).closeFolder(false);
-    }
-  }
 }

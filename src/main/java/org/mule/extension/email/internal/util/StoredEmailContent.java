@@ -8,28 +8,29 @@ package org.mule.extension.email.internal.util;
 
 import static javax.mail.Part.ATTACHMENT;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEXT;
+import static org.mule.runtime.api.metadata.DataType.*;
+import static org.mule.runtime.api.metadata.MediaType.ANY;
+import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.api.message.PartAttributes;
+import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
-
-import com.google.common.collect.ImmutableList;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringJoiner;
-
-import javax.mail.Header;
+import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 
 
 /**
@@ -37,49 +38,42 @@ import javax.mail.Part;
  *
  * @since 1.0
  */
-public class EmailContentProcessor {
+public class StoredEmailContent {
 
-  private static final String ERROR_PROCESSING_MESSAGE = "Error while processing message content.";
+  private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContent.class);
 
-  private final List<Message> attachmentParts = new LinkedList<>();
-  private final String body;
+  public static final StoredEmailContent EMPTY = new StoredEmailContent();
+
+  private final Map<String, TypedValue<InputStream>> attachmentParts = new LinkedHashMap<>();
+  private final TypedValue<String> body;
 
   /**
    * Creates an instance and process the message content.
-   * <p>
-   * Hided constructor, can only get a new instance out of this class using the factory method
-   * {@link EmailContentProcessor#getInstance(javax.mail.Message)}.
-   *
-   * @param message the {@link javax.mail.Message} to be processed.
-   */
-  private EmailContentProcessor(javax.mail.Message message) {
-    StringJoiner bodyCollector = new StringJoiner("\n");
-    processPart(message, bodyCollector);
-    body = bodyCollector.toString();
-  }
-
-  /**
-   * Factory method to get a new instance of {@link EmailContentProcessor} and process a {@link Message}.
    *
    * @param message the {@link Message} to be processed.
-   * @return a new {@link EmailContentProcessor} instance.
    */
-  public static EmailContentProcessor getInstance(javax.mail.Message message) {
-    return new EmailContentProcessor(message);
+  public StoredEmailContent(Message message) {
+    StringJoiner body = new StringJoiner("\n");
+    processPart(message, body);
+    this.body = new TypedValue<>(body.toString().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());
+  }
+
+  private StoredEmailContent() {
+    this.body = new TypedValue<>("", HTML_STRING);
   }
 
   /**
    * @return the text body of the message.
    */
-  public String getBody() {
-    return body.trim();
+  public TypedValue<String> getBody() {
+    return body;
   }
 
   /**
    * @return a {@link List} with the attachments of an email bounded into {@link Message}s.
    */
-  public List<Message> getAttachments() {
-    return ImmutableList.copyOf(attachmentParts);
+  public Map<String, TypedValue<InputStream>> getAttachments() {
+    return ImmutableMap.copyOf(attachmentParts);
   }
 
   /**
@@ -104,7 +98,7 @@ public class EmailContentProcessor {
         processBodyPart(part, bodyCollector, content);
       }
     } catch (MessagingException | IOException e) {
-      throw new EmailException(ERROR_PROCESSING_MESSAGE, e);
+      throw new EmailException("Error while processing message content.", e);
     }
   }
 
@@ -130,21 +124,9 @@ public class EmailContentProcessor {
    * @param part the attachment part to be processed
    */
   private void processAttachment(Part part) throws MessagingException, IOException {
-    Map<String, LinkedList<String>> headers = new HashMap<>();
-    final Enumeration allHeaders = part.getAllHeaders();
-    while (allHeaders.hasMoreElements()) {
-      Header h = (Header) allHeaders.nextElement();
-      LinkedList<String> headerVal = new LinkedList<>();
-      headerVal.add(h.getValue());
-      headers.put(h.getName(), headerVal);
-    }
-
-    attachmentParts.add(Message.builder()
-        .value(IOUtils.toByteArray(part.getInputStream()))
-        .mediaType(MediaType.parse(part.getContentType()))
-        .attributesValue(new PartAttributes(part.getFileName() == null ? "null" : part.getFileName(), part.getFileName(),
-                                            part.getSize(), headers))
-        .build());
+    ByteArrayInputStream stream = new ByteArrayInputStream(toByteArray(part.getInputStream()));
+    DataType dataType = builder().mediaType(part.getContentType()).build();
+    attachmentParts.put(part.getFileName(), new TypedValue<>(stream, dataType));
   }
 
   /**
@@ -185,5 +167,15 @@ public class EmailContentProcessor {
    */
   private boolean isText(Object content) {
     return content instanceof String;
+  }
+
+  private MediaType getMediaType(Message message) {
+    try {
+      String contentType = message.getContentType();
+      return contentType == null ? ANY : MediaType.parse(contentType);
+    } catch (MessagingException e) {
+      LOGGER.error("Could not obtain the message content type", e);
+      return ANY;
+    }
   }
 }

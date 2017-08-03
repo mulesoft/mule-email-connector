@@ -12,33 +12,25 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
-import static org.mule.runtime.api.metadata.MediaType.ANY;
-import static org.mule.runtime.core.api.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
+
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.extension.email.internal.util.EmailContentProcessor;
-import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
+import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-
-import javax.mail.Folder;
-import javax.mail.MessagingException;
 
 
 /**
@@ -47,7 +39,7 @@ import javax.mail.MessagingException;
  * @since 1.0
  */
 public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
-    implements PagingProvider<MailboxConnection, Result<Object, T>> {
+    implements PagingProvider<MailboxConnection, Result<StoredEmailContent, T>> {
 
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
@@ -102,33 +94,29 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * ({@code shouldReadContent} = false) the SEEN flag is not going to be set. If {@code deleteAfterRead} flag is set to true, the
    * callback {@code deleteAfterReadCallback} is applied to each email.
    */
-  private <T extends BaseEmailAttributes> List<Result<Object, T>> list(int startIndex, int endIndex) {
+  private <T extends BaseEmailAttributes> List<Result<StoredEmailContent, T>> list(int startIndex, int endIndex) {
 
     try {
-      List<Result<Object, T>> retrievedEmails = new LinkedList<>();
-      for (javax.mail.Message m : folder.getMessages(startIndex, endIndex)) {
-        Object emailContent = EMPTY;
-        T attributes = configuration.parseAttributesFromMessage(m, folder);
+      List<Result<StoredEmailContent, T>> emails = new LinkedList<>();
+      for (Message message : folder.getMessages(startIndex, endIndex)) {
+        StoredEmailContent content = StoredEmailContent.EMPTY;
+        T attributes = configuration.parseAttributesFromMessage(message, folder);
         if (matcher.test(attributes)) {
           if (configuration.isEagerlyFetchContent()) {
-            emailContent = readContent(m);
+            content = new StoredEmailContent(message);
             // Attributes are parsed again since they may change after the email has been read.
-            attributes = configuration.parseAttributesFromMessage(m, folder);
+            attributes = configuration.parseAttributesFromMessage(message, folder);
           }
-          Result<Object, T> result = Result.<Object, T>builder()
-              .output(emailContent)
+          emails.add(Result.<StoredEmailContent, T>builder()
+              .output(content)
               .attributes(attributes)
-              .mediaType(getMediaType(attributes))
-              .build();
-
-          retrievedEmails.add(result);
+              .build());
           if (deleteAfterRetrieve) {
             emailsToBeDeleted.add(attributes);
           }
         }
       }
-
-      return retrievedEmails;
+      return emails;
     } catch (CannotFetchMetadataException e) {
       throw e;
     } catch (MessagingException me) {
@@ -137,7 +125,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   }
 
   @Override
-  public List<Result<Object, T>> getPage(MailboxConnection connection) {
+  public List<Result<StoredEmailContent, T>> getPage(MailboxConnection connection) {
 
     if (limit > 0 && retrievedEmailCount >= limit) {
       return tearDown(connection);
@@ -157,7 +145,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
       }
 
       while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom >= 1) {
-        List<Result<Object, T>> emails = list(bottom, top);
+        List<Result<StoredEmailContent, T>> emails = list(bottom, top);
 
         top -= pageSize;
         bottom = max(1, top - pageSize + 1);
@@ -196,7 +184,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     // TODO: MULE-13097 expunge folder and delete emails here
   }
 
-  private List<Result<Object, T>> tearDown(MailboxConnection connection) {
+  private List<Result<StoredEmailContent, T>> tearDown(MailboxConnection connection) {
     emailsToBeDeleted.forEach(e -> deleteAfterReadCallback.accept(connection, e));
     connection.closeFolder(true);
     return emptyList();
@@ -205,27 +193,5 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   @Override
   public boolean useStickyConnections() {
     return true;
-  }
-
-  private MediaType getMediaType(BaseEmailAttributes attributes) {
-    String contentType = attributes.getHeaders().get(CONTENT_TYPE_HEADER);
-    return contentType == null ? ANY : MediaType.parse(contentType);
-  }
-
-  private Object readContent(javax.mail.Message m) {
-    Object emailContent;
-    EmailContentProcessor processor = EmailContentProcessor.getInstance(m);
-    String body = processor.getBody();
-    List<Message> parts = new ArrayList<>();
-    List<Message> attachments = processor.getAttachments();
-
-    if (!attachments.isEmpty()) {
-      parts.add(Message.builder().value(body).attributesValue(BODY_ATTRIBUTES).build());
-      parts.addAll(attachments);
-      emailContent = new DefaultMultiPartPayload(parts);
-    } else {
-      emailContent = body;
-    }
-    return emailContent;
   }
 }

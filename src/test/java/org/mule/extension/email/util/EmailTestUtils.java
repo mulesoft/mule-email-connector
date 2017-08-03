@@ -9,19 +9,12 @@ package org.mule.extension.email.util;
 import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
-import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.message.MultiPartPayload;
-import org.mule.runtime.core.api.message.DefaultMultiPartPayload;
 
+import org.mule.runtime.api.metadata.TypedValue;
 import com.icegreen.greenmail.util.ServerSetup;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Properties;
-
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -30,8 +23,15 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Map;
+import java.util.Properties;
 
 public class EmailTestUtils {
+
+  private static final long SERVER_STARTUP_TIMEOUT = 5000;
 
   public static final String EMAIL_SUBJECT = "Email Subject";
   public static final String EMAIL_CONTENT = "Email Content";
@@ -45,8 +45,6 @@ public class EmailTestUtils {
   public static final String JUANI_EMAIL = "juan.desimoni@mulesoft.com";
   public static final String ALE_EMAIL = "ale.g.marra@mulesoft.com";
   public static final String MG_EMAIL = "mariano.gonzalez@mulesoft.com";
-
-  public static final long SERVER_STARTUP_TIMEOUT = 5000;
 
   public static final Session testSession = Session.getDefaultInstance(new Properties());
 
@@ -85,13 +83,10 @@ public class EmailTestUtils {
     return message;
   }
 
-  public static void assertAttachmentContent(List<Message> attachments, String attachmentKey, byte[] expectedResult)
+  public static void assertAttachmentContent(Map<String, TypedValue<InputStream>> attachments, String name, String expected)
       throws IOException {
-    final MultiPartPayload multiPartPayload = new DefaultMultiPartPayload(attachments);
-
-    Message attachment = multiPartPayload.getPart(attachmentKey);
-    byte[] attachmentAsByteArray = (byte[]) attachment.getPayload().getValue();
-    assertArrayEquals(attachmentAsByteArray, expectedResult);
+    TypedValue<InputStream> attachment = attachments.get(name);
+    assertThat(org.apache.commons.io.IOUtils.toString(attachment.getValue()), is(expected));
   }
 
   public static ServerSetup setUpServer(int port, String protocol) {
