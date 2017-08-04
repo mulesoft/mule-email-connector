@@ -127,8 +127,7 @@ public class StoredEmailContent {
   private void processAttachment(Part part, StreamingHelper streamingHelper) throws MessagingException, IOException {
     Object content = streamingHelper.resolveCursorProvider(part.getInputStream());
     DataType dataType = builder().type(InputStream.class).mediaType(part.getContentType()).build();
-    TypedValue typedValue = new TypedValue<>(content, dataType);
-    attachmentParts.put(part.getFileName(), (TypedValue<InputStream>) typedValue);
+    attachmentParts.put(part.getFileName(), new TypedValue(content, dataType));
   }
 
   /**

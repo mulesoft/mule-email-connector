@@ -21,19 +21,20 @@ import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessa
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
-
 import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.weave.v2.el.ByteArrayBasedCursorStreamProvider;
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
@@ -64,14 +65,19 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   @Test
   public void emailAttachmentsFromMultipart() throws Exception {
     javax.mail.Message message = getMultipartTestMessage();
-    Map<String, TypedValue<?>> attachments = new StoredEmailContent(message, helper).getAttachments();
+    Map<String, TypedValue<InputStream>> attachments = new StoredEmailContent(message, helper).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
   }
 
-  private void assertAttachmentContent(Map<String, TypedValue<?>> attachments, String name, String expected) throws IOException {
-    TypedValue<CursorProvider> attachment = ((TypedValue<CursorProvider>) attachments.get(name));
-    assertThat(IOUtils.toString(((InputStream) attachment.getValue().openCursor())), is(expected));
+  private void assertAttachmentContent(Map<String, TypedValue<InputStream>> attachments, String name, String expected)
+      throws IOException {
+    TypedValue attachment = attachments.get(name);
+    Object attachmentContent = attachment.getValue();
+    if (attachmentContent instanceof CursorProvider) {
+      attachmentContent = ((CursorProvider) attachmentContent).openCursor();
+    }
+    assertThat(IOUtils.toString((InputStream) attachmentContent), is(expected));
   }
 }
