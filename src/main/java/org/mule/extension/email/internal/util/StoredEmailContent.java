@@ -11,26 +11,29 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEX
 import static org.mule.runtime.api.metadata.DataType.HTML_STRING;
 import static org.mule.runtime.api.metadata.DataType.builder;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
-
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
+
 import com.google.common.collect.ImmutableMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -44,7 +47,7 @@ public class StoredEmailContent {
 
   public static final StoredEmailContent EMPTY = new StoredEmailContent();
 
-  private final Map<String, TypedValue<?>> attachmentParts = new LinkedHashMap<>();
+  private final Map<String, TypedValue<InputStream>> attachmentParts = new LinkedHashMap<>();
   private final TypedValue<String> body;
 
   /**
@@ -72,7 +75,7 @@ public class StoredEmailContent {
   /**
    * @return a {@link List} with the attachments of an email bounded into {@link Message}s.
    */
-  public Map<String, TypedValue<?>> getAttachments() {
+  public Map<String, TypedValue<InputStream>> getAttachments() {
     return ImmutableMap.copyOf(attachmentParts);
   }
 
@@ -124,7 +127,8 @@ public class StoredEmailContent {
   private void processAttachment(Part part, StreamingHelper streamingHelper) throws MessagingException, IOException {
     Object content = streamingHelper.resolveCursorProvider(part.getInputStream());
     DataType dataType = builder().type(InputStream.class).mediaType(part.getContentType()).build();
-    attachmentParts.put(part.getFileName(), new TypedValue<>(content, dataType));
+    TypedValue typedValue = new TypedValue<>(content, dataType);
+    attachmentParts.put(part.getFileName(), (TypedValue<InputStream>) typedValue);
   }
 
   /**
