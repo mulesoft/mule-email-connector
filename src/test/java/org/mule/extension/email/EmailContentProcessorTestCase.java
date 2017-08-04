@@ -17,7 +17,6 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.assertAttachmentContent;
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
@@ -32,6 +31,7 @@ import org.mule.weave.v2.el.ByteArrayBasedCursorStreamProvider;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -64,9 +64,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   @Test
   public void emailAttachmentsFromMultipart() throws Exception {
     javax.mail.Message message = getMultipartTestMessage();
-    Map<String, TypedValue<CursorProvider>> attachments = new StoredEmailContent(message, helper).getAttachments();
+    Map<String, TypedValue<?>> attachments = new StoredEmailContent(message, helper).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+  }
+
+  private void assertAttachmentContent(Map<String, TypedValue<?>> attachments, String name, String expected) throws IOException {
+    TypedValue<CursorProvider> attachment = ((TypedValue<CursorProvider>) attachments.get(name));
+    assertThat(IOUtils.toString(((InputStream) attachment.getValue().openCursor())), is(expected));
   }
 }

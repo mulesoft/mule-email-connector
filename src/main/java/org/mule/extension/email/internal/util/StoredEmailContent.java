@@ -16,7 +16,6 @@ import org.mule.extension.email.api.exception.EmailException;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import com.google.common.collect.ImmutableMap;
@@ -45,7 +44,7 @@ public class StoredEmailContent {
 
   public static final StoredEmailContent EMPTY = new StoredEmailContent();
 
-  private final Map<String, TypedValue<CursorProvider>> attachmentParts = new LinkedHashMap<>();
+  private final Map<String, TypedValue<?>> attachmentParts = new LinkedHashMap<>();
   private final TypedValue<String> body;
 
   /**
@@ -73,7 +72,7 @@ public class StoredEmailContent {
   /**
    * @return a {@link List} with the attachments of an email bounded into {@link Message}s.
    */
-  public Map<String, TypedValue<CursorProvider>> getAttachments() {
+  public Map<String, TypedValue<?>> getAttachments() {
     return ImmutableMap.copyOf(attachmentParts);
   }
 
@@ -123,9 +122,9 @@ public class StoredEmailContent {
    * @param part the attachment part to be processed
    */
   private void processAttachment(Part part, StreamingHelper streamingHelper) throws MessagingException, IOException {
-    CursorProvider cursorProvider = ((CursorProvider) streamingHelper.resolveCursorProvider(part.getInputStream()));
-    DataType dataType = builder().mediaType(part.getContentType()).build();
-    attachmentParts.put(part.getFileName(), new TypedValue<>(cursorProvider, dataType));
+    Object content = streamingHelper.resolveCursorProvider(part.getInputStream());
+    DataType dataType = builder().type(InputStream.class).mediaType(part.getContentType()).build();
+    attachmentParts.put(part.getFileName(), new TypedValue<>(content, dataType));
   }
 
   /**

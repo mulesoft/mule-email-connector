@@ -9,14 +9,9 @@ package org.mule.extension.email.util;
 import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
-import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.api.streaming.CursorProvider;
 import com.icegreen.greenmail.util.ServerSetup;
-import org.apache.commons.io.IOUtils;
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -26,9 +21,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
-import java.util.Map;
 import java.util.Properties;
 
 public class EmailTestUtils {
@@ -83,12 +76,6 @@ public class EmailTestUtils {
     message.setSubject(EMAIL_SUBJECT);
     message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
     return message;
-  }
-
-  public static void assertAttachmentContent(Map<String, TypedValue<CursorProvider>> attachments, String name, String expected)
-      throws IOException {
-    TypedValue<CursorProvider> attachment = attachments.get(name);
-    assertThat(IOUtils.toString(((InputStream) attachment.getValue().openCursor())), is(expected));
   }
 
   public static ServerSetup setUpServer(int port, String protocol) {
