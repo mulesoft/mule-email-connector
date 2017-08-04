@@ -18,22 +18,21 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.api.exception.EmailError.EMAIL_NOT_FOUND;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
+
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
+import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
-
-import java.util.Collection;
-import java.util.Iterator;
-
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeMessage;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
+import javax.mail.Flags.Flag;
+import javax.mail.internet.MimeMessage;
+import java.util.Collection;
+import java.util.Iterator;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
@@ -58,7 +57,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   public SystemProperty specialCharacterPassword = new SystemProperty("specialCharacterPassword", SPECIAL_CHARACTER_PASSWORD);
 
   @Parameterized.Parameter
-  public String protocol;
+  public String protocol = "imap";
 
   @Parameterized.Parameters(name = "{0}")
   public static Collection<Object[]> data() {
@@ -91,7 +90,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     while (messages.hasNext()) {
       size++;
       Message m = messages.next();
-      assertBodyContent((String) m.getPayload().getValue());
+      assertBodyContent(((StoredEmailContent) m.getPayload().getValue()).getBody().getValue());
       assertThat(((IMAPEmailAttributes) m.getAttributes().getValue()).getFlags().isSeen(), is(true));
     }
 

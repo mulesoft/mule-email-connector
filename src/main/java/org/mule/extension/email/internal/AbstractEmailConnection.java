@@ -10,23 +10,21 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.mule.extension.email.api.exception.EmailError.INVALID_CREDENTIALS;
 import static org.mule.extension.email.api.exception.EmailError.SSL_ERROR;
+
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.net.ssl.SSLContext;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
-
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.net.ssl.SSLContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generic implementation for an email connection of a connector which operates over the SMTP, IMAP, POP3 and it's secure versions
@@ -228,7 +226,7 @@ public abstract class AbstractEmailConnection {
      * @param user the username to establish connection to.
      * @param pass the password for the specified {@code username}.
      */
-    public PasswordAuthenticator(String user, String pass) {
+    PasswordAuthenticator(String user, String pass) {
       this.user = user;
       this.pass = pass;
     }

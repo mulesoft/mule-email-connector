@@ -27,7 +27,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
  */
 @Alias("pop3s")
 @DisplayName("POP3S Connection")
-public class POP3SProvider extends AbstractMailboxConnectionProvider<MailboxConnection> implements Initialisable {
+public class POP3SProvider extends AbstractMailboxConnectionProvider implements Initialisable {
 
   @ParameterGroup(name = ParameterGroup.CONNECTION)
   private POP3SConnectionSettings connectionSettings;

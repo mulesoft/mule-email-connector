@@ -23,7 +23,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
  */
 @Alias("imap")
 @DisplayName("IMAP Connection")
-public class IMAPProvider extends AbstractMailboxConnectionProvider<MailboxConnection> {
+public class IMAPProvider extends AbstractMailboxConnectionProvider {
 
   @ParameterGroup(name = CONNECTION)
   private IMAPConnectionSettings connectionSettings;
