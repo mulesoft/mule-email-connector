@@ -6,13 +6,12 @@
  */
 package org.mule.extension.email.internal.commands;
 
-import static java.lang.Math.min;
+import static java.lang.Integer.max;
+import static java.lang.Integer.min;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
-import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
-import static org.mule.runtime.api.metadata.MediaType.ANY;
-import static org.mule.runtime.core.message.DefaultMultiPartPayload.BODY_ATTRIBUTES;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
@@ -20,20 +19,18 @@ import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.extension.email.internal.util.EmailContentProcessor;
-import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.message.DefaultMultiPartPayload;
+import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 
@@ -43,20 +40,22 @@ import java.util.function.Predicate;
  * @since 1.0
  */
 public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
-    implements PagingProvider<MailboxConnection, Result<Object, T>> {
+    implements PagingProvider<MailboxConnection, Result<StoredEmailContent, T>> {
 
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
+  private final List<BaseEmailAttributes> emailsToBeDeleted;
   private Folder folder;
   private final String folderName;
-  private final BaseEmailPredicateBuilder matcherBuilder;
-  private int bottom = 1;
+  private int bottom;
   private int top;
+  private int limit;
+  private final StreamingHelper streamingHelper;
+  private int retrievedEmailCount;
   private final boolean deleteAfterRetrieve;
-  private final Consumer<BaseEmailAttributes> deleteAfterReadCallback;
-
-  // TODO: MULE-13097 - REMOVE WHEN SDK Injects the connection on PagingProvider#close() method
-  private MailboxConnection connection;
+  private final BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback;
+  private final Predicate<BaseEmailAttributes> matcher;
+  private boolean initialized = false;
 
   /**
    * @param configuration           The {@link MailboxAccessConfiguration} associated to this operation.
@@ -65,20 +64,28 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * @param pageSize                size of the block that would be retrieved from the email server. This page doesn't represent the page size to
    *                                be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
    *                                matcher after retrieval to see if they fulfill matcher's condition.
+   * @param limit                   The maximum amount of emails that will be retrieved by htis {@link PagingProvider}
    * @param deleteAfterRetrieve     whether the emails should be deleted after retrieval
    * @param deleteAfterReadCallback callback for deleting each email
    */
   public PagingProviderEmailDelegate(MailboxAccessConfiguration configuration, String folderName,
                                      BaseEmailPredicateBuilder matcherBuilder,
                                      int pageSize,
-                                     boolean deleteAfterRetrieve, Consumer<BaseEmailAttributes> deleteAfterReadCallback) {
+                                     int limit,
+                                     boolean deleteAfterRetrieve,
+                                     BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback,
+                                     StreamingHelper streamingHelper) {
     this.configuration = configuration;
     this.folderName = folderName;
-    this.matcherBuilder = matcherBuilder;
+    this.matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
     this.pageSize = pageSize;
     this.top = pageSize;
+    this.limit = limit;
+    this.streamingHelper = streamingHelper;
+    this.retrievedEmailCount = 0;
     this.deleteAfterRetrieve = deleteAfterRetrieve;
     this.deleteAfterReadCallback = deleteAfterReadCallback;
+    this.emailsToBeDeleted = new LinkedList<>();
   }
 
   /**
@@ -91,34 +98,29 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * ({@code shouldReadContent} = false) the SEEN flag is not going to be set. If {@code deleteAfterRead} flag is set to true, the
    * callback {@code deleteAfterReadCallback} is applied to each email.
    */
-  private <T extends BaseEmailAttributes> List<Result<Object, T>> list(int startIndex, int endIndex) {
-    Predicate<BaseEmailAttributes> matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
+  private <T extends BaseEmailAttributes> List<Result<StoredEmailContent, T>> list(int startIndex, int endIndex) {
+
     try {
-      List<Result<Object, T>> retrievedEmails = new LinkedList<>();
-      for (javax.mail.Message m : folder.getMessages(startIndex, endIndex)) {
-        Object emailContent = "";
-        T attributes = configuration.parseAttributesFromMessage(m, folder);
+      List<Result<StoredEmailContent, T>> emails = new LinkedList<>();
+      for (Message message : folder.getMessages(startIndex, endIndex)) {
+        StoredEmailContent content = StoredEmailContent.EMPTY;
+        T attributes = configuration.parseAttributesFromMessage(message, folder);
         if (matcher.test(attributes)) {
           if (configuration.isEagerlyFetchContent()) {
-            emailContent = readContent(m);
+            content = new StoredEmailContent(message, streamingHelper);
             // Attributes are parsed again since they may change after the email has been read.
-            attributes = configuration.parseAttributesFromMessage(m, folder);
+            attributes = configuration.parseAttributesFromMessage(message, folder);
           }
-          Result<Object, T> result = Result.<Object, T>builder()
-              .output(emailContent)
+          emails.add(Result.<StoredEmailContent, T>builder()
+              .output(content)
               .attributes(attributes)
-              .mediaType(getMediaType(attributes))
-              .build();
-
-          retrievedEmails.add(result);
-
+              .build());
           if (deleteAfterRetrieve) {
-            deleteAfterReadCallback.accept(attributes);
+            emailsToBeDeleted.add(attributes);
           }
         }
       }
-
-      return retrievedEmails;
+      return emails;
     } catch (CannotFetchMetadataException e) {
       throw e;
     } catch (MessagingException me) {
@@ -127,26 +129,48 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   }
 
   @Override
-  public List<Result<Object, T>> getPage(MailboxConnection connection) {
-    this.connection = connection;
+  public List<Result<StoredEmailContent, T>> getPage(MailboxConnection connection) {
+
+    if (limit > 0 && retrievedEmailCount >= limit) {
+      return tearDown(connection);
+    }
+
     try {
       folder = connection.getFolder(folderName, deleteAfterRetrieve ? READ_WRITE : READ_ONLY);
-      int count = folder.getMessageCount();
-      if (count != 0) {
-        top = min(top, count);
-        while (bottom <= top) {
-          List<Result<Object, T>> emails = list(bottom, top);
-          bottom += pageSize;
-          top = min(top + pageSize, count);
-          if (!emails.isEmpty()) {
-            return emails;
-          }
+
+      // initialize mailbox indexes
+      if (!initialized) {
+        initialized = true;
+        top = folder.getMessageCount();
+        bottom = max(1, top - pageSize + 1);
+
+        if (top == 0)
+          return tearDown(connection);
+      }
+
+      while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom >= 1) {
+        List<Result<StoredEmailContent, T>> emails = list(bottom, top);
+
+        top -= pageSize;
+        bottom = max(1, top - pageSize + 1);
+
+        int retrievedPageSize = emails.size();
+        retrievedEmailCount += retrievedPageSize;
+        if (retrievedPageSize > 0) {
+          // if limited and the limit was exceeded, return the amount that is left until reaching the limit
+          int limitedPage =
+              limit > 0 && retrievedEmailCount > limit ? min(retrievedPageSize, retrievedEmailCount - limit) : retrievedPageSize;
+          emails = emails.subList(0, limitedPage);
+          reverse(emails);
+          return emails;
         }
       }
+
     } catch (MessagingException e) {
       throw new EmailException("Error while retrieving emails: ", e);
     }
-    return emptyList();
+
+    return tearDown(connection);
   }
 
   /**
@@ -161,33 +185,17 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public void close() throws IOException {
+    // TODO: MULE-13097 expunge folder and delete emails here
+  }
+
+  private List<Result<StoredEmailContent, T>> tearDown(MailboxConnection connection) {
+    emailsToBeDeleted.forEach(e -> deleteAfterReadCallback.accept(connection, e));
     connection.closeFolder(true);
+    return emptyList();
   }
 
   @Override
   public boolean useStickyConnections() {
     return true;
-  }
-
-  private MediaType getMediaType(BaseEmailAttributes attributes) {
-    String contentType = attributes.getHeaders().get(CONTENT_TYPE_HEADER);
-    return contentType == null ? ANY : MediaType.parse(contentType);
-  }
-
-  private Object readContent(javax.mail.Message m) {
-    Object emailContent;
-    EmailContentProcessor processor = EmailContentProcessor.getInstance(m);
-    String body = processor.getBody();
-    List<Message> parts = new ArrayList<>();
-    List<Message> attachments = processor.getAttachments();
-
-    if (!attachments.isEmpty()) {
-      parts.add(Message.builder().payload(body).attributes(BODY_ATTRIBUTES).build());
-      parts.addAll(attachments);
-      emailContent = new DefaultMultiPartPayload(parts);
-    } else {
-      emailContent = body;
-    }
-    return emailContent;
   }
 }

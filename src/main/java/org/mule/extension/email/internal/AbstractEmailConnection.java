@@ -6,6 +6,7 @@
  */
 package org.mule.extension.email.internal;
 
+import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.mule.extension.email.api.exception.EmailError.INVALID_CREDENTIALS;
 import static org.mule.extension.email.api.exception.EmailError.SSL_ERROR;
@@ -135,6 +136,11 @@ public abstract class AbstractEmailConnection {
     properties.setProperty(protocol.getStartTlsProperty(), "true");
     properties.setProperty(protocol.getSocketFactoryFallbackProperty(), "false");
 
+    // TODO: MULE-13237
+    if (tlsContextFactory == null) {
+      throw new EmailConnectionException("TLS context wasn't configured and it is mandatory for secure protocols.", SSL_ERROR);
+    }
+
     if (tlsContextFactory.getTrustStoreConfiguration().isInsecure()) {
       properties.setProperty(protocol.getSslTrustProperty(), "*");
     }
@@ -152,8 +158,8 @@ public abstract class AbstractEmailConnection {
             properties.setProperty(protocol.getSslEnableProperty(), "true");
             if (LOGGER.isWarnEnabled()) {
               LOGGER.warn(
-                          "Property %s has been enabled. For disabling this property remove SSL from the enabled protocols in your TLS configuration",
-                          protocol.getSslEnableProperty());
+                          format("Property %s has been enabled. For disabling this property remove SSL from the enabled protocols in your TLS configuration",
+                                 protocol.getSslEnableProperty()));
             }
           });
       properties.setProperty(protocol.getSslProtocolsProperty(), join(sslProtocols, WHITESPACE_SEPARATOR));
@@ -222,7 +228,7 @@ public abstract class AbstractEmailConnection {
      * @param user the username to establish connection to.
      * @param pass the password for the specified {@code username}.
      */
-    public PasswordAuthenticator(String user, String pass) {
+    PasswordAuthenticator(String user, String pass) {
       this.user = user;
       this.pass = pass;
     }

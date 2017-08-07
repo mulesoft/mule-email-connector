@@ -9,17 +9,12 @@ package org.mule.extension.email.util;
 import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
-import static org.junit.Assert.assertArrayEquals;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
-import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.message.MultiPartPayload;
-import org.mule.runtime.core.message.DefaultMultiPartPayload;
 
 import com.icegreen.greenmail.util.ServerSetup;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -33,6 +28,8 @@ import javax.mail.internet.MimeMultipart;
 
 public class EmailTestUtils {
 
+  private static final long SERVER_STARTUP_TIMEOUT = 5000;
+
   public static final String EMAIL_SUBJECT = "Email Subject";
   public static final String EMAIL_CONTENT = "Email Content";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT = "This is the email text attachment";
@@ -45,8 +42,6 @@ public class EmailTestUtils {
   public static final String JUANI_EMAIL = "juan.desimoni@mulesoft.com";
   public static final String ALE_EMAIL = "ale.g.marra@mulesoft.com";
   public static final String MG_EMAIL = "mariano.gonzalez@mulesoft.com";
-
-  public static final long SERVER_STARTUP_TIMEOUT = 5000;
 
   public static final Session testSession = Session.getDefaultInstance(new Properties());
 
@@ -83,15 +78,6 @@ public class EmailTestUtils {
     message.setSubject(EMAIL_SUBJECT);
     message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
     return message;
-  }
-
-  public static void assertAttachmentContent(List<Message> attachments, String attachmentKey, byte[] expectedResult)
-      throws IOException {
-    final MultiPartPayload multiPartPayload = new DefaultMultiPartPayload(attachments);
-
-    Message attachment = multiPartPayload.getPart(attachmentKey);
-    byte[] attachmentAsByteArray = (byte[]) attachment.getPayload().getValue();
-    assertArrayEquals(attachmentAsByteArray, expectedResult);
   }
 
   public static ServerSetup setUpServer(int port, String protocol) {

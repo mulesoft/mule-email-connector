@@ -28,7 +28,7 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
  */
 @Alias("imaps")
 @DisplayName("IMAPS Connection")
-public class IMAPSProvider extends AbstractMailboxConnectionProvider<MailboxConnection> implements Initialisable {
+public class IMAPSProvider extends AbstractMailboxConnectionProvider implements Initialisable {
 
   @ParameterGroup(name = CONNECTION)
   private IMAPSConnectionSettings connectionSettings;

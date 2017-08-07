@@ -5,6 +5,8 @@
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
+    <email:imap-matcher name="matcher" subjectRegex="Email Subject" fromRegex="@mulesoft"/>
+
     <flow name="retrieveAndDontRead">
         <email:list-imap config-ref="config-dont-read"/>
     </flow>
@@ -52,17 +54,33 @@
     </flow>
 
     <flow name="retrieveMatchingSubjectAndFromAddress">
-        <email:list-imap config-ref="config">
-            <email:imap-matcher subjectRegex="Email Subject" fromRegex="@mulesoft"/>
-        </email:list-imap>
+        <email:list-imap config-ref="config" imapMatcher="matcher"/>
     </flow>
 
     <flow name="retrieveWithAttachments">
         <email:list-imap config-ref="config"/>
+        <foreach>
+            <set-variable variableName="json" value="#[payload.attachments['attachment.json'] ++ '']" />
+            <set-variable variableName="text" value="#[payload.attachments['text-attachment'] ++ '']" />
+        </foreach>
     </flow>
 
     <flow name="retrieveAndDelete">
         <email:list-imap config-ref="config" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="retrieveWithLimit">
+        <email:list-imap config-ref="config" limit="#[limit]"/>
+    </flow>
+
+    <flow name="retrieveWithPageSize">
+        <email:list-imap config-ref="config" pageSize="#[pageSize]" imapMatcher="matcher"/>
+    </flow>
+
+    <flow name="retrieveNumberedWithPageSize">
+        <email:list-imap config-ref="config" pageSize="#[pageSize]">
+            <email:imap-matcher subjectRegex="[0-9]+"/>
+        </email:list-imap>
     </flow>
 
     <flow name="retrieveAndDeleteSelected">

@@ -6,7 +6,6 @@
  */
 package org.mule.extension.email.internal.mailbox;
 
-import org.mule.extension.email.internal.AbstractEmailConnection;
 import org.mule.extension.email.internal.AbstractEmailConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.extension.api.runtime.ConfigurationProvider;
@@ -16,14 +15,13 @@ import org.mule.runtime.extension.api.runtime.ConfigurationProvider;
  *
  * @since 1.0
  */
-public abstract class AbstractMailboxConnectionProvider<C extends AbstractEmailConnection>
-    extends AbstractEmailConnectionProvider<C> {
+public abstract class AbstractMailboxConnectionProvider extends AbstractEmailConnectionProvider<MailboxConnection> {
 
   /**
    * {@inheritDoc}
    */
   @Override
-  public void disconnect(C connection) {
+  public void disconnect(MailboxConnection connection) {
     connection.disconnect();
   }
 
@@ -31,14 +29,13 @@ public abstract class AbstractMailboxConnectionProvider<C extends AbstractEmailC
    * {@inheritDoc}
    */
   @Override
-  public ConnectionValidationResult validate(C connection) {
+  public ConnectionValidationResult validate(MailboxConnection connection) {
     return connection.validate();
   }
 
   @Override
-  public void onBorrow(C connection) {
-    if (connection instanceof MailboxConnection) {
-      ((MailboxConnection) connection).closeFolder(false);
-    }
+  public void onReturn(MailboxConnection connection) {
+    // If the folder remains open after an operation execution failed.
+    connection.closeFolder(false);
   }
 }
