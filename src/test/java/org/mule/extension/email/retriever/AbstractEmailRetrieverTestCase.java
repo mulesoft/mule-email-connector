@@ -113,8 +113,8 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     server.purgeEmailFromAllMailboxes();
     user.deliver(getMultipartTestMessage());
     Event event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
-    assertThat(event.getVariable("text").getValue(), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
-    assertThat(event.getVariable("json").getValue(), is(EMAIL_JSON_ATTACHMENT_CONTENT));
+    assertThat(event.getVariables().get("text").getValue(), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
+    assertThat(event.getVariables().get("json").getValue(), is(EMAIL_JSON_ATTACHMENT_CONTENT));
   }
 
   @Test
