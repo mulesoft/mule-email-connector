@@ -8,7 +8,7 @@ package org.mule.extension.email.internal.mailbox;
 
 import org.mule.extension.email.internal.AbstractEmailConnectionProvider;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.extension.api.runtime.ConfigurationProvider;
+import org.mule.runtime.extension.api.runtime.config.ConfigurationProvider;
 
 /**
  * Generic contract for all email retriever {@link ConfigurationProvider}s.
