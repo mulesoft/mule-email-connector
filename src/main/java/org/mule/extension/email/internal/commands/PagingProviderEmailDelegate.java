@@ -12,7 +12,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
-
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailException;
@@ -23,15 +22,17 @@ import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
+
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 
 
 /**
@@ -132,7 +133,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   public List<Result<StoredEmailContent, T>> getPage(MailboxConnection connection) {
 
     if (limit > 0 && retrievedEmailCount >= limit) {
-      return tearDown(connection);
+      return emptyList();
     }
 
     try {
@@ -145,7 +146,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
         bottom = max(1, top - pageSize + 1);
 
         if (top == 0)
-          return tearDown(connection);
+          return emptyList();
       }
 
       while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom >= 1) {
@@ -170,7 +171,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
       throw new EmailException("Error while retrieving emails: ", e);
     }
 
-    return tearDown(connection);
+    return emptyList();
   }
 
   /**
@@ -184,14 +185,9 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   }
 
   @Override
-  public void close() throws IOException {
-    // TODO: MULE-13097 expunge folder and delete emails here
-  }
-
-  private List<Result<StoredEmailContent, T>> tearDown(MailboxConnection connection) {
+  public void close(MailboxConnection connection) throws IOException {
     emailsToBeDeleted.forEach(e -> deleteAfterReadCallback.accept(connection, e));
     connection.closeFolder(true);
-    return emptyList();
   }
 
   @Override
