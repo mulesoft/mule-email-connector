@@ -8,7 +8,7 @@ package org.mule.extension.email.api.predicate;
 
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.runtime.extension.api.annotation.Alias;
-import org.mule.runtime.extension.api.annotation.dsl.xml.TypeXmlHints;
+import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 
 import java.util.function.Predicate;
 
@@ -20,7 +20,7 @@ import java.util.function.Predicate;
  *
  * @since 1.0
  */
-@TypeXmlHints(allowTopLevelDefinition = true)
+@TypeDsl(allowTopLevelDefinition = true)
 @Alias("pop3-matcher")
 public class POP3EmailPredicateBuilder extends BaseEmailPredicateBuilder {
 
