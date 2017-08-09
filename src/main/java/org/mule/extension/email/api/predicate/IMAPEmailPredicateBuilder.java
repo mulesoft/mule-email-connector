@@ -11,8 +11,8 @@ import org.mule.extension.email.api.EmailFlags;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.dsl.xml.XmlHints;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 
 import java.util.function.Predicate;
@@ -28,7 +28,7 @@ import java.util.function.Predicate;
  *
  * @since 1.0
  */
-@XmlHints(allowTopLevelDefinition = true)
+@TypeDsl(allowTopLevelDefinition = true)
 @Alias("imap-matcher")
 public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
 
