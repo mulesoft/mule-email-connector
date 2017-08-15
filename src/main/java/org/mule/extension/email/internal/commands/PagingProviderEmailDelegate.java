@@ -19,11 +19,11 @@ import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.util.StoredEmailContent;
+import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -185,7 +185,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   }
 
   @Override
-  public void close(MailboxConnection connection) throws IOException {
+  public void close(MailboxConnection connection) throws MuleException {
     emailsToBeDeleted.forEach(e -> deleteAfterReadCallback.accept(connection, e));
     connection.closeFolder(true);
   }
