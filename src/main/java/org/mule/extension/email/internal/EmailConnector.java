@@ -25,7 +25,7 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
  * @since 1.0
  */
 @Configurations({SMTPConfiguration.class, POP3Configuration.class, IMAPConfiguration.class})
-@Extension(name = "Email", description = "Connector to send and list email messages to and from mailboxes")
+@Extension(name = "Email")
 @ErrorTypes(EmailError.class)
 @Export(classes = EmailException.class)
 public class EmailConnector {
