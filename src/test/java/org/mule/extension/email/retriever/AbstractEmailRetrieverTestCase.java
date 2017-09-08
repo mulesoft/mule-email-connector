@@ -38,7 +38,7 @@ import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
-import org.mule.runtime.core.api.InternalEvent;
+import org.mule.runtime.core.api.event.BaseEvent;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -112,7 +112,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   public void retrieveEmailWithAttachments() throws Exception {
     server.purgeEmailFromAllMailboxes();
     user.deliver(getMultipartTestMessage());
-    InternalEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
+    BaseEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
     assertThat(event.getVariables().get("text").getValue(), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
     assertThat(event.getVariables().get("json").getValue(), is(EMAIL_JSON_ATTACHMENT_CONTENT));
   }
