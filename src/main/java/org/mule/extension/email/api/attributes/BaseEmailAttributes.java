@@ -12,13 +12,14 @@ import static java.util.Collections.list;
 import static javax.mail.Message.RecipientType.BCC;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
-import static org.mule.runtime.core.api.util.collection.Collectors.toImmutableList;
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
-import org.mule.runtime.core.api.message.BaseAttributes;
 
 import com.google.common.collect.ImmutableMap;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -32,6 +33,8 @@ import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+
 /**
  * Contains all the basic metadata of a received email, it carries information such as the subject of the email, the number in the
  * mailbox and the recipients between others.
@@ -40,7 +43,7 @@ import javax.mail.MessagingException;
  *
  * @since 1.0
  */
-public abstract class BaseEmailAttributes extends BaseAttributes {
+public abstract class BaseEmailAttributes implements Serializable {
 
   /**
    * The number is the relative position of the email in its Folder. Note that the number for a particular email can change during
@@ -211,6 +214,11 @@ public abstract class BaseEmailAttributes extends BaseAttributes {
    */
   public Map<String, String> getHeaders() {
     return headers != null ? ImmutableMap.copyOf(headers) : ImmutableMap.of();
+  }
+
+  @Override
+  public String toString() {
+    return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
   }
 
   private List<String> addressesAsList(Address[] toAddresses) {
