@@ -5,27 +5,25 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.mule.tck.junit4.matcher.ValueMatcher.valueWithId;
 import static org.mule.tck.util.TestConnectivityUtils.disableAutomaticTestConnectivity;
+
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.runtime.api.component.location.Location;
 import org.mule.runtime.api.value.ValueProviderService;
 import org.mule.runtime.api.value.ValueResult;
 import org.mule.tck.junit4.rule.SystemProperty;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.inject.Inject;
+
 public class ContentTransferEncodingValueProviderTestCase extends EmailConnectorTestCase {
 
+  @Inject
   private ValueProviderService service;
 
   @Rule
   public SystemProperty systemProperty = disableAutomaticTestConnectivity();
-
-  @Before
-  public void init() throws Exception {
-    service = muleContext.getRegistry().lookupObject(ValueProviderService.class);
-  }
 
   @Override
   protected String[] getConfigFiles() {
