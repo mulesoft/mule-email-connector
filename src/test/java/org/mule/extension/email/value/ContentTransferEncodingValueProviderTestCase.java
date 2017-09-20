@@ -22,11 +22,6 @@ public class ContentTransferEncodingValueProviderTestCase extends EmailConnector
   @Inject
   private ValueProviderService service;
 
-  @Override
-  protected boolean doTestClassInjection() {
-    return true;
-  }
-
   @Rule
   public SystemProperty systemProperty = disableAutomaticTestConnectivity();
 
