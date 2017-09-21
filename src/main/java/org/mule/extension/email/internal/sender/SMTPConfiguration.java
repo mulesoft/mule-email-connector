@@ -25,6 +25,8 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 @DisplayName("SMTP")
 public class SMTPConfiguration {
 
+  @DefaultEncoding
+  private String muleEncoding;
   /**
    * The "From" sender address. The person that is going to send the messages.
    */
@@ -37,7 +39,7 @@ public class SMTPConfiguration {
    * will be used
    */
   @Parameter
-  @DefaultEncoding
+  @Optional
   private String defaultEncoding;
 
   @Parameter
@@ -52,7 +54,7 @@ public class SMTPConfiguration {
   }
 
   public String getDefaultEncoding() {
-    return defaultEncoding;
+    return defaultEncoding == null ? muleEncoding : defaultEncoding;
   }
 
   public String getDefaultContentTransferEncoding() {
