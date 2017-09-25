@@ -26,13 +26,16 @@ import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeMessage;
+
 import java.util.Collection;
 import java.util.Iterator;
+
+import javax.mail.Flags.Flag;
+import javax.mail.internet.MimeMessage;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
@@ -77,7 +80,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
 
   @Test
   public void specialCharacterPassword() {
-    connectivityUtils = new TestConnectivityUtils(muleContext);
+    connectivityUtils = new TestConnectivityUtils(registry);
     user = server.setUser(JUANI_EMAIL, JUANI_EMAIL, SPECIAL_CHARACTER_PASSWORD);
     connectivityUtils.assertSuccessConnection("configSpecialCharacterCredentials");
   }
