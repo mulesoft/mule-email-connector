@@ -13,15 +13,17 @@ import static org.mule.extension.email.api.exception.EmailError.INVALID_CREDENTI
 import static org.mule.extension.email.api.exception.EmailError.UNKNOWN_HOST;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
+
+import org.hamcrest.Matcher;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class IMAPNegativeConnectivityTestCase extends EmailConnectorTestCase {
 
@@ -42,7 +44,7 @@ public class IMAPNegativeConnectivityTestCase extends EmailConnectorTestCase {
 
   @Before
   public void createUtils() {
-    connectivityUtils = new TestConnectivityUtils(muleContext);
+    connectivityUtils = new TestConnectivityUtils(registry);
   }
 
   @Test
