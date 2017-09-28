@@ -13,6 +13,8 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.connectivity.NoConnectivityTest;
+
 import java.util.Map;
 
 /**
@@ -20,7 +22,7 @@ import java.util.Map;
  *
  * @since 1.0
  */
-public abstract class AbstractEmailConnectionProvider<T> implements PoolingConnectionProvider<T> {
+public abstract class AbstractEmailConnectionProvider<T> implements PoolingConnectionProvider<T>, NoConnectivityTest {
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
 
