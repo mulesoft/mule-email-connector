@@ -15,9 +15,10 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.setUpServer;
-import static org.mule.functional.junit4.rules.ExpectedError.none;
+import static org.mule.functional.api.exception.ExpectedError.none;
+
+import org.mule.functional.api.exception.ExpectedError;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
-import org.mule.functional.junit4.rules.ExpectedError;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;

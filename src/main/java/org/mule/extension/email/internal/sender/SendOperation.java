@@ -9,13 +9,13 @@ package org.mule.extension.email.internal.sender;
 
 import static org.mule.runtime.api.metadata.DataType.INPUT_STREAM;
 import static org.mule.runtime.api.metadata.DataType.fromObject;
+
 import org.mule.extension.email.api.exception.EmailSenderErrorTypeProvider;
 import org.mule.extension.email.internal.commands.SendCommand;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.transformation.TransformationService;
-import org.mule.runtime.core.api.exception.MessagingException;
 import org.mule.runtime.core.api.transformer.MessageTransformerException;
 import org.mule.runtime.core.api.transformer.TransformerException;
 import org.mule.runtime.extension.api.annotation.error.Throws;
@@ -61,7 +61,7 @@ public class SendOperation {
                    @Placement(order = 1) @ParameterGroup(name = "Settings") EmailSettings settings,
                    @Placement(order = 2) @ParameterGroup(name = "Body", showInDsl = true) EmailBody body,
                    @Placement(order = 3) @ParameterGroup(name = "Attachments") AttachmentsGroup attachments)
-      throws MessageTransformerException, MessagingException, TransformerException {
+      throws MessageTransformerException, TransformerException {
     attachments.setAttachments(transformAttachments(attachments));
     sendCommand.send(connection, configuration, settings, body, attachments);
   }
@@ -74,7 +74,7 @@ public class SendOperation {
    * @return a new {@link Map} of attachments represented in {@link InputStream}
    */
   private Map<String, TypedValue<InputStream>> transformAttachments(AttachmentsGroup attachments)
-      throws MessageTransformerException, MessagingException, TransformerException {
+      throws MessageTransformerException, TransformerException {
     Map<String, TypedValue<InputStream>> newAttachments = new HashMap<>();
     for (Map.Entry<String, TypedValue<InputStream>> attachment : attachments.getAttachments().entrySet()) {
       newAttachments.put(attachment.getKey(), getTransformTypedValue(attachment.getValue()));
@@ -83,7 +83,7 @@ public class SendOperation {
   }
 
   private TypedValue<InputStream> getTransformTypedValue(TypedValue typedValue)
-      throws MessageTransformerException, MessagingException, TransformerException {
+      throws MessageTransformerException, TransformerException {
 
     Object value = typedValue.getValue();
     if (value instanceof InputStream) {
