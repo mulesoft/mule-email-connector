@@ -16,7 +16,6 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.setUpServer;
 import static org.mule.functional.api.exception.ExpectedError.none;
-
 import org.mule.functional.api.exception.ExpectedError;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.metadata.MediaType;
@@ -27,16 +26,16 @@ import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-
 import java.io.IOException;
 
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
-@ArtifactClassLoaderRunnerConfig(sharedRuntimeLibs = {"com.sun.mail:javax.mail"})
+import org.apache.commons.io.IOUtils;
+import org.junit.Rule;
+
+@ArtifactClassLoaderRunnerConfig(sharedRuntimeLibs = {"com.sun.mail:javax.mail", "org.mule.tests:mule-tests-unit"})
 public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
   protected static final String NAMESPACE = "EMAIL";
