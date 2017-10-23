@@ -4,31 +4,31 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.exception;
+package org.mule.extension.email.internal.errors;
 
-import static org.mule.extension.email.api.exception.EmailError.ATTACHMENT;
-import org.mule.extension.email.internal.sender.EmailSettings;
-import org.mule.extension.email.internal.sender.SMTPConfiguration;
-import org.mule.extension.email.internal.sender.SenderConnection;
+import static org.mule.extension.email.internal.errors.EmailError.CONNECTIVITY;
+import static org.mule.extension.email.internal.errors.EmailError.SEND;
+
 import org.mule.extension.email.internal.sender.SendOperation;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
+
 /**
- * Errors that can be thrown in the {@link SendOperation#send(SenderConnection, SMTPConfiguration, EmailSettings)} operation.
- * 
+ * Errors that can be thrown in the {@link SendOperation#send} operation.
+ *
  * @since 1.0
  */
-public class EmailSenderErrorTypeProvider implements ErrorTypeProvider {
+public class SendErrorTypeProvider implements ErrorTypeProvider {
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
     return ImmutableSet.<ErrorTypeDefinition>builder()
-        .add(ATTACHMENT)
+        .add(CONNECTIVITY)
+        .add(SEND)
         .build();
   }
 }

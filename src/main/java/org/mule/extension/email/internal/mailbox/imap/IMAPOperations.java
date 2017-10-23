@@ -18,12 +18,13 @@ import static org.mule.runtime.api.util.Preconditions.checkArgument;
 
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailAccessingFolderErrorTypeProvider;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
+import org.mule.extension.email.internal.commands.EmailSetFlagException;
 import org.mule.extension.email.internal.commands.ExpungeCommand;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.extension.email.internal.commands.SetFlagCommand;
+import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.util.StoredEmailContent;
@@ -33,10 +34,10 @@ import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
-import javax.mail.MessagingException;
 
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
@@ -62,8 +63,9 @@ public class IMAPOperations {
    *                            imply any restriction over the amount of emails being retrieved from the mailbox server.
    * @return an {@link PagingProvider} which provides {@link Result}s composed by the email's body and its corresponding {@link IMAPEmailAttributes}.
    */
-  @Summary("Lists the emails in the given POP3 Mailbox Folder")
+  @Summary("Lists the emails in the given IMAP Mailbox Folder")
   @DisplayName("List - IMAP")
+  @Throws(EmailListingErrorTypeProvider.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, IMAPEmailAttributes>> listImap(@Config IMAPConfiguration config,
                                                                                                      @Optional(
                                                                                                          defaultValue = INBOX_FOLDER) String mailboxFolder,
@@ -151,8 +153,12 @@ public class IMAPOperations {
     markAsDeleted(connection, mailboxFolder, emailId);
     try {
       connection.getFolder(mailboxFolder, READ_WRITE).close(true);
-    } catch (MessagingException e) {
-      throw new EmailException(format("Error while eliminating email uid:[%s] from the [%s] folder", emailId, mailboxFolder), e);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailSetFlagException(format("Error while eliminating email uid:[%s] from the [%s] folder", emailId,
+                                             mailboxFolder),
+                                      e);
     }
   }
 }

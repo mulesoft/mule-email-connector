@@ -7,8 +7,12 @@
 package org.mule.extension.email.internal.commands;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.mule.extension.email.internal.errors.EmailError.AUTHENTICATION;
+import static org.mule.extension.email.internal.errors.EmailError.CONNECTIVITY;
 import static org.mule.extension.email.internal.util.EmailUtils.getMediaType;
-import org.mule.extension.email.api.exception.EmailException;
+
+import org.mule.extension.email.api.exception.EmailConnectionException;
+import org.mule.extension.email.api.exception.EmailSendException;
 import org.mule.extension.email.internal.MessageBuilder;
 import org.mule.extension.email.internal.sender.EmailBody;
 import org.mule.extension.email.internal.sender.EmailSettings;
@@ -17,12 +21,14 @@ import org.mule.extension.email.internal.sender.SenderConnection;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
 import org.mule.runtime.api.metadata.MediaType;
 
-import java.io.IOException;
+import javax.mail.AuthenticationFailedException;
+import javax.mail.Message;
+import javax.mail.Transport;
+
 import java.util.Calendar;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Transport;
+import com.sun.mail.smtp.SMTPSendFailedException;
+import com.sun.mail.util.MailConnectException;
 
 /**
  * Represents the send operation.
@@ -42,7 +48,8 @@ public final class SendCommand {
    * @param attachments       email attachments to send
    */
   public void send(SenderConnection connection, SMTPConfiguration smtpConfiguration,
-                   EmailSettings settings, EmailBody body, AttachmentsGroup attachments) {
+                   EmailSettings settings, EmailBody body, AttachmentsGroup attachments)
+      throws EmailConnectionException {
     try {
       MediaType contentType = getMediaType(body, smtpConfiguration.getDefaultEncoding());
       Message message = MessageBuilder.newMessage(connection.getSession())
@@ -57,8 +64,24 @@ public final class SendCommand {
           .withHeaders(settings.getHeaders())
           .build();
       Transport.send(message);
-    } catch (MessagingException | IOException e) {
-      throw new EmailException("Error while sending email: " + e.getMessage(), e);
+    } catch (SMTPSendFailedException e) {
+      switch (e.getReturnCode()) {
+        //Known status codes related to connectivity issues
+        case 101 | 110 | 111 | 420 | 421 | 441 | 442 | 447 | 530: {
+          throw new EmailConnectionException(getSendErrorMessage(e), e, CONNECTIVITY);
+        }
+      }
+      throw new EmailSendException(getSendErrorMessage(e), e);
+    } catch (AuthenticationFailedException e) {
+      throw new EmailConnectionException(getSendErrorMessage(e), e, AUTHENTICATION);
+    } catch (MailConnectException e) {
+      throw new EmailConnectionException(getSendErrorMessage(e), e, CONNECTIVITY);
+    } catch (Exception e) {
+      throw new EmailSendException(getSendErrorMessage(e), e);
     }
+  }
+
+  private String getSendErrorMessage(Exception e) {
+    return "Error while sending email: " + e.getMessage();
   }
 }

@@ -16,7 +16,7 @@ import static javax.mail.Flags.Flag.SEEN;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.email.api.exception.EmailError.EMAIL_NOT_FOUND;
+import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
@@ -27,15 +27,15 @@ import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import javax.mail.Flags.Flag;
+import javax.mail.internet.MimeMessage;
 
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeMessage;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 @RunnerDelegateTo(Parameterized.class)
 public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
@@ -131,7 +131,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   @Test
   public void failSettingFlag() throws Exception {
     expectedError.expectError(NAMESPACE, EMAIL_NOT_FOUND.getType(), EmailNotFoundException.class,
-                              "No email was found with id:[0]");
+                              "No email was found with id: [0]");
     runFlow(FAIL_MARKING_FLAG);
   }
 

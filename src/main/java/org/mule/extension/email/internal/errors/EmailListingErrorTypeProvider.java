@@ -4,10 +4,10 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.exception;
+package org.mule.extension.email.internal.errors;
 
-import static org.mule.extension.email.internal.errors.EmailError.ACCESSING_FOLDER;
-import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
+import static org.mule.extension.email.internal.errors.EmailError.CONNECTIVITY;
+import static org.mule.extension.email.internal.errors.EmailError.EMAIL_LIST;
 
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
@@ -16,19 +16,13 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 
-/**
- * Errors that can be thrown when setting a flag on an email
- * 
- * @since 1.0
- */
-public class EmailMarkingErrorTypeProvider implements ErrorTypeProvider {
+public class EmailListingErrorTypeProvider implements ErrorTypeProvider {
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
     return ImmutableSet.<ErrorTypeDefinition>builder()
-        .add(EMAIL_NOT_FOUND)
-        .add(ACCESSING_FOLDER)
+        .add(CONNECTIVITY)
+        .add(EMAIL_LIST)
         .build();
   }
 }
-
