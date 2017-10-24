@@ -36,7 +36,8 @@ import com.icegreen.greenmail.util.ServerSetup;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 
-@ArtifactClassLoaderRunnerConfig(sharedRuntimeLibs = {"com.sun.mail:javax.mail", "org.mule.tests:mule-tests-unit"}, exportPluginClasses = EmailError.class)
+@ArtifactClassLoaderRunnerConfig(sharedRuntimeLibs = {"com.sun.mail:javax.mail", "org.mule.tests:mule-tests-unit"},
+    exportPluginClasses = EmailError.class)
 public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
   protected static final String NAMESPACE = "EMAIL";

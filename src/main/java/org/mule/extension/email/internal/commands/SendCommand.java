@@ -65,11 +65,8 @@ public final class SendCommand {
           .build();
       Transport.send(message);
     } catch (SMTPSendFailedException e) {
-      switch (e.getReturnCode()) {
-        //Known status codes related to connectivity issues
-        case 101 | 110 | 111 | 420 | 421 | 441 | 442 | 447 | 530: {
-          throw new EmailConnectionException(getSendErrorMessage(e), e, CONNECTIVITY);
-        }
+      if (isConnectionError(e.getReturnCode())) {
+        throw new EmailConnectionException(getSendErrorMessage(e), e, CONNECTIVITY);
       }
       throw new EmailSendException(getSendErrorMessage(e), e);
     } catch (AuthenticationFailedException e) {
@@ -83,5 +80,16 @@ public final class SendCommand {
 
   private String getSendErrorMessage(Exception e) {
     return "Error while sending email: " + e.getMessage();
+  }
+
+  private boolean isConnectionError(int smtpErrorCode) {
+    switch (smtpErrorCode) {
+      //Known status codes related to connectivity issues
+      case 101 | 110 | 111 | 420 | 421 | 441 | 442 | 447 | 530: {
+        return true;
+      }
+      default:
+        return false;
+    }
   }
 }
