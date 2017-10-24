@@ -12,9 +12,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
+
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
@@ -24,15 +25,15 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
-
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
 
 
 /**
@@ -99,7 +100,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * ({@code shouldReadContent} = false) the SEEN flag is not going to be set. If {@code deleteAfterRead} flag is set to true, the
    * callback {@code deleteAfterReadCallback} is applied to each email.
    */
-  private <T extends BaseEmailAttributes> List<Result<StoredEmailContent, T>> list(int startIndex, int endIndex) {
+  private List<Result<StoredEmailContent, T>> list(int startIndex, int endIndex) {
 
     try {
       List<Result<StoredEmailContent, T>> emails = new LinkedList<>();
@@ -122,10 +123,8 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
         }
       }
       return emails;
-    } catch (CannotFetchMetadataException e) {
-      throw e;
-    } catch (MessagingException me) {
-      throw new EmailException("Error while retrieving emails: " + me.getMessage(), me);
+    } catch (Exception e) {
+      throw new EmailListException("Error while retrieving emails: " + e.getMessage(), e);
     }
   }
 

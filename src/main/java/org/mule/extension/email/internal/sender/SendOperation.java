@@ -10,8 +10,9 @@ package org.mule.extension.email.internal.sender;
 import static org.mule.runtime.api.metadata.DataType.INPUT_STREAM;
 import static org.mule.runtime.api.metadata.DataType.fromObject;
 
-import org.mule.extension.email.api.exception.EmailSenderErrorTypeProvider;
+import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.extension.email.internal.commands.SendCommand;
+import org.mule.extension.email.internal.errors.SendErrorTypeProvider;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -25,11 +26,11 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import javax.inject.Inject;
+
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 /**
  * Basic set of operations which perform send email operations over the SMTP or SMTPS protocol.
@@ -55,13 +56,13 @@ public class SendOperation {
    * @param settings  The builder of the email that is going to be send.
    */
   @Summary("Sends an email message")
-  @Throws(EmailSenderErrorTypeProvider.class)
+  @Throws(SendErrorTypeProvider.class)
   public void send(@Connection SenderConnection connection,
                    @Config SMTPConfiguration configuration,
                    @Placement(order = 1) @ParameterGroup(name = "Settings") EmailSettings settings,
                    @Placement(order = 2) @ParameterGroup(name = "Body", showInDsl = true) EmailBody body,
                    @Placement(order = 3) @ParameterGroup(name = "Attachments") AttachmentsGroup attachments)
-      throws MessageTransformerException, TransformerException {
+      throws MessageTransformerException, TransformerException, EmailConnectionException {
     attachments.setAttachments(transformAttachments(attachments));
     sendCommand.send(connection, configuration, settings, body, attachments);
   }

@@ -8,13 +8,13 @@ package org.mule.extension.email.internal.commands;
 
 import static java.lang.String.format;
 import static javax.mail.Folder.READ_WRITE;
+
 import org.mule.extension.email.api.exception.EmailNotFoundException;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
+import org.mule.runtime.extension.api.exception.ModuleException;
 
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
-import javax.mail.MessagingException;
 import javax.mail.UIDFolder;
 
 /**
@@ -45,11 +45,13 @@ public class SetFlagCommand {
       UIDFolder folder = (UIDFolder) connection.getFolder(folderName, READ_WRITE);
       javax.mail.Message message = folder.getMessageByUID(emailId);
       if (message == null) {
-        throw new EmailNotFoundException(format("No email was found with id:[%s]", emailId));
+        throw new EmailNotFoundException(format("No email was found with id: [%s]", emailId));
       }
       message.setFlag(flag, true);
-    } catch (MessagingException e) {
-      throw new EmailException(format("Error while setting [%s] flag in email of id [%s]", flag.toString(), emailId), e);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailSetFlagException(format("Error while setting [%s] flag in email of id [%s]", flag.toString(), emailId), e);
     }
   }
 
@@ -68,11 +70,13 @@ public class SetFlagCommand {
       Folder folder = connection.getFolder(folderName, READ_WRITE);
       javax.mail.Message message = folder.getMessage(number);
       if (message == null) {
-        throw new EmailNotFoundException(format("No email was found in the mailbox of number:[%s]", number));
+        throw new EmailNotFoundException(format("No email was found in the mailbox of number: [%s]", number));
       }
       message.setFlag(flag, true);
-    } catch (MessagingException e) {
-      throw new EmailException(format("Error while setting [%s] flag in email number:[%s]", flag.toString(), number), e);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailSetFlagException(format("Error while setting [%s] flag in email number: [%s]", flag.toString(), number), e);
     }
   }
 }

@@ -7,12 +7,13 @@
 package org.mule.extension.email.internal.mailbox;
 
 import static java.lang.String.format;
-import static org.mule.extension.email.api.exception.EmailError.CONNECTION_TIMEOUT;
-import static org.mule.extension.email.api.exception.EmailError.DISCONNECTED;
-import static org.mule.extension.email.api.exception.EmailError.INVALID_CREDENTIALS;
-import static org.mule.extension.email.api.exception.EmailError.UNKNOWN_HOST;
+import static org.mule.extension.email.internal.errors.EmailError.CONNECTION_TIMEOUT;
+import static org.mule.extension.email.internal.errors.EmailError.DISCONNECTED;
+import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDENTIALS;
+import static org.mule.extension.email.internal.errors.EmailError.UNKNOWN_HOST;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
+
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.extension.email.internal.AbstractEmailConnection;
@@ -20,15 +21,15 @@ import org.mule.extension.email.internal.EmailProtocol;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
 
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.util.Map;
-
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.mail.Store;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

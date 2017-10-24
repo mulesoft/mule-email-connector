@@ -6,15 +6,16 @@
  */
 package org.mule.extension.email.api.exception;
 
-import static org.mule.extension.email.api.exception.EmailError.ACCESSING_FOLDER;
+import static org.mule.extension.email.internal.errors.EmailError.ACCESSING_FOLDER;
+
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.mailbox.imap.IMAPOperations;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
-import com.google.common.collect.ImmutableSet;
-
 import java.util.Set;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Errors that can be thrown in the {@link IMAPOperations#expungeFolder(MailboxConnection, String)} operation.

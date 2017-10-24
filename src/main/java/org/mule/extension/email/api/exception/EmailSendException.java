@@ -6,18 +6,18 @@
  */
 package org.mule.extension.email.api.exception;
 
-import static org.mule.extension.email.internal.errors.EmailError.ATTACHMENT;
+import static org.mule.extension.email.internal.errors.EmailError.SEND;
+
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
- * {@link ModuleException} for the cases in which an attachment couldn't be added to an email
- * 
+ * Email to communicate that an exception occurred trying to send an Email
+ *
  * @since 1.0
  */
-public class EmailAttachmentException extends ModuleException {
+public class EmailSendException extends ModuleException {
 
-  public EmailAttachmentException(String message, Exception exception) {
-    super(message, ATTACHMENT, exception);
+  public EmailSendException(String message, Throwable cause) {
+    super(message, SEND, cause);
   }
-
 }

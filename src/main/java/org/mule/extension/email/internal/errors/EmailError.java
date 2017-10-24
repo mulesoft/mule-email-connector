@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.exception;
+package org.mule.extension.email.internal.errors;
 
 import org.mule.extension.email.internal.EmailConnector;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
@@ -18,9 +18,27 @@ import java.util.Optional;
  * @since 1.0
  */
 public enum EmailError implements ErrorTypeDefinition<EmailError> {
-  ATTACHMENT, ACCESSING_FOLDER, FETCHING_ATTRIBUTES, EMAIL_NOT_FOUND, CONNECTIVITY(MuleErrors.CONNECTIVITY), INVALID_CREDENTIALS(
-      CONNECTIVITY), UNKNOWN_HOST(
-          CONNECTIVITY), CONNECTION_TIMEOUT(CONNECTIVITY), DISCONNECTED(CONNECTIVITY), SSL_ERROR(CONNECTIVITY);
+  FETCHING_ATTRIBUTES,
+
+  MARK, ACCESSING_FOLDER(MARK), EMAIL_NOT_FOUND(MARK),
+
+  SEND, ATTACHMENT(SEND),
+
+  EMAIL_LIST,
+
+  CONNECTIVITY(MuleErrors.CONNECTIVITY),
+
+  AUTHENTICATION(CONNECTIVITY),
+
+  INVALID_CREDENTIALS(CONNECTIVITY),
+
+  UNKNOWN_HOST(CONNECTIVITY),
+
+  CONNECTION_TIMEOUT(CONNECTIVITY),
+
+  DISCONNECTED(CONNECTIVITY),
+
+  SSL_ERROR(CONNECTIVITY);
 
   private ErrorTypeDefinition<? extends Enum<?>> error;
 
