@@ -22,6 +22,8 @@ import javax.mail.MessagingException;
  */
 public class POP3EmailAttributes extends BaseEmailAttributes {
 
+  private static final long serialVersionUID = -982204133196288278L;
+
   /**
    * The unique identifier of the email in an IMAP mailbox folder.
    */

@@ -23,6 +23,8 @@ import javax.mail.MessagingException;
  */
 public class IMAPEmailAttributes extends BaseEmailAttributes {
 
+  private static final long serialVersionUID = 7346240382950076206L;
+
   /**
    * The flags set in the email.
    */
