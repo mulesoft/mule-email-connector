@@ -217,7 +217,7 @@ public class SendTestCase extends SMTPTestCase {
         .withVariable("jpg", bytes, DataType.builder().type(byte[].class).mediaType("image/jpeg").build())
         .withVariable("text", text, DataType.builder().type(String.class).mediaType(TEXT_PLAIN).build())
         .withVariable("zip", new ByteArrayInputStream(bytes),
-                      DataType.builder().type(InputStream.class).mediaType(JSON_UTF8).build())
+                      DataType.builder().type(InputStream.class).mediaType(OCTET_STREAM_UTF8).build())
         .withPayload(text).withMediaType(MediaType.parse("text/html").withCharset(UTF8))
         .run();
 

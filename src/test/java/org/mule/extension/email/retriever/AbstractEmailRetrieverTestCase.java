@@ -37,21 +37,26 @@ import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.tck.junit4.rule.SystemProperty;
+
+import javax.mail.Flags.Flag;
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Iterator;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import javax.mail.Flags.Flag;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.nio.charset.Charset;
-import java.util.Iterator;
-import java.util.List;
 
 public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestCase {
 
@@ -113,8 +118,8 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     server.purgeEmailFromAllMailboxes();
     user.deliver(getMultipartTestMessage());
     CoreEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
-    assertThat(event.getVariables().get("text").getValue(), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
-    assertThat(event.getVariables().get("json").getValue(), is(EMAIL_JSON_ATTACHMENT_CONTENT));
+    assertThat(getVariableAsString(event, "text"), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
+    assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
   }
 
   @Test
@@ -304,4 +309,14 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     return mimeMessage;
   }
 
+  private String getVariableAsString(CoreEvent event, String text) {
+    Object value = event.getVariables().get(text).getValue();
+    if (value instanceof CursorStreamProvider) {
+      value = org.mule.runtime.core.api.util.IOUtils.toString((CursorStreamProvider) value);
+    }
+    if (value instanceof InputStream) {
+      value = org.mule.runtime.core.api.util.IOUtils.toString((InputStream) value);
+    }
+    return value.toString();
+  }
 }
