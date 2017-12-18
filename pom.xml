@@ -24,7 +24,7 @@
         <commonsLangVersion>3.6</commonsLangVersion>
         <javaMailVersion>1.5.6</javaMailVersion>
         <javaxActivationVersion>1.1</javaxActivationVersion>
-        <guavaVersion>18.0</guavaVersion>
+        <guavaVersion>23.5-jre</guavaVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
         <powermockVersion>1.6.5</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
