@@ -33,7 +33,7 @@ import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.extension.email.internal.util.StoredEmailContent;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;

@@ -4,13 +4,14 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.internal.util;
+package org.mule.extension.email.api;
 
 import static javax.mail.Part.ATTACHMENT;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEXT;
 import static org.mule.runtime.api.metadata.DataType.HTML_STRING;
 import static org.mule.runtime.api.metadata.DataType.builder;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
+
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
@@ -18,7 +19,10 @@ import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import com.google.common.collect.ImmutableMap;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Part;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-
+import com.google.common.collect.ImmutableMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

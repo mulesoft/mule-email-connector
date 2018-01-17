@@ -27,7 +27,7 @@ import org.mule.extension.email.internal.commands.SetFlagCommand;
 import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.extension.email.internal.util.StoredEmailContent;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
