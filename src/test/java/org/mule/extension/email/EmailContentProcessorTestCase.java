@@ -21,7 +21,7 @@ import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessa
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
-import org.mule.extension.email.internal.util.StoredEmailContent;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
