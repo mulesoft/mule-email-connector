@@ -18,6 +18,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.getMultipartAlternativeMessage;
 
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
@@ -167,6 +168,15 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
     runFlow(RETRIEVE_DELETE_SELECTED);
     assertThat(server.getReceivedMessages(), arrayWithSize(5));
+  }
+
+  @Test
+  public void readMultiPartAlternative() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    user.deliver(getMultipartAlternativeMessage());
+    Message msg = runFlowAndGetMessages(RETRIEVE_AND_READ).next();
+    StoredEmailContent emailContent = (StoredEmailContent) msg.getPayload().getValue();
+    assertThat(emailContent.getBody().getValue(), is("<html></html>\ntext"));
   }
 
   private void testMatcherFlag(String flowName, Flag flag, boolean flagState) throws Exception {
