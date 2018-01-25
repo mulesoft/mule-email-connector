@@ -21,7 +21,8 @@ import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessa
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
-import org.mule.extension.email.api.StoredEmailContent;
+
+import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
@@ -39,25 +40,28 @@ import org.junit.Test;
 public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   private StreamingHelper helper;
+  private StoredEmailContentFactory contentFactory;
 
   @Before
   public void before() {
     helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(anyObject()))
         .then(inv -> new ByteArrayBasedCursorStreamProvider(IOUtils.toByteArray(((InputStream) inv.getArguments()[0]))));
+
+    contentFactory = new StoredEmailContentFactory(helper);
   }
 
   @Test
   public void emailTextBodyFromMultipart() throws Exception {
     javax.mail.Message message = getMultipartTestMessage();
-    String body = new StoredEmailContent(message, helper).getBody().getValue();
+    String body = contentFactory.fromMessage(message).getBody().getValue();
     assertThat(body, is(EMAIL_CONTENT));
   }
 
   @Test
   public void emailTextBodyFromSinglePart() throws Exception {
     javax.mail.Message message = getSinglePartTestMessage();
-    TypedValue<String> body = new StoredEmailContent(message, helper).getBody();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT));
     assertThat(body.getDataType(), is(like(String.class, TEXT)));
   }
@@ -65,7 +69,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   @Test
   public void emailAttachmentsFromMultipart() throws Exception {
     javax.mail.Message message = getMultipartTestMessage();
-    Map<String, TypedValue<InputStream>> attachments = new StoredEmailContent(message, helper).getAttachments();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);

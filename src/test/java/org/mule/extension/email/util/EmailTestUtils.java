@@ -11,7 +11,6 @@ import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
-import com.icegreen.greenmail.util.ServerSetup;
 import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -20,9 +19,13 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.Properties;
+
+import com.icegreen.greenmail.util.ServerSetup;
 
 public class EmailTestUtils {
 
@@ -65,6 +68,31 @@ public class EmailTestUtils {
 
     MimeMessage message = new MimeMessage(testSession);
     message.setContent(multipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    return message;
+  }
+
+  public static MimeMessage getMultipartAlternativeMessage() throws Exception {
+    MimeMessage message = new MimeMessage(testSession);
+    MimeBodyPart wrap = new MimeBodyPart();
+
+    MimeMultipart cover = new MimeMultipart("alternative");
+    MimeBodyPart html = new MimeBodyPart();
+    MimeBodyPart text = new MimeBodyPart();
+    cover.addBodyPart(html);
+    cover.addBodyPart(text);
+
+    wrap.setContent(cover);
+
+    MimeMultipart content = new MimeMultipart("related");
+    message.setContent(content);
+    content.addBodyPart(wrap);
+
+    html.setContent("<html></html>", "text/html");
+    text.setText("text");
+
+    message.setSentDate(new Date());
     message.setSubject(EMAIL_SUBJECT);
     message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
     return message;

@@ -17,6 +17,7 @@ import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
+import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
@@ -47,6 +48,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
   private final List<BaseEmailAttributes> emailsToBeDeleted;
+  private final StoredEmailContentFactory storedEmailContentFactory;
   private Folder folder;
   private final String folderName;
   private int bottom;
@@ -88,6 +90,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     this.deleteAfterRetrieve = deleteAfterRetrieve;
     this.deleteAfterReadCallback = deleteAfterReadCallback;
     this.emailsToBeDeleted = new LinkedList<>();
+    this.storedEmailContentFactory = new StoredEmailContentFactory(streamingHelper);
   }
 
   /**
@@ -105,11 +108,11 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     try {
       List<Result<StoredEmailContent, T>> emails = new LinkedList<>();
       for (Message message : folder.getMessages(startIndex, endIndex)) {
-        StoredEmailContent content = StoredEmailContent.EMPTY;
+        StoredEmailContent content = StoredEmailContentFactory.EMPTY;
         T attributes = configuration.parseAttributesFromMessage(message, folder);
         if (matcher.test(attributes)) {
           if (configuration.isEagerlyFetchContent()) {
-            content = new StoredEmailContent(message, streamingHelper);
+            content = storedEmailContentFactory.fromMessage(message);
             // Attributes are parsed again since they may change after the email has been read.
             attributes = configuration.parseAttributesFromMessage(message, folder);
           }
