@@ -130,7 +130,7 @@ public abstract class BaseEmailAttributes implements Serializable {
   /**
    * @return the unique id of the email in a folder.
    */
-  public abstract long getId();
+  public abstract String getId();
 
   /**
    * Returns the number of the email in the mailbox folder in a moment.
