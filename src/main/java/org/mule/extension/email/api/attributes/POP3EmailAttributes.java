@@ -20,7 +20,7 @@ import javax.mail.MessagingException;
  *
  * @since 1.0
  */
-public class POP3EmailAttributes extends BaseEmailAttributes<String> {
+public class POP3EmailAttributes extends BaseEmailAttributes {
 
   private static final long serialVersionUID = -982204133196288278L;
 

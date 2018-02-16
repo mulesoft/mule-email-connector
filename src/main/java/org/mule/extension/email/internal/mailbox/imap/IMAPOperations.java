@@ -83,8 +83,7 @@ public class IMAPOperations {
     return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, limit, deleteAfterRetrieve,
                                              (connection, attributes) -> setFlagCommand.setByUID(connection, mailboxFolder,
                                                                                                  DELETED,
-                                                                                                 ((IMAPEmailAttributes) attributes)
-                                                                                                     .getId()),
+                                                                                                 parseLong(attributes.getId())),
                                              streamingHelper);
   }
 

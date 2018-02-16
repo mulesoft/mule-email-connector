@@ -21,7 +21,7 @@ import javax.mail.MessagingException;
  *
  * @since 1.0
  */
-public class IMAPEmailAttributes extends BaseEmailAttributes<Long> {
+public class IMAPEmailAttributes extends BaseEmailAttributes {
 
   private static final long serialVersionUID = 7346240382950076206L;
 
@@ -33,12 +33,12 @@ public class IMAPEmailAttributes extends BaseEmailAttributes<Long> {
   /**
    * The unique identifier of the email in an IMAP mailbox folder.
    */
-  private final long id;
+  private final String id;
 
   public IMAPEmailAttributes(Message msg, IMAPFolder folder) {
     super(msg);
     try {
-      this.id = folder.getUID(msg);
+      this.id = Long.toString(folder.getUID(msg));
       this.flags = new EmailFlags(msg.getFlags());
     } catch (MessagingException mse) {
       throw new CannotFetchMetadataException(mse.getMessage(), mse);
@@ -55,7 +55,7 @@ public class IMAPEmailAttributes extends BaseEmailAttributes<Long> {
   /**
    * {@inheritDoc}
    */
-  public Long getId() {
+  public String getId() {
     return id;
   }
 
