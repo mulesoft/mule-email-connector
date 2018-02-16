@@ -6,6 +6,7 @@
  */
 package org.mule.extension.email.internal.mailbox.imap;
 
+import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
@@ -17,6 +18,7 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNL
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
+import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.api.exception.EmailAccessingFolderErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
@@ -81,7 +83,8 @@ public class IMAPOperations {
     return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, limit, deleteAfterRetrieve,
                                              (connection, attributes) -> setFlagCommand.setByUID(connection, mailboxFolder,
                                                                                                  DELETED,
-                                                                                                 attributes.getId()),
+                                                                                                 ((IMAPEmailAttributes) attributes)
+                                                                                                     .getId()),
                                              streamingHelper);
   }
 

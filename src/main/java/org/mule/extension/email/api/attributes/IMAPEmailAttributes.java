@@ -21,7 +21,7 @@ import javax.mail.MessagingException;
  *
  * @since 1.0
  */
-public class IMAPEmailAttributes extends BaseEmailAttributes {
+public class IMAPEmailAttributes extends BaseEmailAttributes<Long> {
 
   private static final long serialVersionUID = 7346240382950076206L;
 
@@ -55,8 +55,7 @@ public class IMAPEmailAttributes extends BaseEmailAttributes {
   /**
    * {@inheritDoc}
    */
-  @Override
-  public long getId() {
+  public Long getId() {
     return id;
   }
 

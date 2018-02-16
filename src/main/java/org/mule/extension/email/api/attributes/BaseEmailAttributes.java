@@ -43,7 +43,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
  *
  * @since 1.0
  */
-public abstract class BaseEmailAttributes implements Serializable {
+public abstract class BaseEmailAttributes<T> implements Serializable {
 
   /**
    * The number is the relative position of the email in its Folder. Note that the number for a particular email can change during
@@ -130,7 +130,7 @@ public abstract class BaseEmailAttributes implements Serializable {
   /**
    * @return the unique id of the email in a folder.
    */
-  public abstract long getId();
+  public abstract T getId();
 
   /**
    * Returns the number of the email in the mailbox folder in a moment.
