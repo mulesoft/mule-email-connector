@@ -87,7 +87,7 @@
         <email:list-imap config-ref="config"/>
         <foreach>
             <choice>
-                <when expression="#[attributes.id > 5]">
+                <when expression="#[attributes.id as Number > 5]">
                     <email:delete config-ref="config" emailId="#[attributes.id]"/>
                 </when>
                 <otherwise>

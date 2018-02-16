@@ -151,18 +151,10 @@ public abstract class AbstractEmailConnection {
       properties.setProperty(protocol.getSslCiphersuitesProperty(), join(cipherSuites, WHITESPACE_SEPARATOR));
     }
 
+    properties.setProperty(protocol.getSslEnableProperty(), "true");
+
     String[] sslProtocols = tlsContextFactory.getEnabledProtocols();
     if (sslProtocols != null) {
-
-      Stream.of(sslProtocols).filter(p -> p.startsWith("SSL")).findAny()
-          .ifPresent(p -> {
-            properties.setProperty(protocol.getSslEnableProperty(), "true");
-            if (LOGGER.isWarnEnabled()) {
-              LOGGER.warn(
-                          format("Property %s has been enabled. For disabling this property remove SSL from the enabled protocols in your TLS configuration",
-                                 protocol.getSslEnableProperty()));
-            }
-          });
       properties.setProperty(protocol.getSslProtocolsProperty(), join(sslProtocols, WHITESPACE_SEPARATOR));
     }
 

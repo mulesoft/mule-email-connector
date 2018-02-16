@@ -27,7 +27,7 @@ public class POP3EmailAttributes extends BaseEmailAttributes {
   /**
    * The unique identifier of the email in an IMAP mailbox folder.
    */
-  private final long id;
+  private final String id;
 
   /**
    * Creates a new instance from a {@link Message}
@@ -37,7 +37,7 @@ public class POP3EmailAttributes extends BaseEmailAttributes {
   public POP3EmailAttributes(Message msg, POP3Folder folder) {
     super(msg);
     try {
-      this.id = parseLong(folder.getUID(msg));
+      this.id = folder.getUID(msg);
     } catch (MessagingException e) {
       throw new CannotFetchMetadataException("Could not initialize POP3 attributes", e);
     }
@@ -46,8 +46,7 @@ public class POP3EmailAttributes extends BaseEmailAttributes {
   /**
    * {@inheritDoc}
    */
-  @Override
-  public long getId() {
+  public String getId() {
     return id;
   }
 }
