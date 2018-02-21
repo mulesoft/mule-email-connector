@@ -20,29 +20,29 @@ import java.util.Map;
  */
 public class DefaultStoredEmailContent implements StoredEmailContent {
 
-    private final TypedValue<String> body;
-    private final Map<String, TypedValue<InputStream>> attachments;
+  private final TypedValue<String> body;
+  private final Map<String, TypedValue<InputStream>> attachments;
 
-    /**
-     * Creates an instance with the message body and their attachments
-     */
-    DefaultStoredEmailContent(TypedValue<String> body, Map<String, TypedValue<InputStream>> attachments) {
+  /**
+   * Creates an instance with the message body and their attachments
+   */
+  DefaultStoredEmailContent(TypedValue<String> body, Map<String, TypedValue<InputStream>> attachments) {
 
-        this.body = body;
-        this.attachments = attachments;
-    }
+    this.body = body;
+    this.attachments = attachments;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public TypedValue<String> getBody() {
-        return body;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  public TypedValue<String> getBody() {
+    return body;
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public Map<String, TypedValue<InputStream>> getAttachments() {
-        return attachments;
-    }
+  /**
+   * {@inheritDoc}
+   */
+  public Map<String, TypedValue<InputStream>> getAttachments() {
+    return attachments;
+  }
 }
