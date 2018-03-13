@@ -16,6 +16,8 @@ import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -52,6 +54,7 @@ public abstract class BaseEmailAttributes implements Serializable {
    * Valid message ids start at 1. Emails that do not belong to any folder (like newly composed or derived messages) have 0 as
    * their message number.
    */
+  @Parameter
   private final int number;
 
   /**
@@ -59,36 +62,47 @@ public abstract class BaseEmailAttributes implements Serializable {
    * <p>
    * This will usually be the sender of the email, but some emails may direct replies to a different address
    */
+  @Parameter
   private final List<String> fromAddresses;
 
   /**
    * The recipient addresses of "To" (primary) type.
    */
+  @Parameter
   private final List<String> toAddresses;
 
   /**
    * The recipient addresses of "Cc" (carbon copy) type
    */
+  @Parameter
+  @Optional
   private final List<String> ccAddresses;
 
   /**
    * The recipient addresses of "Bcc" (blind carbon copy) type
    */
+  @Parameter
+  @Optional
   private final List<String> bccAddresses;
 
   /**
    * The email addresses to which this email should reply.
    */
+  @Parameter
+  @Optional
   private final List<String> replyToAddresses;
 
   /**
    * The headers that this email carry.
    */
+  @Parameter
+  @Optional
   private final Map<String, String> headers;
 
   /**
    * The subject of the email.
    */
+  @Parameter
   private final String subject;
 
   /**
@@ -98,6 +112,8 @@ public abstract class BaseEmailAttributes implements Serializable {
    * <p>
    * If this is a sent email this will be null.
    */
+  @Parameter
+  @Optional
   private final LocalDateTime receivedDate;
 
   /**
@@ -105,6 +121,8 @@ public abstract class BaseEmailAttributes implements Serializable {
    * <p>
    * Different {@link Folder} implementations may assign this value or not.
    */
+  @Parameter
+  @Optional
   private final LocalDateTime sentDate;
 
   public BaseEmailAttributes(Message msg) {
