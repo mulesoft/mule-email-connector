@@ -8,6 +8,8 @@ package org.mule.extension.email.api.attributes;
 
 import org.mule.extension.email.api.EmailFlags;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import com.sun.mail.imap.IMAPFolder;
 
@@ -26,6 +28,7 @@ public class IMAPEmailAttributes extends BaseEmailAttributes {
   /**
    * The flags set in the email.
    */
+  @Parameter
   private final EmailFlags flags;
 
   /**
