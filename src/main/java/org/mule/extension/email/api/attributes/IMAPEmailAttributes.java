@@ -31,7 +31,6 @@ public class IMAPEmailAttributes extends BaseEmailAttributes {
    * The flags set in the email.
    */
   @Parameter
-  @Optional
   private final EmailFlags flags;
 
   /**

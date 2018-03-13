@@ -75,28 +75,24 @@ public abstract class BaseEmailAttributes implements Serializable {
    * The recipient addresses of "Cc" (carbon copy) type
    */
   @Parameter
-  @Optional
   private final List<String> ccAddresses;
 
   /**
    * The recipient addresses of "Bcc" (blind carbon copy) type
    */
   @Parameter
-  @Optional
   private final List<String> bccAddresses;
 
   /**
    * The email addresses to which this email should reply.
    */
   @Parameter
-  @Optional
   private final List<String> replyToAddresses;
 
   /**
    * The headers that this email carry.
    */
   @Parameter
-  @Optional
   private final Map<String, String> headers;
 
   /**

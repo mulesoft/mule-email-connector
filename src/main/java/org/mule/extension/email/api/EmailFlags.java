@@ -29,28 +29,24 @@ public class EmailFlags {
    * Specifies if the email message has been answered or not.
    */
   @Parameter
-  @Optional
   private final boolean answered;
 
   /**
    * Specifies if the email message has been deleted or not.
    */
   @Parameter
-  @Optional
   private final boolean deleted;
 
   /**
    * Specifies if the email message is a draft or not.
    */
   @Parameter
-  @Optional
   private final boolean draft;
 
   /**
    * Specifies if the email message is recent or not.
    */
   @Parameter
-  @Optional
   private final boolean recent;
 
   /**
