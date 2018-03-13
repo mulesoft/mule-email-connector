@@ -8,6 +8,8 @@ package org.mule.extension.email.api.attributes;
 
 import static java.lang.Long.parseLong;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import com.sun.mail.pop3.POP3Folder;
 
@@ -25,8 +27,9 @@ public class POP3EmailAttributes extends BaseEmailAttributes {
   private static final long serialVersionUID = -982204133196288278L;
 
   /**
-   * The unique identifier of the email in an IMAP mailbox folder.
+   * The unique identifier of the email in a mailbox folder.
    */
+  @Parameter
   private final String id;
 
   /**

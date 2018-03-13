@@ -12,6 +12,9 @@ import static javax.mail.Flags.Flag.DRAFT;
 import static javax.mail.Flags.Flag.RECENT;
 import static javax.mail.Flags.Flag.SEEN;
 
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
+
 import javax.mail.Flags;
 
 /**
@@ -25,26 +28,32 @@ public class EmailFlags {
   /**
    * Specifies if the email message has been answered or not.
    */
+  @Parameter
   private final boolean answered;
 
   /**
    * Specifies if the email message has been deleted or not.
    */
+  @Parameter
   private final boolean deleted;
 
   /**
    * Specifies if the email message is a draft or not.
    */
+  @Parameter
   private final boolean draft;
 
   /**
    * Specifies if the email message is recent or not.
    */
+  @Parameter
   private final boolean recent;
 
   /**
    * Specifies if the email message has been seen or not.
    */
+  @Parameter
+  @Optional
   private final boolean seen;
 
   public EmailFlags(Flags flags) {
