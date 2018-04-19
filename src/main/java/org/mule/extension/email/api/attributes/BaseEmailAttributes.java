@@ -19,11 +19,10 @@ import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
-import com.google.common.collect.ImmutableMap;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -128,7 +127,7 @@ public abstract class BaseEmailAttributes implements Serializable {
 
       this.number = msg.getMessageNumber();
       this.subject = msg.getSubject();
-      this.headers = ImmutableMap.copyOf(headers);
+      this.headers = Collections.unmodifiableMap(headers);
       this.toAddresses = addressesAsList(msg.getRecipients(TO));
       this.ccAddresses = addressesAsList(msg.getRecipients(CC));
       this.bccAddresses = addressesAsList(msg.getRecipients(BCC));
@@ -227,7 +226,7 @@ public abstract class BaseEmailAttributes implements Serializable {
    * @return all the headers of this email message.
    */
   public Map<String, String> getHeaders() {
-    return headers != null ? ImmutableMap.copyOf(headers) : ImmutableMap.of();
+    return headers != null ? Collections.unmodifiableMap(headers) : Collections.unmodifiableMap(new HashMap<>());
   }
 
   @Override

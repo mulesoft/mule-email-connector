@@ -7,7 +7,6 @@
 
 package org.mule.extension.email.retriever;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Integer.valueOf;
 import static java.lang.String.format;
 import static javax.mail.Message.RecipientType.CC;
@@ -49,6 +48,7 @@ import javax.mail.internet.MimeMessage;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -227,7 +227,8 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   @Test
   public void retrieveMultiplePagesReadAndDeleteAfter() throws Exception {
     sendEmails(100);
-    List<Message> messages = newArrayList(runFlowAndGetMessages(RETRIEVE_AND_DELETE));
+    List<Message> messages = new ArrayList<>();
+    runFlowAndGetMessages(RETRIEVE_AND_DELETE).forEachRemaining(messages::add);
     messages.forEach(msg -> assertBodyContent(((StoredEmailContent) msg.getPayload().getValue()).getBody().getValue()));
     assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE + 100));
     assertThat(server.getReceivedMessages(), arrayWithSize(0));
