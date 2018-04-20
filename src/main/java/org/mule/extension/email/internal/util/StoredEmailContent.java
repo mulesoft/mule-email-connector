@@ -11,6 +11,8 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEX
 import static org.mule.runtime.api.metadata.DataType.HTML_STRING;
 import static org.mule.runtime.api.metadata.DataType.builder;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
+import static org.mule.runtime.api.metadata.MediaType.MULTIPART_RELATED;
+
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
@@ -31,6 +33,8 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,8 +90,14 @@ public class StoredEmailContent {
   private void processPart(Part part, StringJoiner bodyCollector, StreamingHelper streamingHelper) {
     try {
       Object content = part.getContent();
-      if (isMultipart(content)) {
-        Multipart mp = (Multipart) part.getContent();
+      if (isMultipart(part)) {
+        Multipart mp;
+        if (content instanceof InputStream) {
+          ByteArrayDataSource fa = new ByteArrayDataSource(((InputStream) content), part.getContentType());
+          mp = new MimeMultipart(fa);
+        } else {
+          mp = (Multipart) content;
+        }
         for (int i = 0; i < mp.getCount(); i++) {
           processPart(mp.getBodyPart(i), bodyCollector, streamingHelper);
         }
@@ -153,11 +163,11 @@ public class StoredEmailContent {
   /**
    * Evaluates whether a content is multipart or not.
    *
-   * @param content the content to be evaluated.
+   * @param part the content to be evaluated.
    * @return true if is multipart, false otherwise
    */
-  private boolean isMultipart(Object content) {
-    return content instanceof Multipart;
+  private boolean isMultipart(Part part) throws IOException, MessagingException {
+    return part.getContent() instanceof Multipart || part.getContentType().contains(MULTIPART_RELATED.getPrimaryType());
   }
 
   /**

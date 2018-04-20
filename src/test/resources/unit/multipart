@@ -1,0 +1,42 @@
+MIME-Version: 1.0
+Received: by 10.12.195.77 with HTTP; Fri, 20 Apr 2018 10:07:03 -0700 (PDT)
+Date: Fri, 20 Apr 2018 14:07:03 -0300
+Delivered-To: juan.desimoni@mulesoft.com
+Message-ID: <CAPM=2Je-ycAffNw92FH3sCrzb3MVy=N=EAaJJCeRPfeatA5duA@mail.gmail.com>
+Subject: Nice Attachment
+From: Juan Desimoni <juan.desimoni@mulesoft.com>
+To: Juan Desimoni <juan.desimoni@mulesoft.com>
+Content-Type: multipart/mixed; boundary="f403045e6d18904495056a4ab7e8"
+
+--f403045e6d18904495056a4ab7e8
+Content-Type: multipart/alternative; boundary="f403045e6d18904490056a4ab7e6"
+
+--f403045e6d18904490056a4ab7e6
+Content-Type: text/plain; charset="UTF-8"
+
+This is some content!
+
+--f403045e6d18904490056a4ab7e6
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family:verdana,=
+sans-serif;font-size:small;color:#444444">This is some content!</div><div c=
+lass=3D"gmail_default" style=3D"font-family:verdana,sans-serif;font-size:sm=
+all;color:#444444"><br></div><div class=3D"gmail_signature" data-smartmail=
+=3D"gmail_signature"><div dir=3D"ltr"><div><div dir=3D"ltr"><div><div dir=
+=3D"ltr"><div dir=3D"ltr"><div style=3D"color:rgb(136,136,136)"><div dir=3D=
+"ltr"><div dir=3D"ltr"></div></div></div></div></div></div></div></div></di=
+v></div>
+</div>
+
+--f403045e6d18904490056a4ab7e6--
+--f403045e6d18904495056a4ab7e8
+Content-Type: text/csv; charset="US-ASCII"; name="input.csv"
+Content-Disposition: attachment; filename="input.csv"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_jg87j8ha0
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=
+--f403045e6d18904495056a4ab7e8--
