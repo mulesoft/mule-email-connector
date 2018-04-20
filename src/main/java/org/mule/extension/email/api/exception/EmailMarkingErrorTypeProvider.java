@@ -12,9 +12,10 @@ import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUN
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Errors that can be thrown when setting a flag on an email
@@ -25,10 +26,7 @@ public class EmailMarkingErrorTypeProvider implements ErrorTypeProvider {
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
-    return ImmutableSet.<ErrorTypeDefinition>builder()
-        .add(EMAIL_NOT_FOUND)
-        .add(ACCESSING_FOLDER)
-        .build();
+    return Collections.unmodifiableSet(new HashSet<ErrorTypeDefinition>(Arrays.asList(EMAIL_NOT_FOUND, ACCESSING_FOLDER)));
   }
 }
 

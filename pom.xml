@@ -24,7 +24,6 @@
         <commonsLangVersion>3.6</commonsLangVersion>
         <javaMailVersion>1.5.6</javaMailVersion>
         <javaxActivationVersion>1.1</javaxActivationVersion>
-        <guavaVersion>23.5-jre</guavaVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
         <powermockVersion>1.6.5</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -35,11 +34,6 @@
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
             <version>${javaMailVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guavaVersion}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>

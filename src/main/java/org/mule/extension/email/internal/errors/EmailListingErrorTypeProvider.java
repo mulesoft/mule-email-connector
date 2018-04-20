@@ -12,17 +12,15 @@ import static org.mule.extension.email.internal.errors.EmailError.EMAIL_LIST;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 
 public class EmailListingErrorTypeProvider implements ErrorTypeProvider {
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
-    return ImmutableSet.<ErrorTypeDefinition>builder()
-        .add(CONNECTIVITY)
-        .add(EMAIL_LIST)
-        .build();
+    return Collections.unmodifiableSet(new HashSet<ErrorTypeDefinition>(Arrays.asList(CONNECTIVITY, EMAIL_LIST)));
   }
 }

@@ -13,9 +13,9 @@ import org.mule.extension.email.internal.mailbox.imap.IMAPOperations;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Errors that can be thrown in the {@link IMAPOperations#expungeFolder(MailboxConnection, String)} operation.
@@ -26,9 +26,7 @@ public class EmailAccessingFolderErrorTypeProvider implements ErrorTypeProvider 
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
-    return ImmutableSet.<ErrorTypeDefinition>builder()
-        .add(ACCESSING_FOLDER)
-        .build();
+    return Collections.unmodifiableSet(new HashSet<ErrorTypeDefinition>(Collections.singletonList(ACCESSING_FOLDER)));
   }
 }
 
