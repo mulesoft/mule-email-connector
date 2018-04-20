@@ -9,7 +9,18 @@ package org.mule.extension.email.internal.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.core.api.message.ds.InputStreamDataSource;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+
+import javax.activation.DataSource;
+import javax.mail.BodyPart;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.junit.Test;
 
