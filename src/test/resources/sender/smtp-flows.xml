@@ -17,6 +17,20 @@
         </email:send>
     </flow>
 
+    <flow name="withReplyTo">
+        <email:send config-ref="config" subject="Email Subject">
+            <email:to-addresses>
+                <email:to-address value="juan.desimoni@mulesoft.com"/>
+            </email:to-addresses>
+            <email:reply-to-addresses>
+                <email:reply-to-address value="esteban.wasinger@mulesoft.com"/>
+            </email:reply-to-addresses>
+            <email:body contentType="text/plain">
+                <email:content>Email Content</email:content>
+            </email:body>
+        </email:send>
+    </flow>
+
     <flow name="sendStreamEmail">
         <email:send config-ref="config" subject="Email Subject">
             <email:to-addresses>

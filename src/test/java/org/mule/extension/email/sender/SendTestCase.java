@@ -16,10 +16,12 @@ import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -52,6 +54,16 @@ public class SendTestCase extends SMTPTestCase {
   public void sendEmail() throws Exception {
     flowRunner("sendEmail").run();
     assertSingleMail();
+  }
+
+  @Test
+  public void withReplyTo() throws Exception {
+    flowRunner("withReplyTo").run();
+    Message[] messages = getReceivedMessagesAndAssertCount(1);
+    Message sentMessage = messages[0];
+    Address[] replyTo = sentMessage.getReplyTo();
+    assertThat(replyTo.length, is(1));
+    assertThat(replyTo[0], is(ESTEBAN_EMAIL));
   }
 
   @Test
