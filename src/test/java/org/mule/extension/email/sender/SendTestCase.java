@@ -63,7 +63,7 @@ public class SendTestCase extends SMTPTestCase {
     Message sentMessage = messages[0];
     Address[] replyTo = sentMessage.getReplyTo();
     assertThat(replyTo.length, is(1));
-    assertThat(replyTo[0], is(ESTEBAN_EMAIL));
+    assertThat(replyTo[0].toString(), is(ESTEBAN_EMAIL));
   }
 
   @Test
