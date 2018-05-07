@@ -6,7 +6,6 @@
  */
 package org.mule.extension.email.internal;
 
-import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDENTIALS;
 import static org.mule.extension.email.internal.errors.EmailError.SSL_ERROR;
@@ -24,10 +23,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generic implementation for an email connection of a connector which operates over the SMTP, IMAP, POP3 and it's secure versions
@@ -39,10 +34,8 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractEmailConnection {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEmailConnection.class);
-
-  public static final String PASSWORD_NO_USERNAME_ERROR = "Password provided but not username was specified.";
-  public static final String USERNAME_NO_PASSWORD_ERROR = "Username provided but not password was specified.";
+  public static final String PASSWORD_NO_USERNAME_ERROR = "Password provided but username was not specified.";
+  public static final String USERNAME_NO_PASSWORD_ERROR = "Username provided but password was not specified.";
 
   /**
    * A separator used to separate some tokens from a property that accepts multiple values, e.g.: mail.{name}.ciphersuites

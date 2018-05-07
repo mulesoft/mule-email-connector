@@ -6,12 +6,15 @@
  */
 package org.mule.extension.email.internal.sender;
 
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.SMTPS_PORT;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import org.mule.extension.email.internal.AbstractEmailConnection;
 import org.mule.extension.email.internal.EmailProtocol;
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -21,6 +24,8 @@ import java.util.Map;
  * @since 1.0
  */
 public final class SenderConnection extends AbstractEmailConnection {
+
+  private static Logger LOGGER = LoggerFactory.getLogger(SenderConnection.class);
 
   /**
    * Creates a new instance.
@@ -60,6 +65,14 @@ public final class SenderConnection extends AbstractEmailConnection {
                           TlsContextFactory tlsContextFactory)
       throws EmailConnectionException {
     super(protocol, username, password, host, port, connectionTimeout, readTimeout, writeTimeout, properties, tlsContextFactory);
+    warnPossibleGmailConflict(host, port);
+  }
+
+  private void warnPossibleGmailConflict(String host, String port) {
+    if (host.contains("gmail") && port.equals(SMTPS_PORT)) {
+      LOGGER.warn("Connecting with GMail through SSL port [" + SMTPS_PORT + "], Only AUTH=XOAUTH and plain-text LOGIN over "
+          + "SSL tunneled connections are supported. Use port [587] for Gmail TLS secured connections.");
+    }
   }
 
   /**
