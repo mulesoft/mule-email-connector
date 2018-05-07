@@ -71,8 +71,8 @@ public final class SenderConnection extends AbstractEmailConnection {
   private void warnPossibleGmailConflict(String host, String port) {
     if (host.contains("gmail") && port.equals(SMTPS_PORT)) {
       LOGGER.warn("Connecting with GMail through SSL port [" + SMTPS_PORT + "]. "
-                      + "This might not work for some authentication mechanisms such as Two-Factor auth secured mailboxes. "
-                      + "Use port [587] for Gmail TLS secured connections.");
+          + "This might not work for some authentication mechanisms such as Two-Factor auth secured mailboxes. "
+          + "Use port [587] for Gmail TLS secured connections.");
     }
   }
 
