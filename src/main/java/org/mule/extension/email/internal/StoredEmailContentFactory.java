@@ -9,11 +9,9 @@ package org.mule.extension.email.internal;
 import static java.util.Collections.emptyMap;
 import static javax.mail.Part.ATTACHMENT;
 import static org.mule.runtime.api.metadata.DataType.builder;
-
-import org.mule.extension.email.api.StoredEmailContent;
-import static org.mule.runtime.api.metadata.MediaType.ANY;
 import static org.mule.runtime.api.metadata.MediaType.MULTIPART_RELATED;
 
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.util.EmailConnectorConstants;
 import org.mule.runtime.api.metadata.DataType;
@@ -22,11 +20,10 @@ import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.internet.MimeMultipart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.mail.imap.IMAPInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,17 +31,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import com.sun.mail.imap.IMAPInputStream;
-import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Factory for {@link StoredEmailContent} instances.
@@ -190,10 +182,9 @@ public class StoredEmailContentFactory {
 
   private static MediaType getMediaType(Message message) {
     try {
-      String contentType = message.getContentType();
-
-      if (contentType != null && !contentType.toLowerCase().startsWith("multipart")) {
-        return MediaType.parse(contentType);
+      MediaType mediaType = MediaType.parse(message.getContentType());
+      if (!"multipart".equals(mediaType.getPrimaryType())) {
+        return mediaType;
       } else {
         return MediaType.TEXT;
       }
