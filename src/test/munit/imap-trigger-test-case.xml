@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <configuration-properties file="email-test.properties"/>
+
+    <munit:config name="imap-trigger-test-case.xml" />
+
+    <!-- Setup/Dispose -->
+
+    <munit:dynamic-port propertyName="imap.port"/>
+
+    <munit:before-suite name="setUpServer-imap">
+        <java:invoke-static class="${imap.server}" method="start(Integer)">
+            <java:args>
+                #[{
+                    arg0: ${imap.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="populate-mailbox-imap">
+        <foreach collection="#[1 to 10]">
+            <java:invoke-static class="${imap.server}" method="sendEmail()"/>
+        </foreach>
+            <munit-tools:store key="messages">
+                <munit-tools:value>#[[]]</munit-tools:value>
+            </munit-tools:store>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpServer-imap">
+        <java:invoke-static class="${imap.server}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownServer-imap">
+        <java:invoke-static class="${imap.server}" method="stop()"/>
+    </munit:after-suite>
+
+    <!-- Configs -->
+
+    <email:imap-config name="imap-config">
+        <email:imap-connection host="127.0.0.1" port="${imap.port}" user="juan.desimoni@mulesoft.com" password="password">
+            <reconnection failsDeployment="false">
+                <reconnect-forever/>
+            </reconnection>
+        </email:imap-connection>
+    </email:imap-config>
+
+    <!-- Test messages being polled and assert its content -->
+    <munit:test name="check-messages-content-imap">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-simple-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <until-successful maxRetries="10" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(10)]"/>
+            <foreach>
+                <munit-tools:assert-that expression="#[payload.body]" is="#[MunitTools::equalTo('Email Content')]"/>
+            </foreach>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-simple-imap" maxConcurrency="1">
+
+        <email:on-email-imap config-ref="imap-config" >
+            <reconnect-forever blocking="false"/>
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:on-email-imap>
+
+        <flow-ref name="storeMessages-imap"/>
+    </flow>
+
+    <!-- Test polled emails are being filtered with a Matcher -->
+    <munit:test name="with-matcher-imap">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-with-matcher-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <foreach collection="#[1 to 2]">
+                <java:invoke-static class="${imap.server}" method="sendEmailWithSubject(String, String)">
+                    <java:args>
+                        #[{
+                            arg0: 'Find me matcher',
+                            arg1: 'juan.desimoni@mulesoft.com'
+                        }]
+                    </java:args>
+                </java:invoke-static>
+            </foreach>
+        </munit:behavior>
+
+        <munit:execution>
+            <until-successful maxRetries="10" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="2" max="2" />
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(2)]"/>
+            <foreach>
+                <munit-tools:assert-that expression="#[attributes.subject]" is="#[MunitTools::equalTo('Find me matcher')]"/>
+            </foreach>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-matcher-imap" maxConcurrency="1">
+
+        <email:on-email-imap config-ref="imap-config" >
+            <reconnect-forever blocking="false"/>
+            <scheduling-strategy>
+                <fixed-frequency/>
+            </scheduling-strategy>
+            <email:imap-matcher subjectRegex="matcher"/>
+        </email:on-email-imap>
+
+        <flow-ref name="storeMessages-imap"/>
+    </flow>
+
+    <!-- Test polled emails are being watermarked -->
+    <munit:test name="with-watermark-imap">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-with-watermark-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <try>
+                <until-successful maxRetries="10" millisBetweenRetries="500">
+                    <munit-tools:retrieve key="messages"/>
+                    <validation:validate-size value="#[payload]" min="11" />
+                </until-successful>
+                <error-handler>
+                    <on-error-continue logException="true" type="ANY">
+                        <munit-tools:retrieve key="messages"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(10)]"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-watermark-imap" maxConcurrency="1">
+
+        <email:on-email-imap config-ref="imap-config" watermarkEnabled="true">
+            <reconnect-forever blocking="false"/>
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+            <email:imap-matcher subjectRegex="Email Subject"/>
+        </email:on-email-imap>
+
+        <flow-ref name="storeMessages-imap"/>
+
+    </flow>
+
+    <!-- Tests polled emails are watermarked and new emails are delivered -->
+    <!-- TODO: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO: IGNORED until this can be run in a specific mule version -->
+    <munit:test name="with-watermark-more-incoming-emails-imap" ignore="true">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-with-watermark-and-new-emails-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <try>
+                <until-successful maxRetries="10" millisBetweenRetries="500">
+                    <munit-tools:retrieve key="messages"/>
+                    <validation:validate-size value="#[payload]" min="10" max="10" />
+                </until-successful>
+
+                <foreach collection="#[1 to 5]">
+                    <java:invoke-static class="${imap.server}" method="sendEmailWithSubject(String, String)">
+                        <java:args>
+                            #[{
+                                arg0: 'new Email',
+                                arg1: 'juan.desimoni@mulesoft.com'
+                            }]
+                        </java:args>
+                    </java:invoke-static>
+                </foreach>
+
+                <until-successful maxRetries="10" millisBetweenRetries="500">
+                    <munit-tools:retrieve key="messages"/>
+
+                    <validation:validate-size value="#[payload]" max="1"/>
+                </until-successful>
+
+                <error-handler>
+                    <on-error-continue logException="true" type="ANY">
+                        <munit-tools:retrieve key="messages"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(15)]"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-watermark-and-new-emails-imap" maxConcurrency="1">
+
+        <email:on-email-imap config-ref="imap-config" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </email:on-email-imap>
+
+        <flow-ref name="storeMessages-imap"/>
+    </flow>
+
+    <!-- Tests polled emails are deleted after processed -->
+    <munit:test name="deletes-after-retrieves-imap">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-deletes-emails-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <until-successful maxRetries="10" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <email:list-imap config-ref="imap-config"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-deletes-emails-imap" maxConcurrency="1">
+
+        <email:on-email-imap config-ref="imap-config" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:on-email-imap>
+
+        <flow-ref name="storeMessages-imap"/>
+    </flow>
+
+    <!-- Subflow to Store Retrieved Messages -->
+
+    <sub-flow name="storeMessages-imap">
+        <set-variable variableName="message" value="#[message]"/>
+        <munit-tools:retrieve key="messages"/>
+        <munit-tools:store key="messages">
+            <munit-tools:value>
+                #[
+                %dw 2.0
+                output application/java
+                ---
+                payload ++ [vars.message]
+                ]
+            </munit-tools:value>
+        </munit-tools:store>
+    </sub-flow>
+
+</mule>

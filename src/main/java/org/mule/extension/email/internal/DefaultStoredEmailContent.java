@@ -27,7 +27,6 @@ public class DefaultStoredEmailContent implements StoredEmailContent {
    * Creates an instance with the message body and their attachments
    */
   DefaultStoredEmailContent(TypedValue<String> body, Map<String, TypedValue<InputStream>> attachments) {
-
     this.body = body;
     this.attachments = attachments;
   }

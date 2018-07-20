@@ -20,9 +20,19 @@ import java.util.Optional;
 public enum EmailError implements ErrorTypeDefinition<EmailError> {
   FETCHING_ATTRIBUTES,
 
-  MARK, ACCESSING_FOLDER(MARK), EMAIL_NOT_FOUND(MARK),
+  FETCHING_EMAILS,
 
-  SEND, ATTACHMENT(SEND),
+  MARK,
+
+  ACCESSING_FOLDER(MARK),
+
+  EXPUNGE_ERROR,
+
+  EMAIL_NOT_FOUND(MARK),
+
+  SEND,
+
+  ATTACHMENT(SEND),
 
   EMAIL_LIST,
 
@@ -37,6 +47,8 @@ public enum EmailError implements ErrorTypeDefinition<EmailError> {
   CONNECTION_TIMEOUT(CONNECTIVITY),
 
   DISCONNECTED(CONNECTIVITY),
+
+  READ_EMAIL,
 
   SSL_ERROR(CONNECTIVITY);
 

@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 
 @ArtifactClassLoaderRunnerConfig(applicationSharedRuntimeLibs = {"com.sun.mail:javax.mail"},
+    testExclusions = {"org.mule.module:mule-java-module"},
     exportPluginClasses = EmailError.class)
 public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
