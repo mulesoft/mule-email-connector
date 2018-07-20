@@ -51,11 +51,7 @@
     <!-- Configs -->
 
     <email:imap-config name="imap-config">
-        <email:imap-connection host="127.0.0.1" port="${imap.port}" user="juan.desimoni@mulesoft.com" password="password">
-            <reconnection failsDeployment="false">
-                <reconnect-forever/>
-            </reconnection>
-        </email:imap-connection>
+        <email:imap-connection host="127.0.0.1" port="${imap.port}" user="juan.desimoni@mulesoft.com" password="password"/>
     </email:imap-config>
 
     <!-- Test messages being polled and assert its content -->
@@ -85,7 +81,6 @@
     <flow name="trigger-simple-imap" maxConcurrency="1">
 
         <email:on-email-imap config-ref="imap-config" >
-            <reconnect-forever blocking="false"/>
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
@@ -133,7 +128,6 @@
     <flow name="trigger-with-matcher-imap" maxConcurrency="1">
 
         <email:on-email-imap config-ref="imap-config" >
-            <reconnect-forever blocking="false"/>
             <scheduling-strategy>
                 <fixed-frequency/>
             </scheduling-strategy>
@@ -173,7 +167,6 @@
     <flow name="trigger-with-watermark-imap" maxConcurrency="1">
 
         <email:on-email-imap config-ref="imap-config" watermarkEnabled="true">
-            <reconnect-forever blocking="false"/>
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>

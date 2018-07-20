@@ -34,16 +34,4 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 public class EmailConnector {
 
   public static final String TLS_CONFIGURATION = "TLS Configuration";
-
-  @Parameter
-  @Optional
-  private multipart_mixed caca;
-
-  public multipart_mixed getCaca() {
-    return caca;
-  }
-
-  public void setCaca(multipart_mixed caca) {
-    this.caca = caca;
-  }
 }
