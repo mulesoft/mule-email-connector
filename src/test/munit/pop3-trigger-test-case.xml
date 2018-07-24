@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <configuration-properties file="email-test.properties"/>
+
+    <munit:config name="pop3-trigger-test-case.xml" />
+
+    <!-- Setup/Dispose -->
+
+    <munit:dynamic-port propertyName="pop3.port"/>
+
+    <munit:before-suite name="setUpServer-pop3">
+
+        <java:invoke-static class="${pop3.server}" method="start(Integer)">
+            <java:args>
+                #[{
+                    arg0: ${pop3.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="populate-mailbox">
+        <foreach collection="#[1 to 10]">
+            <java:invoke-static class="${pop3.server}" method="sendEmail()"/>
+        </foreach>
+        <munit-tools:store key="messages">
+            <munit-tools:value>#[[]]</munit-tools:value>
+        </munit-tools:store>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpServer-pop3">
+        <java:invoke-static class="${pop3.server}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownServer-pop3">
+        <java:invoke-static class="${pop3.server}" method="stop()"/>
+    </munit:after-suite>
+
+    <!-- Configs -->
+
+    <email:pop3-config name="pop3-config">
+        <email:pop3-connection host="127.0.0.1" port="${pop3.port}" user="juan.desimoni@mulesoft.com" password="password"/>
+    </email:pop3-config>
+
+    <!-- Test messages being polled and assert its content -->
+    <munit:test name="check-messages-content-pop3">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-simple-pop3"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <until-successful maxRetries="10" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(10)]"/>
+            <foreach>
+                <munit-tools:assert-that expression="#[payload.body]" is="#[MunitTools::equalTo('Email Content')]"/>
+            </foreach>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-simple-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="pop3-config" >
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:listener-pop3>
+
+        <flow-ref name="storeMessages-pop3"/>
+    </flow>
+
+    <!-- Test polled emails are being filtered with a Matcher -->
+    <munit:test name="with-matcher-pop3">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-with-matcher-pop3"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <foreach collection="#[1 to 2]">
+                <java:invoke-static class="${pop3.server}" method="sendEmailWithSubject(String, String)">
+                    <java:args>
+                        #[{
+                            arg0: 'Find me matcher',
+                            arg1: 'juan.desimoni@mulesoft.com'
+                        }]
+                    </java:args>
+                </java:invoke-static>
+            </foreach>
+        </munit:behavior>
+
+        <munit:execution>
+            <until-successful maxRetries="50" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="2" max="2" />
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(2)]"/>
+            <foreach>
+                <munit-tools:assert-that expression="#[attributes.subject]" is="#[MunitTools::equalTo('Find me matcher')]"/>
+            </foreach>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-matcher-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="pop3-config" >
+            <scheduling-strategy>
+                <fixed-frequency/>
+            </scheduling-strategy>
+            <email:pop3-matcher subjectRegex=".*matcher.*"/>
+        </email:listener-pop3>
+
+        <flow-ref name="storeMessages-pop3"/>
+    </flow>
+
+    <!-- Tests polled emails are deleted after processed -->
+    <munit:test name="deletes-after-retrieves-pop3">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-deletes-emails-pop3"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <until-successful maxRetries="10" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <email:list-pop3 config-ref="pop3-config"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-deletes-emails-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="pop3-config" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:listener-pop3>
+
+        <flow-ref name="storeMessages-pop3"/>
+    </flow>
+
+    <!-- Subflow to Store Retrieved Messages -->
+    <sub-flow name="storeMessages-pop3">
+        <set-variable variableName="message" value="#[message]"/>
+        <munit-tools:retrieve key="messages"/>
+        <munit-tools:store key="messages">
+            <munit-tools:value>
+                #[
+                %dw 2.0
+                output application/java
+                ---
+                payload ++ [vars.message]
+                ]
+            </munit-tools:value>
+        </munit-tools:store>
+    </sub-flow>
+
+</mule>

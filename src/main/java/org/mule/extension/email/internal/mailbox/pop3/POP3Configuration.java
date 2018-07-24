@@ -11,6 +11,7 @@ import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.runtime.extension.api.annotation.Configuration;
 import org.mule.runtime.extension.api.annotation.Operations;
+import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 
@@ -28,6 +29,7 @@ import javax.mail.Message;
 @ConnectionProviders({POP3Provider.class, POP3SProvider.class})
 @Configuration(name = "pop3")
 @DisplayName("POP3")
+@Sources(POP3PollingSource.class)
 public class POP3Configuration implements MailboxAccessConfiguration {
 
   /**

@@ -27,7 +27,7 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 @Configurations({SMTPConfiguration.class, POP3Configuration.class, IMAPConfiguration.class})
 @Extension(name = "Email")
 @ErrorTypes(EmailError.class)
-@Export(classes = EmailException.class)
+@Export(classes = {EmailException.class})
 public class EmailConnector {
 
   public static final String TLS_CONFIGURATION = "TLS Configuration";

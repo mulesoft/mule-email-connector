@@ -54,6 +54,8 @@ public class StoredEmailContentFactory {
     this.streamingHelper = streamingHelper;
   }
 
+  public StoredEmailContentFactory() {}
+
   /**
    * Creates an instance and process the message content.
    *
@@ -135,7 +137,8 @@ public class StoredEmailContentFactory {
    */
   private void processAttachment(Part part, Map<String, TypedValue<InputStream>> attachments, StreamingHelper streamingHelper)
       throws MessagingException, IOException {
-    Object content = streamingHelper.resolveCursorProvider(part.getInputStream());
+    Object content =
+        streamingHelper != null ? streamingHelper.resolveCursorProvider(part.getInputStream()) : part.getInputStream();
     DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
     attachments.put(part.getFileName(), new TypedValue(content, dataType));
   }

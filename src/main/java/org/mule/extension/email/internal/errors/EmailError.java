@@ -18,13 +18,53 @@ import java.util.Optional;
  * @since 1.0
  */
 public enum EmailError implements ErrorTypeDefinition<EmailError> {
+
+  /**
+   * Error while parsing attributes.
+   */
   FETCHING_ATTRIBUTES,
 
-  MARK, ACCESSING_FOLDER(MARK), EMAIL_NOT_FOUND(MARK),
+  /**
+   * Error while marking email flags.
+   */
+  MARK,
 
-  SEND, ATTACHMENT(SEND),
+  /**
+   * Error while accessing folder.
+   */
+  ACCESSING_FOLDER(MARK),
 
+  /**
+   * Error while deleting emails from folder.
+   */
+  EXPUNGE_ERROR,
+
+  /**
+   * Error while looking for email
+   */
+  EMAIL_NOT_FOUND(MARK),
+
+  /**
+   * Error while sending email
+   */
+  SEND,
+
+  /**
+   * Error while sending attachment
+   */
+  ATTACHMENT(SEND),
+
+  /**
+   * Error listing emails
+   */
   EMAIL_LIST,
+
+  /**
+   * Error reading email content
+   */
+  READ_EMAIL,
+
+  // Connection related errors
 
   CONNECTIVITY(MuleErrors.CONNECTIVITY),
 

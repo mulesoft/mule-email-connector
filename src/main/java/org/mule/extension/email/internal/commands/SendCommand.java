@@ -23,7 +23,6 @@ import org.mule.runtime.api.metadata.MediaType;
 
 import javax.mail.AuthenticationFailedException;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.mail.Transport;
 
 import java.util.Calendar;
