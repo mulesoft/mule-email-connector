@@ -6,7 +6,7 @@
  */
 package org.mule.extension.email.api.exception;
 
-import static org.mule.extension.email.internal.errors.EmailError.EMAIL_LIST;
+import static org.mule.extension.email.api.EmailError.EMAIL_LIST;
 
 import org.mule.runtime.extension.api.exception.ModuleException;
 

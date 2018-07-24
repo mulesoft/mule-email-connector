@@ -10,37 +10,31 @@ import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.runtime.extension.api.annotation.Alias;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.UIDFolder;
-
-import static java.util.Optional.ofNullable;
+import static java.util.Optional.*;
 
 /**
  * Retrieves all the emails from an IMAP mailbox folder, watermark can be enabled for polled items.
  *
  * @since 1.1
  */
-@DisplayName("On Email - IMAP")
-@Alias("on-email-imap")
+@DisplayName("On New Email - IMAP")
+@Alias("listener-imap")
 public class IMAPPollingSource extends BaseMailboxPollingSource {
 
   /**
-   * If watermark should be applied to the polled emails or not. Default to false.
+   * If watermark should be applied to the polled emails or not. Default to true.
    */
   @Parameter
   @DisplayName("Enable Watermark")
-  @Optional(defaultValue = "false")
+  @Optional(defaultValue = "true")
   private boolean watermarkEnabled;
 
   /**
-   * A matcher to filter emails retrieved by this polling source.
+   * A matcher to filter emails retrieved by this polling source. For default already read emails will be filtered.
    */
   @Parameter
   @Optional
@@ -51,7 +45,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
    */
   @Override
   protected java.util.Optional<? extends BaseEmailPredicateBuilder> getPredicateBuilder() {
-    return ofNullable(imapMatcher);
+    return of(imapMatcher == null ? new DefaultPollingSourceMatcher() : imapMatcher);
   }
 
   /**

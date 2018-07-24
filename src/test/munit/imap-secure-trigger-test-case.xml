@@ -86,11 +86,11 @@
 
     <flow name="trigger-simple-imaps" maxConcurrency="1">
 
-        <email:on-email-imap config-ref="imaps-config" >
+        <email:listener-imap config-ref="imaps-config" >
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
-        </email:on-email-imap>
+        </email:listener-imap>
 
         <flow-ref name="storeMessages-imaps"/>
     </flow>
@@ -133,12 +133,12 @@
 
     <flow name="trigger-with-matcher-imaps" maxConcurrency="1">
 
-        <email:on-email-imap config-ref="imaps-config" >
+        <email:listener-imap config-ref="imaps-config" >
             <scheduling-strategy>
                 <fixed-frequency/>
             </scheduling-strategy>
             <email:imap-matcher subjectRegex="matcher"/>
-        </email:on-email-imap>
+        </email:listener-imap>
 
         <flow-ref name="storeMessages-imaps"/>
     </flow>
@@ -172,22 +172,22 @@
 
     <flow name="trigger-with-watermark-imaps" maxConcurrency="1">
 
-        <email:on-email-imap config-ref="imaps-config" watermarkEnabled="true">
+        <email:listener-imap config-ref="imaps-config" watermarkEnabled="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
             <email:imap-matcher subjectRegex="Email Subject"/>
-        </email:on-email-imap>
+        </email:listener-imap>
 
         <flow-ref name="storeMessages-imaps"/>
 
     </flow>
 
     <!-- Tests polled emails are watermarked and new emails are delivered -->
-    <!-- TODO: IGNORED until this can be run in a specific mule version -->
-    <!-- TODO: IGNORED until this can be run in a specific mule version -->
-    <!-- TODO: IGNORED until this can be run in a specific mule version -->
-    <!-- TODO: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
     <munit:test name="with-watermark-more-incoming-emails-imaps" ignore="true">
 
         <munit:enable-flow-sources>
@@ -234,11 +234,11 @@
 
     <flow name="trigger-with-watermark-and-new-emails-imaps" maxConcurrency="1">
 
-        <email:on-email-imap config-ref="imaps-config" watermarkEnabled="true">
+        <email:listener-imap config-ref="imaps-config" watermarkEnabled="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-        </email:on-email-imap>
+        </email:listener-imap>
 
         <flow-ref name="storeMessages-imaps"/>
     </flow>
@@ -266,11 +266,11 @@
 
     <flow name="trigger-deletes-emails-imaps" maxConcurrency="1">
 
-        <email:on-email-imap config-ref="imaps-config" deleteAfterRetrieve="true">
+        <email:listener-imap config-ref="imaps-config" deleteAfterRetrieve="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
-        </email:on-email-imap>
+        </email:listener-imap>
 
         <flow-ref name="storeMessages-imaps"/>
     </flow>

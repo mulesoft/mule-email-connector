@@ -16,7 +16,9 @@ import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
 import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
@@ -47,5 +49,4 @@ public class StoredEmailContentTestCase {
     TypedValue<InputStream> csv = attachments.get("input.csv");
     assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
   }
-
 }

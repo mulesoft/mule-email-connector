@@ -86,11 +86,11 @@
 
     <flow name="trigger-simple-pop3s" maxConcurrency="1">
 
-        <email:on-email-pop3 config-ref="pop3s-config" >
+        <email:listener-pop3 config-ref="pop3s-config" >
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
-        </email:on-email-pop3>
+        </email:listener-pop3>
 
         <flow-ref name="storeMessages-pop3s"/>
     </flow>
@@ -133,12 +133,12 @@
 
     <flow name="trigger-with-matcher-pop3s" maxConcurrency="1">
 
-        <email:on-email-pop3 config-ref="pop3s-config" >
+        <email:listener-pop3 config-ref="pop3s-config" >
             <scheduling-strategy>
                 <fixed-frequency/>
             </scheduling-strategy>
             <email:pop3-matcher subjectRegex="matcher"/>
-        </email:on-email-pop3>
+        </email:listener-pop3>
 
         <flow-ref name="storeMessages-pop3s"/>
     </flow>
@@ -166,11 +166,11 @@
 
     <flow name="trigger-deletes-emails-pop3s" maxConcurrency="1">
 
-        <email:on-email-pop3 config-ref="pop3s-config" deleteAfterRetrieve="true">
+        <email:listener-pop3 config-ref="pop3s-config" deleteAfterRetrieve="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
-        </email:on-email-pop3>
+        </email:listener-pop3>
 
         <flow-ref name="storeMessages-pop3s"/>
     </flow>

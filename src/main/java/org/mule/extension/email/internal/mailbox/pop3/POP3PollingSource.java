@@ -7,17 +7,12 @@
 package org.mule.extension.email.internal.mailbox.pop3;
 
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
-import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.POP3EmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.runtime.extension.api.annotation.Alias;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-
-import javax.mail.Folder;
-import javax.mail.Message;
 
 import static java.util.Optional.ofNullable;
 
@@ -26,8 +21,8 @@ import static java.util.Optional.ofNullable;
  *
  * @since 1.1
  */
-@DisplayName("On Email - POP3")
-@Alias("on-email-pop3")
+@DisplayName("On New Email - POP3")
+@Alias("listener-pop3")
 public class POP3PollingSource extends BaseMailboxPollingSource {
 
   /**

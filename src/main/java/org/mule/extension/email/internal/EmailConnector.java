@@ -7,8 +7,7 @@
 package org.mule.extension.email.internal;
 
 
-import com.sun.mail.handlers.multipart_mixed;
-import org.mule.extension.email.internal.errors.EmailError;
+import org.mule.extension.email.api.EmailError;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.mailbox.imap.IMAPConfiguration;
 import org.mule.extension.email.internal.mailbox.pop3.POP3Configuration;
@@ -17,8 +16,6 @@ import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Export;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
-import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 /**
  * Email connector used to list and send emails and perform operations in different mailboxes, such as delete and mark as read.
@@ -30,7 +27,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 @Configurations({SMTPConfiguration.class, POP3Configuration.class, IMAPConfiguration.class})
 @Extension(name = "Email")
 @ErrorTypes(EmailError.class)
-@Export(classes = {EmailException.class, com.sun.mail.handlers.multipart_mixed.class})
+@Export(classes = {EmailException.class})
 public class EmailConnector {
 
   public static final String TLS_CONFIGURATION = "TLS Configuration";

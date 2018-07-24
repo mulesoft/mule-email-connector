@@ -7,6 +7,7 @@
 package org.mule.extension.email.internal.mailbox;
 
 import com.sun.mail.pop3.POP3Folder;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.ExpungeFolderException;
 import org.mule.extension.email.api.exception.EmailListException;
@@ -29,7 +30,7 @@ import java.util.function.Predicate;
 
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Folder.READ_WRITE;
-import static org.mule.extension.email.internal.errors.EmailError.*;
+import static org.mule.extension.email.api.EmailError.*;
 
 /**
  * Implementation of an email pooling source, contains all the logic to retrieve and push emails, add watermark and delete
@@ -107,6 +108,8 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
     if (connection != null) {
       connectionProvider.disconnect(connection);
     }
+
+    connection = null;
   }
 
   /**
@@ -118,31 +121,36 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    * state of the mailbox with changes such as flag marks and deletion of the polled elements.
    * <p>
    * All retrieved emails are parsed to extract its attributes and content and are ALWAYS opened.
+   * <p>
+   * By default only UNREAD emails are going to be polled.
    */
   @Override
   public void poll(PollContext<DefaultStoredEmailContent, BaseEmailAttributes> pollContext) {
-    openFolder = connection.getFolder(folder, READ_WRITE);
-    for (Message message : getMessages(openFolder)) {
-      BaseEmailAttributes attributes = config.parseAttributesFromMessage(message, openFolder);
-      String id = attributes.getId();
-      if (predicate.test(attributes)) {
-        pollContext.accept(item -> {
-          if (isWatermarkEnabled()) {
-            item.setWatermark(Long.valueOf(id));
-          }
-          item.setId(id);
-          item.setResult(Result.<DefaultStoredEmailContent, BaseEmailAttributes>builder()
-              .output(getEmailContent(message, id))
-              .attributes(attributes)
-              .build());
+    try {
+      openFolder = connection.getFolder(folder, READ_WRITE);
+      for (Message message : getMessages(openFolder)) {
+        BaseEmailAttributes attributes = config.parseAttributesFromMessage(message, openFolder);
+        String id = attributes.getId();
+        if (predicate.test(attributes)) {
+          pollContext.accept(item -> {
+            if (isWatermarkEnabled()) {
+              item.setWatermark(Long.valueOf(id));
+            }
+            item.setId(id);
+            item.setResult(Result.<DefaultStoredEmailContent, BaseEmailAttributes>builder()
+                .output(getEmailContent(message, id))
+                .attributes(attributes)
+                .build());
 
-          if (deleteAfterRetrieve) {
-            markAsDeleted(id);
-          }
-        });
+            if (deleteAfterRetrieve) {
+              markAsDeleted(id, message);
+            }
+          });
+        }
       }
+    } finally {
+      connection.closeFolder(deleteAfterRetrieve);
     }
-    connection.closeFolder(deleteAfterRetrieve);
   }
 
   /**
@@ -151,7 +159,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
   @Override
   public void onRejectedItem(Result<DefaultStoredEmailContent, BaseEmailAttributes> result,
                              SourceCallbackContext sourceCallbackContext) {
-    result.getAttributes().ifPresent(a -> LOGGER.warn("Email [" + a.getId() + "] was not processed."));
+    result.getAttributes().ifPresent(a -> LOGGER.info("Email [" + a.getId() + "] was not processed."));
   }
 
   private Message[] getMessages(Folder openFolder) {
@@ -165,18 +173,9 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
   /**
    * Marks an email as deleted looking it by its UID.
    */
-  private void markAsDeleted(String id) {
+  private void markAsDeleted(String id, Message message) {
     try {
-      if (openFolder instanceof POP3Folder) {
-        for (Message message : openFolder.getMessages()) {
-          if (((POP3Folder) openFolder).getUID(message).equals(id)) {
-            message.setFlag(DELETED, true);
-          }
-        }
-      } else if (openFolder instanceof UIDFolder) {
-        Message message = ((UIDFolder) openFolder).getMessageByUID(Long.valueOf(id));
-        message.setFlag(DELETED, true);
-      }
+      message.setFlag(DELETED, true);
     } catch (MessagingException e) {
       throw new ExpungeFolderException("Error while setting delete flag on email uid [" + id + "]", e);
     }

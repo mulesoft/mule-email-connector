@@ -7,10 +7,10 @@
 package org.mule.extension.email.internal.mailbox;
 
 import static java.lang.String.format;
-import static org.mule.extension.email.internal.errors.EmailError.CONNECTION_TIMEOUT;
-import static org.mule.extension.email.internal.errors.EmailError.DISCONNECTED;
-import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDENTIALS;
-import static org.mule.extension.email.internal.errors.EmailError.UNKNOWN_HOST;
+import static org.mule.extension.email.api.EmailError.CONNECTION_TIMEOUT;
+import static org.mule.extension.email.api.EmailError.DISCONNECTED;
+import static org.mule.extension.email.api.EmailError.INVALID_CREDENTIALS;
+import static org.mule.extension.email.api.EmailError.UNKNOWN_HOST;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 

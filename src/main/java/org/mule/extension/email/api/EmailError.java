@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.internal.errors;
+package org.mule.extension.email.api;
 
 import org.mule.extension.email.internal.EmailConnector;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
@@ -18,23 +18,53 @@ import java.util.Optional;
  * @since 1.0
  */
 public enum EmailError implements ErrorTypeDefinition<EmailError> {
+
+  /**
+   * Error while parsing attributes.
+   */
   FETCHING_ATTRIBUTES,
 
-  FETCHING_EMAILS,
-
+  /**
+   * Error while marking email flags.
+   */
   MARK,
 
+  /**
+   * Error while accessing folder.
+   */
   ACCESSING_FOLDER(MARK),
 
+  /**
+   * Error while deleting emails from folder.
+   */
   EXPUNGE_ERROR,
 
+  /**
+   * Error while looking for email
+   */
   EMAIL_NOT_FOUND(MARK),
 
+  /**
+   * Error while sending email
+   */
   SEND,
 
+  /**
+   * Error while sending attachment
+   */
   ATTACHMENT(SEND),
 
+  /**
+   * Error listing emails
+   */
   EMAIL_LIST,
+
+  /**
+   * Error reading email content
+   */
+  READ_EMAIL,
+
+  // Connection related errors
 
   CONNECTIVITY(MuleErrors.CONNECTIVITY),
 
@@ -47,8 +77,6 @@ public enum EmailError implements ErrorTypeDefinition<EmailError> {
   CONNECTION_TIMEOUT(CONNECTIVITY),
 
   DISCONNECTED(CONNECTIVITY),
-
-  READ_EMAIL,
 
   SSL_ERROR(CONNECTIVITY);
 

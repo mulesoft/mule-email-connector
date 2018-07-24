@@ -8,7 +8,7 @@ package org.mule.extension.email.api.exception;
 
 import org.mule.runtime.extension.api.exception.ModuleException;
 
-import static org.mule.extension.email.internal.errors.EmailError.EXPUNGE_ERROR;
+import static org.mule.extension.email.api.EmailError.EXPUNGE_ERROR;
 
 /**
  * {@link ModuleException} for the cases in which there was a problem deleting emails from a folder.
