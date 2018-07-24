@@ -6,7 +6,7 @@
  */
 package org.mule.extension.email.internal.commands;
 
-import static org.mule.extension.email.api.EmailError.MARK;
+import static org.mule.extension.email.internal.errors.EmailError.MARK;
 
 import org.mule.runtime.extension.api.exception.ModuleException;
 

@@ -7,8 +7,8 @@
 package org.mule.extension.email.internal.commands;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.mule.extension.email.api.EmailError.AUTHENTICATION;
-import static org.mule.extension.email.api.EmailError.CONNECTIVITY;
+import static org.mule.extension.email.internal.errors.EmailError.AUTHENTICATION;
+import static org.mule.extension.email.internal.errors.EmailError.CONNECTIVITY;
 import static org.mule.extension.email.internal.util.EmailUtils.getMediaType;
 
 import org.mule.extension.email.api.exception.EmailConnectionException;

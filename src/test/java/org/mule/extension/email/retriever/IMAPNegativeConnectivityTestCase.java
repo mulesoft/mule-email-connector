@@ -9,8 +9,8 @@ package org.mule.extension.email.retriever;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.mule.extension.email.api.EmailError.INVALID_CREDENTIALS;
-import static org.mule.extension.email.api.EmailError.UNKNOWN_HOST;
+import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDENTIALS;
+import static org.mule.extension.email.internal.errors.EmailError.UNKNOWN_HOST;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
 

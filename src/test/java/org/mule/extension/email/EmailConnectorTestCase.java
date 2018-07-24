@@ -17,7 +17,7 @@ import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.setUpServer;
 import static org.mule.functional.api.exception.ExpectedError.none;
 
-import org.mule.extension.email.api.EmailError;
+import org.mule.extension.email.internal.errors.EmailError;
 import org.mule.functional.api.exception.ExpectedError;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.runtime.api.metadata.MediaType;

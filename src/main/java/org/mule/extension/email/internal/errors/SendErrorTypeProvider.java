@@ -6,8 +6,8 @@
  */
 package org.mule.extension.email.internal.errors;
 
-import static org.mule.extension.email.api.EmailError.CONNECTIVITY;
-import static org.mule.extension.email.api.EmailError.SEND;
+import static org.mule.extension.email.internal.errors.EmailError.CONNECTIVITY;
+import static org.mule.extension.email.internal.errors.EmailError.SEND;
 
 import org.mule.extension.email.internal.sender.SendOperation;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;

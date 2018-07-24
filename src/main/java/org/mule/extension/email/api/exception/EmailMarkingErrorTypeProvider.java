@@ -6,8 +6,8 @@
  */
 package org.mule.extension.email.api.exception;
 
-import static org.mule.extension.email.api.EmailError.ACCESSING_FOLDER;
-import static org.mule.extension.email.api.EmailError.EMAIL_NOT_FOUND;
+import static org.mule.extension.email.internal.errors.EmailError.ACCESSING_FOLDER;
+import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
 
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;

@@ -6,8 +6,6 @@
  */
 package org.mule.extension.email.internal.mailbox;
 
-import com.sun.mail.pop3.POP3Folder;
-import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.ExpungeFolderException;
 import org.mule.extension.email.api.exception.EmailListException;
@@ -30,7 +28,7 @@ import java.util.function.Predicate;
 
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Folder.READ_WRITE;
-import static org.mule.extension.email.api.EmailError.*;
+import static org.mule.extension.email.internal.errors.EmailError.*;
 
 /**
  * Implementation of an email pooling source, contains all the logic to retrieve and push emails, add watermark and delete
