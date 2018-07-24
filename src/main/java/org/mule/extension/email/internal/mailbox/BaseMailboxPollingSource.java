@@ -157,7 +157,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
   @Override
   public void onRejectedItem(Result<DefaultStoredEmailContent, BaseEmailAttributes> result,
                              SourceCallbackContext sourceCallbackContext) {
-    result.getAttributes().ifPresent(a -> LOGGER.info("Email [" + a.getId() + "] was not processed."));
+    result.getAttributes().ifPresent(a -> LOGGER.debug("Email [" + a.getId() + "] was not processed."));
   }
 
   private Message[] getMessages(Folder openFolder) {
