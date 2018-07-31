@@ -76,9 +76,9 @@
 
         <munit:validation>
             <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
-            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(10)]"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(10)]"/>
             <foreach>
-                <munit-tools:assert-that expression="#[payload.body]" is="#[MunitTools::equalTo('Email Content')]"/>
+                <munit-tools:assert-that expression="#[payload.body]" is="#['Email Content']"/>
             </foreach>
         </munit:validation>
 
@@ -123,9 +123,9 @@
         </munit:execution>
 
         <munit:validation>
-            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(2)]"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(2)]"/>
             <foreach>
-                <munit-tools:assert-that expression="#[attributes.subject]" is="#[MunitTools::equalTo('Find me matcher')]"/>
+                <munit-tools:assert-that expression="#[attributes.subject]" is="#['Find me matcher']"/>
             </foreach>
         </munit:validation>
 
@@ -159,7 +159,7 @@
 
         <munit:validation>
             <email:list-pop3 config-ref="pop3s-config"/>
-            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[0]"/>
         </munit:validation>
 
     </munit:test>
