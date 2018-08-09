@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <munit:config name="trigger-watermark-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="imap">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imap-watermark-config"/>
+                    <munit:parameter propertyName="protocol" value="imap"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="imap-secure">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imaps-watermark-config"/>
+                    <munit:parameter propertyName="protocol" value="imap"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <munit:dynamic-port propertyName="imap.server.port"/>
+
+    <!-- Configs -->
+
+    <email:imap-config name="imap-watermark-config">
+        <email:imap-connection host="127.0.0.1" port="${imap.server.port}" user="juan.desimoni@mulesoft.com" password="password"/>
+    </email:imap-config>
+
+    <email:imap-config name="imaps-watermark-config">
+        <email:imaps-connection host="127.0.0.1" port="${imap.server.port}" password="password" user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.jks" password="changeit"/>
+            </tls:context>
+        </email:imaps-connection>
+    </email:imap-config>
+
+    <!-- Setup/Dispose -->
+
+    <munit:before-suite name="setUpWatermarkServer">
+        <java:invoke-static class="${serverName}" method="${startMethod}">
+            <java:args>
+                #[{
+                arg0: ${imap.server.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="populate-watermark-mailbox">
+        <foreach collection="#[1 to 10]">
+            <java:invoke-static class="${serverName}" method="sendEmail()"/>
+        </foreach>
+        <munit-tools:store key="messages">
+            <munit-tools:value>#[[]]</munit-tools:value>
+        </munit-tools:store>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpWatermarkServer">
+        <java:invoke-static class="${serverName}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownWatermarkServer">
+        <java:invoke-static class="${serverName}" method="stop()"/>
+    </munit:after-suite>
+
+    <!-- Test polled emails are being watermarked -->
+    <munit:test name="with-watermark">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-with-watermark-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <try>
+                <until-successful maxRetries="10" millisBetweenRetries="500">
+                    <munit-tools:retrieve key="messages"/>
+                    <validation:validate-size value="#[payload]" min="11"/>
+                </until-successful>
+                <error-handler>
+                    <on-error-continue logException="true" type="ANY">
+                        <munit-tools:retrieve key="messages"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(10)]"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-watermark-imap" maxConcurrency="1">
+
+        <email:listener-imap config-ref="${config}" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+            <email:imap-matcher subjectRegex="Email Subject"/>
+        </email:listener-imap>
+
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+    <!-- Tests polled emails are watermarked and new emails are delivered -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
+    <munit:test name="with-watermark-more-incoming-emails" ignore="true">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-with-watermark-and-new-emails-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:execution>
+            <try>
+                <until-successful maxRetries="10" millisBetweenRetries="500">
+                    <munit-tools:retrieve key="messages"/>
+                    <validation:validate-size value="#[payload]" min="10" max="10"/>
+                </until-successful>
+
+                <foreach collection="#[1 to 5]">
+                    <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                        <java:args>
+                            #[{
+                            arg0: 'new Email',
+                            arg1: 'juan.desimoni@mulesoft.com'
+                            }]
+                        </java:args>
+                    </java:invoke-static>
+                </foreach>
+
+                <until-successful maxRetries="10" millisBetweenRetries="500">
+                    <munit-tools:retrieve key="messages"/>
+
+                    <validation:validate-size value="#[payload]" max="1"/>
+                </until-successful>
+
+                <error-handler>
+                    <on-error-continue logException="true" type="ANY">
+                        <munit-tools:retrieve key="messages"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(15)]"/>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-watermark-and-new-emails-imap" maxConcurrency="1">
+
+        <email:listener-imap config-ref="${config}" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </email:listener-imap>
+
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+
+</mule>

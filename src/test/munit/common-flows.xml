@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+
+    <!-- Subflow to Store Retrieved Messages -->
+    <sub-flow name="storeMessages">
+        <set-variable variableName="message" value="#[message]"/>
+        <munit-tools:retrieve key="messages"/>
+        <munit-tools:store key="messages">
+            <munit-tools:value>
+                #[
+                %dw 2.0
+                output application/java
+                ---
+                payload ++ [vars.message]
+                ]
+            </munit-tools:value>
+        </munit-tools:store>
+    </sub-flow>
+
+</mule>
