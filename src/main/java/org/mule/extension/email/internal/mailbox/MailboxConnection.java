@@ -135,6 +135,21 @@ public class MailboxConnection extends AbstractEmailConnection {
   }
 
   /**
+   * Retrieves all the folders of the user's personal namespace.
+   *
+   * @return the list of {@link Folder}.
+   */
+  public synchronized Folder[] listFolders() {
+    Folder[] folders;
+    try {
+      folders = store.getDefaultFolder().list("*");
+      return folders;
+    } catch (MessagingException e) {
+      throw new EmailAccessingFolderException("Error while retrieving folders of mailbox", e);
+    }
+  }
+
+  /**
    * Closes the current connection folder.
    *
    * @param expunge whether to remove all the emails marked as DELETED.

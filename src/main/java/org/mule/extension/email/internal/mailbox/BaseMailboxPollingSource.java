@@ -12,9 +12,11 @@ import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
+import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.extension.api.annotation.param.*;
+import org.mule.runtime.extension.api.annotation.values.OfValues;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.PollContext;
@@ -58,6 +60,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    */
   @Parameter
   @Optional(defaultValue = "INBOX")
+  @OfValues(MailboxFolderValueProvider.class)
   private String folder;
 
   /**
