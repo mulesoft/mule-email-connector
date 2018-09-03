@@ -9,6 +9,7 @@ package org.mule.extension.email.value;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
+import static org.mule.runtime.api.value.ValueProviderService.VALUE_PROVIDER_SERVICE_KEY;
 import static org.mule.tck.junit4.matcher.ValueMatcher.valueWithId;
 
 import org.mule.extension.email.EmailConnectorTestCase;
@@ -18,6 +19,7 @@ import org.mule.runtime.api.value.ValueResult;
 import org.mule.tck.junit4.rule.SystemProperty;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.icegreen.greenmail.imap.ImapHostManager;
 import org.junit.Before;
@@ -34,8 +36,18 @@ public class MailboxFolderValueProviderTestCase extends EmailConnectorTestCase {
   public SystemProperty specialCharacterPassword = new SystemProperty("specialCharacterPassword", SPECIAL_CHARACTER_PASSWORD);
 
   @Inject
+  @Named(VALUE_PROVIDER_SERVICE_KEY)
   private ValueProviderService service;
 
+  @Override
+  public boolean enableLazyInit() {
+    return true;
+  }
+
+  @Override
+  public boolean disableXmlValidations() {
+    return true;
+  }
 
   @Override
   protected String[] getConfigFiles() {

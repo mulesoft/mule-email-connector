@@ -7,6 +7,8 @@
 package org.mule.extension.email.internal.value;
 
 import static org.mule.runtime.extension.api.values.ValueBuilder.getValuesFor;
+import static org.mule.runtime.extension.api.values.ValueResolvingException.UNKNOWN;
+import static java.util.Arrays.stream;
 
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.runtime.api.value.Value;
@@ -14,11 +16,10 @@ import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.values.ValueProvider;
 import org.mule.runtime.extension.api.values.ValueResolvingException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 
 /**
  * {@link ValueProvider} implementation which provides the list of {@link Folder} on the user namespace.
@@ -32,14 +33,10 @@ public class MailboxFolderValueProvider implements ValueProvider {
 
   @Override
   public Set<Value> resolve() throws ValueResolvingException {
-    Folder[] folders = mailboxConnection.listFolders();
-
-    List<String> foldersNames = new ArrayList<>();
-
-    for (Folder folder : folders) {
-      foldersNames.add(folder.getFullName());
+    try {
+      return getValuesFor(stream(mailboxConnection.listFolders()).map(Folder::getFullName));
+    } catch (MessagingException e) {
+      throw new ValueResolvingException("There has been an error resolving the values for the list of folders", UNKNOWN, e);
     }
-
-    return getValuesFor(foldersNames);
   }
 }

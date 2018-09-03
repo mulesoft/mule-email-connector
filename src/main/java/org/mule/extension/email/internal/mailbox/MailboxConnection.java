@@ -138,15 +138,10 @@ public class MailboxConnection extends AbstractEmailConnection {
    * Retrieves all the folders of the user's personal namespace.
    *
    * @return the list of {@link Folder}.
+   * @throws MessagingException in case of a failure.
    */
-  public synchronized Folder[] listFolders() {
-    Folder[] folders;
-    try {
-      folders = store.getDefaultFolder().list("*");
-      return folders;
-    } catch (MessagingException e) {
-      throw new EmailAccessingFolderException("Error while retrieving folders of mailbox", e);
-    }
+  public synchronized Folder[] listFolders() throws MessagingException {
+    return store.getDefaultFolder().list("*");
   }
 
   /**
