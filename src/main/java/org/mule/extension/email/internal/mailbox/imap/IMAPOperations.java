@@ -30,12 +30,14 @@ import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.values.OfValues;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
@@ -70,7 +72,7 @@ public class IMAPOperations {
   @Throws(EmailListingErrorTypeProvider.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, IMAPEmailAttributes>> listImap(@Config IMAPConfiguration config,
                                                                                                      @Optional(
-                                                                                                         defaultValue = INBOX_FOLDER) String mailboxFolder,
+                                                                                                         defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
                                                                                                      @DisplayName("Match with") @Optional IMAPEmailPredicateBuilder imapMatcher,
                                                                                                      @Optional(
                                                                                                          defaultValue = "false") boolean deleteAfterRetrieve,
@@ -103,7 +105,8 @@ public class IMAPOperations {
    */
   @Throws(EmailMarkingErrorTypeProvider.class)
   public void markAsDeleted(@Connection MailboxConnection connection,
-                            @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder,
+                            @Optional(
+                                defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
                             @Summary("Email ID Number of the email to mark as deleted") @DisplayName("Email ID") long emailId) {
     setFlagCommand.setByUID(connection, mailboxFolder, DELETED, emailId);
   }
@@ -119,7 +122,7 @@ public class IMAPOperations {
    */
   @Throws(EmailMarkingErrorTypeProvider.class)
   public void markAsRead(@Connection MailboxConnection connection,
-                         @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder,
+                         @Optional(defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
                          @Summary("Email ID Number of the email to mark as read") @DisplayName("Email ID") long emailId) {
     setFlagCommand.setByUID(connection, mailboxFolder, SEEN, emailId);
   }
@@ -134,7 +137,8 @@ public class IMAPOperations {
 
   @Throws(EmailAccessingFolderErrorTypeProvider.class)
   public void expungeFolder(@Connection MailboxConnection connection,
-                            @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder) {
+                            @Optional(
+                                defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
     expungeCommand.expunge(connection, mailboxFolder);
   }
 
@@ -150,7 +154,7 @@ public class IMAPOperations {
   @Summary("Deletes an email from the given Mailbox Folder")
   @Throws(EmailMarkingErrorTypeProvider.class)
   public void delete(@Connection MailboxConnection connection,
-                     @Optional(defaultValue = INBOX_FOLDER) String mailboxFolder,
+                     @Optional(defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
                      @Summary("Email ID Number of the email to delete") @DisplayName("Email ID") long emailId) {
     markAsDeleted(connection, mailboxFolder, emailId);
     try {
