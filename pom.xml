@@ -23,7 +23,6 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.7</commonsLangVersion>
         <javaMailVersion>1.5.6</javaMailVersion>
-        <javaxActivationVersion>1.1</javaxActivationVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
         <powermockVersion>1.6.5</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -112,12 +111,6 @@
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
             <version>${javaMailVersion}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.activation</groupId>
-                    <artifactId>activation</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
