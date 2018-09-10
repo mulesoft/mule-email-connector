@@ -22,9 +22,9 @@
         <commonsIoVersion>2.4</commonsIoVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.6</commonsLangVersion>
-        <javaMailVersion>1.5.6</javaMailVersion>
         <javaxActivationVersion>1.1</javaxActivationVersion>
         <guavaVersion>18.0</guavaVersion>
+        <javaMailVersion>1.6.2</javaMailVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
         <powermockVersion>1.6.5</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
