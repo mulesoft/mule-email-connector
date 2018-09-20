@@ -6,20 +6,32 @@
  */
 package org.mule.extension.email.util;
 
+import static com.google.common.net.MediaType.OCTET_STREAM;
 import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
+import static javax.mail.Part.INLINE;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
+import com.google.common.net.MediaType;
 import com.icegreen.greenmail.util.ServerSetup;
 import javax.activation.DataHandler;
+import javax.activation.DataSource;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
+
+import org.mule.extension.email.internal.util.EmailConnectorConstants;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
@@ -43,6 +55,24 @@ public class EmailTestUtils {
 
   public static final Session testSession = Session.getDefaultInstance(new Properties());
 
+
+  public static MimeMessage getMultipartTestMessageWithInlineAttachment() throws Exception {
+    MimeBodyPart binaryInlineAttachment = new MimeBodyPart();
+    binaryInlineAttachment.setDisposition(INLINE);
+    binaryInlineAttachment.setFileName(EMAIL_TEXT_PLAIN_ATTACHMENT_NAME);
+    DataSource dataSrc = new ByteArrayDataSource(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes(), OCTET_STREAM.toString());
+    binaryInlineAttachment.setDataHandler(new DataHandler(dataSrc));
+    binaryInlineAttachment.addHeader(CONTENT_TYPE_HEADER, OCTET_STREAM.toString());
+
+    Multipart multipart = new MimeMultipart();
+    multipart.addBodyPart(binaryInlineAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(multipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    return message;
+  }
 
   public static MimeMessage getMultipartTestMessage() throws Exception {
     MimeBodyPart body = new MimeBodyPart();

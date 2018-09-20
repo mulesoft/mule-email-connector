@@ -6,21 +6,14 @@
  */
 package org.mule.extension.email.internal.util;
 
+import static com.google.common.net.MediaType.OCTET_STREAM;
 import static javax.mail.Part.ATTACHMENT;
+import static javax.mail.Part.INLINE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.TEXT;
 import static org.mule.runtime.api.metadata.DataType.HTML_STRING;
 import static org.mule.runtime.api.metadata.DataType.builder;
 import static org.mule.runtime.api.metadata.MediaType.ANY;
 import static org.mule.runtime.api.metadata.MediaType.MULTIPART_RELATED;
-
-import org.mule.extension.email.api.exception.EmailException;
-import org.mule.runtime.api.metadata.DataType;
-import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.core.api.util.IOUtils;
-import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
-
-import com.google.common.collect.ImmutableMap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,8 +29,16 @@ import javax.mail.Part;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
+import org.mule.extension.email.api.exception.EmailException;
+import org.mule.runtime.api.metadata.DataType;
+import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.api.metadata.TypedValue;
+import org.mule.runtime.core.api.util.IOUtils;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableMap;
 
 
 /**
@@ -157,7 +158,12 @@ public class StoredEmailContent {
    * @return true is the part is dispositioned as an attachment, false otherwise
    */
   private boolean isAttachment(Part part) throws MessagingException {
-    return part.getFileName() != null && (part.getDisposition() == null || part.getDisposition().equalsIgnoreCase(ATTACHMENT));
+    return part.getFileName() != null && (part.getDisposition() == null || (part.getDisposition().equalsIgnoreCase(ATTACHMENT)
+        || isInlineAttachment(part)));
+  }
+
+  private boolean isInlineAttachment(Part part) throws MessagingException {
+    return part.getDisposition().equalsIgnoreCase(INLINE) && part.isMimeType(OCTET_STREAM.toString());
   }
 
   /**
