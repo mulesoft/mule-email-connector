@@ -6,8 +6,10 @@
  */
 package org.mule.extension.email.internal;
 
+import static com.google.common.net.MediaType.OCTET_STREAM;
 import static java.util.Collections.emptyMap;
 import static javax.mail.Part.ATTACHMENT;
+import static javax.mail.Part.INLINE;
 import static org.mule.runtime.api.metadata.DataType.builder;
 import static org.mule.runtime.api.metadata.MediaType.MULTIPART_RELATED;
 
@@ -160,7 +162,12 @@ public class StoredEmailContentFactory {
    * @return true is the part is dispositioned as an attachment, false otherwise
    */
   private boolean isAttachment(Part part) throws MessagingException {
-    return part.getFileName() != null && (part.getDisposition() == null || part.getDisposition().equalsIgnoreCase(ATTACHMENT));
+    return part.getFileName() != null
+        && (part.getDisposition() == null || (part.getDisposition().equalsIgnoreCase(ATTACHMENT)) || isInlineAttachment(part));
+  }
+
+  private boolean isInlineAttachment(Part part) throws MessagingException {
+    return part.getDisposition().equalsIgnoreCase(INLINE) && part.isMimeType(OCTET_STREAM.toString());
   }
 
   /**

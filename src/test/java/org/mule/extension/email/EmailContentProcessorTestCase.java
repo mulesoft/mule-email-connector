@@ -18,11 +18,13 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessageWithInlineAttachment;
 import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 
 import org.mule.extension.email.internal.StoredEmailContentFactory;
+import org.mule.extension.email.util.EmailTestUtils;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
@@ -49,6 +51,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
         .then(inv -> new ByteArrayBasedCursorStreamProvider(IOUtils.toByteArray(((InputStream) inv.getArguments()[0]))));
 
     contentFactory = new StoredEmailContentFactory(helper);
+  }
+
+  @Test
+  public void emailInlineAttachmentsFromMultipart() throws Exception {
+    javax.mail.Message message = getMultipartTestMessageWithInlineAttachment();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(1));
+    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
   }
 
   @Test
