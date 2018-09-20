@@ -157,7 +157,7 @@ public class StoredEmailContent {
    * @return true is the part is dispositioned as an attachment, false otherwise
    */
   private boolean isAttachment(Part part) throws MessagingException {
-    return part.getFileName() != null && (part.getDisposition() == null || part.getDisposition().equals(ATTACHMENT));
+    return part.getFileName() != null && (part.getDisposition() == null || part.getDisposition().equalsIgnoreCase(ATTACHMENT));
   }
 
   /**
