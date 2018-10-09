@@ -118,7 +118,7 @@
         </munit:enable-flow-sources>
 
         <munit:execution>
-            <until-successful maxRetries="10" millisBetweenRetries="500">
+            <until-successful maxRetries="100" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
@@ -177,7 +177,7 @@
         </munit:behavior>
 
         <munit:execution>
-            <until-successful maxRetries="50" millisBetweenRetries="500">
+            <until-successful maxRetries="100" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="2" max="2"/>
             </until-successful>
@@ -222,7 +222,7 @@
         </munit:enable-flow-sources>
 
         <munit:execution>
-            <until-successful maxRetries="10" millisBetweenRetries="500">
+            <until-successful maxRetries="100" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
