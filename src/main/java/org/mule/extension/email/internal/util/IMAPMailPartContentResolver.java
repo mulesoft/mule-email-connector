@@ -27,6 +27,10 @@ public class IMAPMailPartContentResolver implements MailPartContentResolver {
 
   @Override
   public InputStream resolveInputStream(Part part) throws IOException, MessagingException {
+    if (part.getInputStream() == null) {
+      return null;
+    }
+
     return new ByteArrayInputStream(toByteArray(part.getInputStream()));
   }
 
