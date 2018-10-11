@@ -15,7 +15,9 @@ import static org.mule.runtime.api.metadata.MediaType.MULTIPART_RELATED;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
 import org.mule.extension.email.internal.util.EmailConnectorConstants;
+import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -48,6 +50,8 @@ import javax.mail.util.ByteArrayDataSource;
 public class StoredEmailContentFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+
+  private MailPartContentResolver contentResolver = new DefaultMailPartContentResolver();
 
   public static final StoredEmailContent EMPTY = new DefaultStoredEmailContent(new TypedValue("", DataType.STRING), emptyMap());
   private StreamingHelper streamingHelper;
@@ -139,8 +143,9 @@ public class StoredEmailContentFactory {
    */
   private void processAttachment(Part part, Map<String, TypedValue<InputStream>> attachments, StreamingHelper streamingHelper)
       throws MessagingException, IOException {
+    InputStream partContent = contentResolver.resolveInputStream(part);
     Object content =
-        streamingHelper != null ? streamingHelper.resolveCursorProvider(part.getInputStream()) : part.getInputStream();
+        streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
     DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
     attachments.put(part.getFileName(), new TypedValue(content, dataType));
   }
