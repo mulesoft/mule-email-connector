@@ -16,7 +16,7 @@ import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.mule.extension.email.internal.util.StoredEmailContent;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 

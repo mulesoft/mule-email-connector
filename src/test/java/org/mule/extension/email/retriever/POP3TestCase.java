@@ -11,7 +11,7 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.mule.extension.email.internal.util.StoredEmailContent;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.test.runner.RunnerDelegateTo;
 import org.junit.Test;

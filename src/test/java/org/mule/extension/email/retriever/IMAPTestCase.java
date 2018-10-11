@@ -19,9 +19,9 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
 
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
-import org.mule.extension.email.internal.util.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;

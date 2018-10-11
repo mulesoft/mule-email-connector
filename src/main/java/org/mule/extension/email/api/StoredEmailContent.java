@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.internal.util;
+package org.mule.extension.email.api;
 
 import static com.google.common.net.MediaType.OCTET_STREAM;
 import static javax.mail.Part.ATTACHMENT;
@@ -30,6 +30,8 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
+import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -49,6 +51,8 @@ import com.google.common.collect.ImmutableMap;
 public class StoredEmailContent {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContent.class);
+
+  private static final MailPartContentResolver contentResolver = new DefaultMailPartContentResolver();
 
   public static final StoredEmailContent EMPTY = new StoredEmailContent();
 
@@ -136,7 +140,7 @@ public class StoredEmailContent {
    * @param part the attachment part to be processed
    */
   private void processAttachment(Part part, StreamingHelper streamingHelper) throws MessagingException, IOException {
-    Object content = streamingHelper.resolveCursorProvider(part.getInputStream());
+    Object content = streamingHelper.resolveCursorProvider(contentResolver.resolveInputStream(part));
     DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
     attachmentParts.put(part.getFileName(), new TypedValue(content, dataType));
   }
