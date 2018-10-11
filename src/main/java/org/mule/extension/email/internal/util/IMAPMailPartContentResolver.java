@@ -21,7 +21,7 @@ import com.sun.mail.imap.IMAPMessage;
  * Resolver for the IMAP mail content part. The content is resolved to an array in memory to avoid problems due to the closing of
  * the folder.
  * 
- * @since 1.2.0
+ * @since 1.1.1
  */
 public class IMAPMailPartContentResolver implements MailPartContentResolver {
 

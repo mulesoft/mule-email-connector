@@ -15,7 +15,7 @@ import javax.mail.Part;
 /**
  * Resolver to obtain the content of a mail part.
  * 
- * @since 1.2.0
+ * @since 1.1.1
  *
  */
 public interface MailPartContentResolver {

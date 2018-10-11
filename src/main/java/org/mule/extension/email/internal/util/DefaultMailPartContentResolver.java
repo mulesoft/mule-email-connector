@@ -15,7 +15,7 @@ import javax.mail.Part;
 /**
  * Default resolver for a mail part.
  * 
- * @since 1.2.0
+ * @since 1.1.1
  */
 public class DefaultMailPartContentResolver implements MailPartContentResolver {
 
