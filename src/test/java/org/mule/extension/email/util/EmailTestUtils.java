@@ -6,12 +6,12 @@
  */
 package org.mule.extension.email.util;
 
-import static com.google.common.net.MediaType.OCTET_STREAM;
 import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
 import static javax.mail.Part.INLINE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
+import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
 import java.io.IOException;
@@ -55,9 +55,9 @@ public class EmailTestUtils {
     MimeBodyPart binaryInlineAttachment = new MimeBodyPart();
     binaryInlineAttachment.setDisposition(INLINE);
     binaryInlineAttachment.setFileName(EMAIL_TEXT_PLAIN_ATTACHMENT_NAME);
-    DataSource dataSrc = new ByteArrayDataSource(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes(), OCTET_STREAM.toString());
+    DataSource dataSrc = new ByteArrayDataSource(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes(), BINARY.toString());
     binaryInlineAttachment.setDataHandler(new DataHandler(dataSrc));
-    binaryInlineAttachment.addHeader(CONTENT_TYPE_HEADER, OCTET_STREAM.toString());
+    binaryInlineAttachment.addHeader(CONTENT_TYPE_HEADER, BINARY.toString());
 
     Multipart multipart = new MimeMultipart();
     multipart.addBodyPart(binaryInlineAttachment);
