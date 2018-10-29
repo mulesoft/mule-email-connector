@@ -11,6 +11,7 @@ import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
 import static javax.mail.Folder.READ_WRITE;
+import org.mule.extension.email.internal.resolver.ArrayStoredEmailContentTypeResolver;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
@@ -18,7 +19,6 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNL
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
-import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.api.exception.EmailAccessingFolderErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
@@ -32,6 +32,7 @@ import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
+import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -70,6 +71,7 @@ public class IMAPOperations {
   @Summary("Lists the emails in the given IMAP Mailbox Folder")
   @DisplayName("List - IMAP")
   @Throws(EmailListingErrorTypeProvider.class)
+  @OutputResolver(output = ArrayStoredEmailContentTypeResolver.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, IMAPEmailAttributes>> listImap(@Config IMAPConfiguration config,
                                                                                                      @Optional(
                                                                                                          defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
