@@ -21,7 +21,7 @@ import org.mule.runtime.extension.api.declaration.type.ExtensionsTypeLoaderFacto
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 /**
- * A {@link StaticResolver} that mimics the structure of a {@link StoredEmailContent}.
+ * A {@link StaticResolver} that mimics the structure of a an array of {@link StoredEmailContent}.
  *
  * @since 1.1.2
  */
