@@ -33,10 +33,10 @@ public class ArrayStoredEmailContentTypeResolver extends OutputStaticTypeResolve
     BaseTypeBuilder builder = BaseTypeBuilder.create(JAVA);
 
     return builder.arrayType().of(new MessageMetadataTypeBuilder()
-      .payload(delegate.getStaticMetadata())
-      .attributes(builder.voidType().build())
-      .with(new ClassInformationAnnotation(Result.class))
-      .build()).build();
+        .payload(delegate.getStaticMetadata())
+        .attributes(builder.voidType().build())
+        .with(new ClassInformationAnnotation(Result.class))
+        .build()).build();
   }
 
   @Override
