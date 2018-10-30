@@ -7,12 +7,18 @@
 package org.mule.extension.email.internal.resolver;
 
 import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.metadata.api.ClassTypeLoader;
 import org.mule.metadata.api.builder.BaseTypeBuilder;
 import org.mule.metadata.api.builder.ObjectTypeBuilder;
+import org.mule.metadata.api.model.ArrayType;
 import static org.mule.metadata.api.model.MetadataFormat.JAVA;
 import org.mule.metadata.api.model.MetadataType;
+import org.mule.metadata.java.api.annotation.ClassInformationAnnotation;
+import org.mule.metadata.message.api.MessageMetadataTypeBuilder;
 import org.mule.runtime.api.metadata.resolving.OutputStaticTypeResolver;
 import org.mule.runtime.api.metadata.resolving.StaticResolver;
+import org.mule.runtime.extension.api.declaration.type.ExtensionsTypeLoaderFactory;
+import org.mule.runtime.extension.api.runtime.operation.Result;
 
 /**
  * A {@link StaticResolver} that mimics the structure of a {@link StoredEmailContent}.
@@ -24,7 +30,13 @@ public class ArrayStoredEmailContentTypeResolver extends OutputStaticTypeResolve
   @Override
   public MetadataType getStaticMetadata() {
     StoredEmailContentTypeResolver delegate = new StoredEmailContentTypeResolver();
-    return BaseTypeBuilder.create(JAVA).arrayType().of(delegate.getStaticMetadata()).build();
+    BaseTypeBuilder builder = BaseTypeBuilder.create(JAVA);
+
+    return builder.arrayType().of(new MessageMetadataTypeBuilder()
+      .payload(delegate.getStaticMetadata())
+      .attributes(builder.voidType().build())
+      .with(new ClassInformationAnnotation(Result.class))
+      .build()).build();
   }
 
   @Override
