@@ -8,8 +8,10 @@ package org.mule.extension.email.internal.mailbox.imap;
 
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
+import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.metadata.MetadataScope;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -23,6 +25,7 @@ import static java.util.Optional.*;
  */
 @DisplayName("On New Email - IMAP")
 @Alias("listener-imap")
+@MetadataScope(outputResolver = StoredEmailContentTypeResolver.class)
 public class IMAPPollingSource extends BaseMailboxPollingSource {
 
   /**

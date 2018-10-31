@@ -8,6 +8,7 @@ package org.mule.extension.email.internal.mailbox.pop3;
 
 import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
+import org.mule.extension.email.internal.resolver.ArrayStoredEmailContentTypeResolver;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
@@ -24,6 +25,7 @@ import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.extension.api.annotation.error.Throws;
+import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -61,6 +63,7 @@ public class POP3Operations {
   @Summary("Lists the emails in the given POP3 Mailbox Folder")
   @DisplayName("List - POP3")
   @Throws(EmailListingErrorTypeProvider.class)
+  @OutputResolver(output = ArrayStoredEmailContentTypeResolver.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, POP3EmailAttributes>> listPop3(@Config POP3Configuration config,
                                                                                                      @Optional(
                                                                                                          defaultValue = INBOX_FOLDER) String mailboxFolder,
