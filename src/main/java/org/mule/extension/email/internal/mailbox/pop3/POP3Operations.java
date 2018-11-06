@@ -24,6 +24,8 @@ import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.extension.email.internal.resolver.POP3ArrayStoredEmailContentTypeResolver;
+
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -63,7 +65,7 @@ public class POP3Operations {
   @Summary("Lists the emails in the given POP3 Mailbox Folder")
   @DisplayName("List - POP3")
   @Throws(EmailListingErrorTypeProvider.class)
-  @OutputResolver(output = ArrayStoredEmailContentTypeResolver.class)
+  @OutputResolver(output = POP3ArrayStoredEmailContentTypeResolver.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, POP3EmailAttributes>> listPop3(@Config POP3Configuration config,
                                                                                                      @Optional(
                                                                                                          defaultValue = INBOX_FOLDER) String mailboxFolder,

@@ -30,6 +30,7 @@ import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.extension.email.internal.resolver.IMAPArrayStoredEmailContentTypeResolver;
 import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
@@ -71,7 +72,7 @@ public class IMAPOperations {
   @Summary("Lists the emails in the given IMAP Mailbox Folder")
   @DisplayName("List - IMAP")
   @Throws(EmailListingErrorTypeProvider.class)
-  @OutputResolver(output = ArrayStoredEmailContentTypeResolver.class)
+  @OutputResolver(output = IMAPArrayStoredEmailContentTypeResolver.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, IMAPEmailAttributes>> listImap(@Config IMAPConfiguration config,
                                                                                                      @Optional(
                                                                                                          defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
