@@ -6,26 +6,34 @@
  */
 package org.mule.extension.email.internal.resolver;
 
-import org.mule.extension.email.api.StoredEmailContent;
-import org.mule.metadata.api.ClassTypeLoader;
-import org.mule.metadata.api.builder.BaseTypeBuilder;
-import org.mule.metadata.api.builder.ObjectTypeBuilder;
-import org.mule.metadata.api.model.ArrayType;
 import static org.mule.metadata.api.model.MetadataFormat.JAVA;
-import org.mule.metadata.api.model.MetadataType;
-import org.mule.metadata.java.api.annotation.ClassInformationAnnotation;
-import org.mule.metadata.message.api.MessageMetadataTypeBuilder;
+
 import org.mule.runtime.api.metadata.resolving.OutputStaticTypeResolver;
 import org.mule.runtime.api.metadata.resolving.StaticResolver;
 import org.mule.runtime.extension.api.declaration.type.ExtensionsTypeLoaderFactory;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+
+import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.metadata.api.ClassTypeLoader;
+import org.mule.metadata.api.builder.BaseTypeBuilder;
+import org.mule.metadata.api.model.MetadataType;
+import org.mule.metadata.java.api.annotation.ClassInformationAnnotation;
+import org.mule.metadata.message.api.MessageMetadataTypeBuilder;
 
 /**
  * A {@link StaticResolver} that mimics the structure of a an array of {@link StoredEmailContent}.
  *
  * @since 1.1.2
  */
-public class ArrayStoredEmailContentTypeResolver extends OutputStaticTypeResolver {
+public abstract class ArrayStoredEmailContentTypeResolver extends OutputStaticTypeResolver {
+
+  private final ClassTypeLoader LOADER = ExtensionsTypeLoaderFactory.getDefault().createTypeLoader();
+
+  private final Class attributesType;
+
+  public ArrayStoredEmailContentTypeResolver(Class attributesType) {
+    this.attributesType = attributesType;
+  }
 
   @Override
   public MetadataType getStaticMetadata() {
@@ -34,13 +42,8 @@ public class ArrayStoredEmailContentTypeResolver extends OutputStaticTypeResolve
 
     return builder.arrayType().of(new MessageMetadataTypeBuilder()
         .payload(delegate.getStaticMetadata())
-        .attributes(builder.voidType().build())
+        .attributes(LOADER.load(attributesType))
         .with(new ClassInformationAnnotation(Result.class))
         .build()).build();
-  }
-
-  @Override
-  public String getResolverName() {
-    return this.getClass().getSimpleName() + "Resolver";
   }
 }
