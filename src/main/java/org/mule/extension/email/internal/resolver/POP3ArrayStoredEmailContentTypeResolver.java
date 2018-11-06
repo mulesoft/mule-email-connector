@@ -22,7 +22,7 @@ public class POP3ArrayStoredEmailContentTypeResolver extends ArrayStoredEmailCon
 
   @Override
   public String getResolverName() {
-    return this.getClass().getSimpleName() + "Resolver";
+    return this.getClass().getSimpleName();
   }
 
 }
