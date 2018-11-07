@@ -36,6 +36,7 @@ public class IMAPEmailAttributes extends BaseEmailAttributes {
   /**
    * The unique identifier of the email in an IMAP mailbox folder.
    */
+  @Parameter
   private final String id;
 
   public IMAPEmailAttributes(Message msg, IMAPFolder folder) {

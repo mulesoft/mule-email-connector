@@ -24,6 +24,7 @@ public class StoredEmailContentTypeResolver extends OutputStaticTypeResolver {
   @Override
   public MetadataType getStaticMetadata() {
     ObjectTypeBuilder message = BaseTypeBuilder.create(JAVA).objectType();
+    message.id(StoredEmailContent.class.getName());
     message.addField().required().key("body").value().stringType();
     message.addField().required().key("attachments").value().objectType().openWith().binaryType();
     return message.build();
