@@ -27,16 +27,16 @@ public class EmailMetadataTestCase {
   @Test
   public void pop3List() {
     MetadataType pop3ListMetadata = new POP3ArrayStoredEmailContentTypeResolver().getStaticMetadata();
-    assertListType(pop3ListMetadata, POP3EmailAttributes.class.getName());
+    assertListType(pop3ListMetadata, POP3EmailAttributes.class.getName(), 11);
   }
 
   @Test
   public void imapList() {
     MetadataType imapListMetadata = new IMAPArrayStoredEmailContentTypeResolver().getStaticMetadata();
-    assertListType(imapListMetadata, IMAPEmailAttributes.class.getName());
+    assertListType(imapListMetadata, IMAPEmailAttributes.class.getName(), 12);
   }
 
-  private void assertListType(MetadataType metadataType, String attributesTypeId) {
+  private void assertListType(MetadataType metadataType, String attributesTypeId, int attributesSize) {
     assertThat(metadataType, instanceOf(ArrayType.class));
     ArrayType arrayType = ((ArrayType) metadataType);
     assertThat(arrayType.getType(), instanceOf(MessageMetadataType.class));
@@ -44,6 +44,7 @@ public class EmailMetadataTestCase {
     ObjectType payloadType = ((ObjectType) messageType.getPayloadType().get());
     assertThat(payloadType.getFields(), hasSize(2));
     ObjectType attributesType = ((ObjectType) messageType.getAttributesType().get());
+    assertThat(attributesType.getFields(), hasSize(attributesSize));
     assertThat(MetadataTypeUtils.getTypeId(attributesType).get(), is(attributesTypeId));
   }
 
