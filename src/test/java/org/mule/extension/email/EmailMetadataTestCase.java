@@ -12,6 +12,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 import org.junit.Test;
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.internal.resolver.IMAPArrayStoredEmailContentTypeResolver;
@@ -42,6 +43,7 @@ public class EmailMetadataTestCase {
     assertThat(arrayType.getType(), instanceOf(MessageMetadataType.class));
     MessageMetadataType messageType = (MessageMetadataType) arrayType.getType();
     ObjectType payloadType = ((ObjectType) messageType.getPayloadType().get());
+    assertThat(MetadataTypeUtils.getTypeId(payloadType).get(), is(StoredEmailContent.class.getName()));
     assertThat(payloadType.getFields(), hasSize(2));
     ObjectType attributesType = ((ObjectType) messageType.getAttributesType().get());
     assertThat(attributesType.getFields(), hasSize(attributesSize));
