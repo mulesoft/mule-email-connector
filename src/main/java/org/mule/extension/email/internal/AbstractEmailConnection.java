@@ -9,20 +9,18 @@ package org.mule.extension.email.internal;
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDENTIALS;
 import static org.mule.extension.email.internal.errors.EmailError.SSL_ERROR;
-
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
-
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.net.ssl.SSLContext;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
+
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
 
 /**
  * Generic implementation for an email connection of a connector which operates over the SMTP, IMAP, POP3 and it's secure versions
@@ -152,8 +150,7 @@ public abstract class AbstractEmailConnection {
     }
 
     try {
-      SSLContext sslContext = tlsContextFactory.createSslContext();
-      properties.put(protocol.getSocketFactoryProperty(), sslContext.getSocketFactory());
+      properties.put(protocol.getSocketFactoryProperty(), tlsContextFactory.createSocketFactory());
     } catch (KeyManagementException | NoSuchAlgorithmException e) {
       // TODO - MULE-11543: Add SSL as an ErrorType provided by Mule
       throw new EmailConnectionException("Failed when creating SSL context.", e, SSL_ERROR);
