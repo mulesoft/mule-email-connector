@@ -29,7 +29,6 @@ import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.CannotFetchMetadataException;
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailConnectionException;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 
 import com.sun.mail.imap.IMAPFolder;
@@ -55,7 +54,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Session.class, Store.class})
-@PowerMockIgnore("javax.management.*")
+@PowerMockIgnore({"javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*", "org.slf4j.*",
+    "org.apache.logging.log4j.*"})
 public class MailboxManagerConnectionTestCase {
 
   @Rule

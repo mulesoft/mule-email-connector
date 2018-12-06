@@ -10,15 +10,9 @@ package org.mule.extension.email.unit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.google.common.collect.ImmutableMap;
 import org.mule.extension.email.api.StoredEmailContent;
-import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
@@ -39,7 +33,7 @@ public class StoredEmailContentTestCase {
   public void inputStreamContent() throws IOException, MessagingException {
     InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
-    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgumentAt(0, InputStream.class));
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mock(Message.class);
     when(message.getContent()).thenReturn(multipart);
     when(message.getContentType()).thenReturn("multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
