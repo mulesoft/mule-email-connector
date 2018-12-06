@@ -24,7 +24,7 @@
         <commonsLangVersion>3.7</commonsLangVersion>
         <javaMailVersion>1.6.2</javaMailVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
-        <powermockVersion>1.6.5</powermockVersion>
+        <powermockVersion>2.0.0-RC.4</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
         <!-- Remove when a new parent version with MTF is available -->
@@ -113,6 +113,12 @@
             <version>${javaMailVersion}</version>
         </dependency>
         <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>${commonsCollectionsVersion}</version>
@@ -164,7 +170,7 @@
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
+            <artifactId>powermock-api-mockito2</artifactId>
             <version>${powermockVersion}</version>
             <scope>test</scope>
         </dependency>
