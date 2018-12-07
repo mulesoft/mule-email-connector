@@ -23,6 +23,7 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.7</commonsLangVersion>
         <javaMailVersion>1.6.2</javaMailVersion>
+        <javaActivationVersion>1.2.0</javaActivationVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
         <powermockVersion>2.0.0-RC.4</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -115,7 +116,7 @@
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>javax.activation</artifactId>
-            <version>1.2.0</version>
+            <version>${javaActivationVersion}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -164,7 +165,7 @@
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>javax.activation</artifactId>
-            <version>1.2.0</version>
+            <version>${javaActivationVersion}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
