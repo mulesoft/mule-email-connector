@@ -52,7 +52,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="server.port"/>
+    <munit:dynamic-port propertyName="server.port" min="10000" max="20000"/>
 
     <!-- Configs -->
 

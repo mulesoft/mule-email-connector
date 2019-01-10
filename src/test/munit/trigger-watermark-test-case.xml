@@ -36,7 +36,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="imap.server.port"/>
+    <munit:dynamic-port propertyName="imap.server.port" min="10000" max="20000"/>
 
     <!-- Configs -->
 
@@ -121,11 +121,7 @@
     </flow>
 
     <!-- Tests polled emails are watermarked and new emails are delivered -->
-    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
-    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
-    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
-    <!-- TODO MU-1426: IGNORED until this can be run in a specific mule version -->
-    <munit:test name="with-watermark-more-incoming-emails" ignore="true">
+    <munit:test name="with-watermark-more-incoming-emails" ignore="#[Munit::muleVersionPriorTo('4.1.3')]">
 
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-with-watermark-and-new-emails-imap"/>
