@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <!-- IMAP retrieve email flows -->
+    <!-- Standard retrieve flows -->
+    <flow name="list-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests"/>
+    </flow>
+
+    <flow name="list-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests"/>
+    </flow>
+
+    <!-- Delete after retrieve flows -->
+    <flow name="list-Delete-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="list-Delete-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <!-- Retrieve with 2 matchers flows -->
+    <email:imap-matcher name="imapMatcher" subjectRegex="Email Subject" fromRegex="@mulesoft"/>
+    <flow name="list-Matcher-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests" imapMatcher="imapMatcher"/>
+    </flow>
+
+    <flow name="list-Matcher-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests" imapMatcher="imapMatcher"/>
+    </flow>
+
+    <!-- Retrieve with special character password flows -->
+    <flow name="list-SpecialPassword-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests-SpecialPassword"/>
+    </flow>
+
+    <flow name="list-SpecialPassword-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests-SpecialPassword"/>
+    </flow>
+
+    <!-- Retrieve with pageSize -->
+    <flow name="list-PageSize-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests" pageSize="#[3]"/>
+    </flow>
+
+    <flow name="list-PageSize-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests" pageSize="#[3]"/>
+    </flow>
+
+    <!-- Retrieve with limit -->
+    <flow name="list-Limit-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="list-Limit-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <!-- Retrieve with incorrect user -->
+    <flow name="list-IncorrectCredentialsUser-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests-IncorrectCredentialsUser"/>
+    </flow>
+
+    <flow name="list-IncorrectCredentialsUser-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests-IncorrectCredentialsUser"/>
+    </flow>
+
+    <!-- Retrieve with incorrect password -->
+    <flow name="list-IncorrectCredentialsPassword-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests-IncorrectCredentialsPassword"/>
+    </flow>
+
+    <flow name="list-IncorrectCredentialsPassword-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests-IncorrectCredentialsPassword"/>
+    </flow>
+
+    <!-- Retrieve with incorrect port -->
+    <flow name="list-IncorrectPort-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests-IncorrectPort"/>
+    </flow>
+
+    <flow name="list-IncorrectPort-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests-IncorrectPort"/>
+    </flow>
+
+
+    <!-- POP3 retrieve email flows -->
+    <!-- Standard retrieve flows -->
+    <flow name="list-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests"/>
+    </flow>
+
+    <flow name="list-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests"/>
+    </flow>
+
+    <!-- Delete after retrieve flows -->
+    <flow name="list-Delete-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="list-Delete-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <!-- Retrieve with 2 matchers flows -->
+    <email:pop3-matcher name="pop3Matcher" subjectRegex="Email Subject" fromRegex="@mulesoft"/>
+    <flow name="list-Matcher-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests" pop3Matcher="pop3Matcher"/>
+    </flow>
+
+    <flow name="list-Matcher-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests" pop3Matcher="pop3Matcher"/>
+    </flow>
+
+    <!-- Retrieve with special character password flows -->
+    <flow name="list-SpecialPassword-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests-SpecialPassword"/>
+    </flow>
+
+    <flow name="list-SpecialPassword-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests-SpecialPassword"/>
+    </flow>
+
+    <!-- Retrieve with pageSize -->
+    <flow name="list-PageSize-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests" pageSize="#[3]"/>
+    </flow>
+
+    <flow name="list-PageSize-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests" pageSize="#[3]"/>
+    </flow>
+
+    <!-- Retrieve with limit -->
+    <flow name="list-Limit-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="list-Limit-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <!-- Retrieve with incorrect user -->
+    <flow name="list-IncorrectCredentialsUser-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests-IncorrectCredentialsUser"/>
+    </flow>
+
+    <flow name="list-IncorrectCredentialsUser-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests-IncorrectCredentialsUser"/>
+    </flow>
+
+    <!-- Retrieve with incorrect password -->
+    <flow name="list-IncorrectCredentialsPassword-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests-IncorrectCredentialsPassword"/>
+    </flow>
+
+    <flow name="list-IncorrectCredentialsPassword-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests-IncorrectCredentialsPassword"/>
+    </flow>
+
+    <!-- Retrieve with incorrect port -->
+    <flow name="list-IncorrectPort-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests-IncorrectPort"/>
+    </flow>
+
+    <flow name="list-IncorrectPort-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests-IncorrectPort"/>
+    </flow>
+
+</mule>

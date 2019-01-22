@@ -79,6 +79,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     return protocol;
   }
 
+  // Test migrated to MTF
   @Test
   public void specialCharacterPassword() {
     connectivityUtils = new TestConnectivityUtils(registry);
@@ -86,7 +87,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     connectivityUtils.assertSuccessConnection("configSpecialCharacterCredentials");
   }
 
-
+  // Test migrated to MTF
   @Test
   public void retrieveAndRead() throws Exception {
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
@@ -101,6 +102,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(size, is(DEFAULT_TEST_PAGE_SIZE));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndDontRead() throws Exception {
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DONT_READ);
@@ -113,6 +115,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(count, is(DEFAULT_TEST_PAGE_SIZE));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndThenRead() throws Exception {
     flowRunner(RETRIEVE_AND_MARK_AS_READ).run();
@@ -121,6 +124,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     stream(server.getReceivedMessages()).forEach(m -> assertFlag(m, SEEN, true));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndMarkAsDelete() throws Exception {
     stream(server.getReceivedMessages()).forEach(m -> assertFlag(m, DELETED, false));
@@ -129,6 +133,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     stream(server.getReceivedMessages()).forEach(m -> assertFlag(m, DELETED, true));
   }
 
+  // Test migrated to MTF
   @Test
   public void failSettingFlag() throws Exception {
     expectedError.expectError(NAMESPACE, EMAIL_NOT_FOUND.getType(), EmailNotFoundException.class,
@@ -136,6 +141,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     runFlow(FAIL_MARKING_FLAG);
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndDeleteIncomingAndScheduled() throws Exception {
     MimeMessage[] startMessageBatch = server.getReceivedMessages();
@@ -146,16 +152,19 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(server.getReceivedMessages(), arrayWithSize(8));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveOnlyNotRead() throws Exception {
     testMatcherFlag(RETRIEVE_MATCH_NOT_READ, SEEN, true);
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveOnlyRecent() throws Exception {
     testMatcherFlag(RETRIEVE_MATCH_RECENT, RECENT, false);
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndExpungeDelete() throws Exception {
     stream(server.getReceivedMessages()).forEach(m -> assertFlag(m, DELETED, false));
@@ -163,6 +172,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(server.getReceivedMessages().length, is(0));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndDeleteSelectedEmails() throws Exception {
     assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
@@ -170,6 +180,7 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     assertThat(server.getReceivedMessages(), arrayWithSize(5));
   }
 
+  // Test migrated to MTF
   @Test
   public void readMultiPartAlternative() throws Exception {
     server.purgeEmailFromAllMailboxes();

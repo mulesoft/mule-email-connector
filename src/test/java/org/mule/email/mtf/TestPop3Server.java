@@ -6,22 +6,19 @@
  */
 package org.mule.email.mtf;
 
+import static com.icegreen.greenmail.util.ServerSetup.*;
+import static org.mule.extension.email.util.EmailTestUtils.*;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
+import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
+import static javax.mail.Flags.Flag.RECENT;
+
+import javax.mail.internet.MimeMessage;
+
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
-
-import javax.mail.internet.MimeMessage;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static com.icegreen.greenmail.util.ServerSetup.*;
-import static java.util.Arrays.*;
-import static org.mule.extension.email.util.EmailTestUtils.*;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
-import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
 
 // TODO: Fix my duplicated code me when MTF can run parameterized tests
 public class TestPop3Server extends AbstractTestServer {
@@ -40,7 +37,7 @@ public class TestPop3Server extends AbstractTestServer {
   private static void doStart(Integer port, String protocol) {
     server = new GreenMail(new ServerSetup(port, null, protocol));
     server.start();
-    user = server.setUser(JUANI_EMAIL, JUANI_EMAIL, "password");
+    setUserWithNormalPassword();
   }
 
   public static void sendEmail() {
@@ -51,11 +48,50 @@ public class TestPop3Server extends AbstractTestServer {
     user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, subject, from));
   }
 
+  public static void sendEmailWithAllFields(String to, String cc, String body, String contentType, String subject, String from) {
+    user.deliver(getMimeMessage(to, cc, body, contentType, subject, from));
+  }
+
+  public static void sendMultiPartTestEmail() {
+    withContextClassLoader(server.getClass().getClassLoader(), () -> {
+      try {
+        user.deliver(getMultipartTestMessage());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
+  public static void sendMultiPartAlternativeEmail() {
+    withContextClassLoader(server.getClass().getClassLoader(), () -> {
+      try {
+        user.deliver(getMultipartAlternativeMessage());
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
   public static void stop() {
     server.stop();
   }
 
   public static void clean() throws FolderException {
     server.purgeEmailFromAllMailboxes();
+  }
+
+  public static void setUserWithSpecialPassword() {
+    user = server.setUser(JUANI_EMAIL, JUANI_EMAIL, "*uawH*IDXlh2p%21xSPOx%23%25zLpL");
+  }
+
+  public static void setUserWithNormalPassword() {
+    user = server.setUser(JUANI_EMAIL, JUANI_EMAIL, "password");
+  }
+
+  public static void setMailboxRecentFlag(boolean state) throws Exception {
+    MimeMessage[] messages = server.getReceivedMessages();
+    for (MimeMessage message : messages) {
+      message.setFlag(RECENT, state);
+    }
   }
 }
