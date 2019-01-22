@@ -91,6 +91,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     sendEmails(DEFAULT_TEST_PAGE_SIZE);
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveNothing() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -99,6 +100,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(0));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveMatchingSubjectAndFromAddress() throws Exception {
     for (int i = 0; i < DEFAULT_TEST_PAGE_SIZE; i++) {
@@ -113,6 +115,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveEmailWithAttachments() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -122,6 +125,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveAndDelete() throws Exception {
     assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
@@ -130,6 +134,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(server.getReceivedMessages(), arrayWithSize(0));
   }
 
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveEmptyPageInBetween() throws Exception {
     sendNonMatchingEmails(DEFAULT_TEST_PAGE_SIZE);
@@ -140,6 +145,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
   }
 
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveHalfPageInBetween() throws Exception {
     sendNonMatchingEmails(DEFAULT_TEST_PAGE_SIZE);
@@ -150,6 +156,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
   }
 
+  // Test migrated to MTF
   @Test
   public void retrieveFromNewerToOlder() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -171,6 +178,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   }
 
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrievePaginatedAndFiltered() throws Exception {
     int sentEmails = DEFAULT_TEST_PAGE_SIZE * 2;
@@ -188,6 +196,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(count, is(sentEmails));
   }
 
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveWithLimitSmallerThanPageSize() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -199,7 +208,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(5));
   }
 
-
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveWithLimitLargerThanPageSize() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -211,6 +220,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(15));
   }
 
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveEmailsContainsContentType() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -224,6 +234,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(body.getDataType(), is(like(String.class, TEXT_JSON)));
   }
 
+  // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveMultiplePagesReadAndDeleteAfter() throws Exception {
     sendEmails(100);

@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <munit:config name="sender-greenmail-test-cases.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="stmp">
+                <munit:parameters>
+                    <munit:parameter propertyName="sender-config" value="smtp-SenderTests"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer, Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestSMTPandIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="smtps">
+                <munit:parameters>
+                    <munit:parameter propertyName="sender-config" value="smtps-SenderTests"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer, Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestSMTPandIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+    <munit:dynamic-port propertyName="imap-server.port" min="1024" max="64000"/>
+    <munit:dynamic-port propertyName="smtp-server.port" min="1024" max="64000"/>
+
+    <!-- Setup/Dispose -->
+    <munit:before-suite name="setUpSv">
+        <java:invoke-static class="${serverName}" method="${startMethod}">
+            <java:args>
+                #[{
+                arg0: ${imap-server.port},
+                arg1: ${smtp-server.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="cleanSv">
+        <java:invoke-static class="${serverName}" method="clean()"/>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpSv">
+        <java:invoke-static class="${serverName}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownSv">
+        <java:invoke-static class="${serverName}" method="stop()"/>
+    </munit:after-suite>
+
+    <!-- Configs -->
+    <email:imap-config name="imap-SenderTests">
+        <email:imap-connection host="127.0.0.1" port="${imap-server.port}" user="juan.desimoni@mulesoft.com"
+                               password="password"/>
+    </email:imap-config>
+
+    <email:smtp-config name="smtp-SenderTests">
+        <email:smtp-connection host="127.0.0.1" port="${smtp-server.port}"/>
+    </email:smtp-config>
+
+    <email:smtp-config name="smtps-SenderTests">
+        <email:smtps-connection host="127.0.0.1" port="${smtp-server.port}">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.jks" password="changeit"/>
+            </tls:context>
+        </email:smtps-connection>
+    </email:smtp-config>
+
+    <!-- Tests-->
+    <munit:test name="sendEmail">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#['Email Content']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.subject]" expected="#['Email Subject']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.fromAddresses[0]]"
+                                       expected="#['juan.desimoni@mulesoft.com']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.toAddresses[0]]"
+                                       expected="#['sebastian.elizalde@mulesoft.com']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendWithCC">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:cc-addresses>
+                    <email:cc-address value="esteban.wasinger@mulesoft.com"/>
+                </email:cc-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[2]"/>
+            <foreach>
+                <munit-tools:assert-equals actual="#[attributes.toAddresses[0]]"
+                                           expected="#['sebastian.elizalde@mulesoft.com']"/>
+                <munit-tools:assert-equals actual="#[attributes.ccAddresses[0]]"
+                                           expected="#['esteban.wasinger@mulesoft.com']"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendWithBCC">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="pablo.angelani@mulesoft.com"/>
+                </email:to-addresses>
+                <email:cc-addresses>
+                    <email:cc-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:cc-addresses>
+                <email:bcc-addresses>
+                    <email:bcc-address value="esteban.wasinger@mulesoft.com"/>
+                    <email:bcc-address value="alejandro.g.marra@mulesoft.com"/>
+                </email:bcc-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[4]"/>
+            <foreach>
+                <munit-tools:assert-equals actual="#[attributes.toAddresses[0]]"
+                                           expected="#['pablo.angelani@mulesoft.com']"/>
+                <munit-tools:assert-equals actual="#[attributes.ccAddresses[0]]"
+                                           expected="#['sebastian.elizalde@mulesoft.com']"/>
+                <munit-tools:assert-that expression="#[attributes.bccAddresses[0]]" is="#[MunitTools::nullValue()]"
+                                         message="bccAddresses array should be empty"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendJson">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/json">
+                    <email:content>{"key":"value"}</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#[{ key : 'value' }]"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.headers.'Content-Type']"
+                                       expected="#['text/json; charset=UTF-8']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendWithReplyTo">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="pablo.angelani@mulesoft.com"/>
+                </email:to-addresses>
+                <email:reply-to-addresses>
+                    <email:reply-to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:reply-to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.toAddresses[0]]"
+                                       expected="#['pablo.angelani@mulesoft.com']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.headers.'Reply-To']"
+                                       expected="#['sebastian.elizalde@mulesoft.com']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendWithCustomHeaders">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:headers>
+                    #[{'CustomOperationHeader' : 'Dummy'}]
+                </email:headers>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#['Email Content']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.subject]" expected="#['Email Subject']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.headers.CustomOperationHeader]"
+                                       expected="#['Dummy']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendStreamEmail">
+        <munit:execution>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="getContent()" target="stream"/>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>#[vars.stream]</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#['Email Content']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sendEncodedMessage">
+        <munit:execution>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="getEncodedBig5Message()"
+                                target="encodedMessage"/>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com" subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>#[vars.encodedMessage]</email:content>
+                </email:body>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#[vars.encodedMessage]"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Send Email with zip File -->
+    <!--    <munit:test name="sendWithZipFile">
+            <munit:execution>
+                <set-variable variableName="zipFile" value="#[{}]" mimeType="application/json" />
+
+                <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                            subject="Email Subject">
+                    <email:to-addresses>
+                        <email:to-address value="juan.desimoni@mulesoft.com"/>
+                    </email:to-addresses>
+                    <email:body contentType="text/plain">
+                        <email:content>Email Content</email:content>
+                    </email:body>
+                    <email:attachments>
+                        #[{zipFile : vars.zipFile}]
+                    </email:attachments>
+                </email:send>
+                <email:list-imap config-ref="imap-SenderTests"/>
+                <foreach>
+                    <logger level="ERROR" message="#[payload]"/>
+                </foreach>
+                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="getZipFile()" target="zipFile"/>
+            </munit:execution>
+            <munit:validation>
+                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+                <email:list-imap config-ref="imap-SenderTests"/>
+            </munit:validation>
+        </munit:test>-->
+
+    <!-- Send Email without Body -->
+    <!--    <munit:test name="sendWithoutBody">
+            <munit:execution>
+                <email:send config-ref="${sender-config}" subject="Email Subject">
+                    <email:to-addresses>
+                        <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                    </email:to-addresses>
+                </email:send>
+            </munit:execution>
+            <munit:validation>
+                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+                <email:list-imap config-ref="imap-config-SendTests"/>
+                <logger level="ERROR" message="#[payload]"/>
+                <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+            </munit:validation>
+        </munit:test>-->
+
+    <!-- Send Email with No Content Type Attachment -->
+    <!--    <munit:test name="sendWithAttachment">
+            <munit:execution>
+                <set-variable variableName="textAttachment" value="This is the email text attachment"
+                              mimeType="text/plain"/>
+                <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                            subject="Email Subject">
+                    <email:to-addresses>
+                        <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                    </email:to-addresses>
+                    <email:body contentType="text/plain">
+                        <email:content>Email Content</email:content>
+                    </email:body>
+                    &lt;!&ndash;                <email:attachments>
+                                        #[{'text-attachment' : 'This is the email text attachment'}]
+                                    </email:attachments>&ndash;&gt;
+                    <email:attachments>
+                        #[{'text-attachment' : vars.textAttachment}]
+                    </email:attachments>
+                </email:send>
+            </munit:execution>
+            <munit:validation>
+                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+                <email:list-imap config-ref="imap-SenderTests"/>
+                &lt;!&ndash;
+                            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+                &ndash;&gt;
+            </munit:validation>
+        </munit:test>-->
+
+</mule>

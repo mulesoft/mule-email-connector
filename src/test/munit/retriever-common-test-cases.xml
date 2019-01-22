@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="retriever-common-test-cases.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="imap">
+                <munit:parameters>
+                    <munit:parameter propertyName="retriever-config" value="imap-CommonTests"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="imaps">
+                <munit:parameters>
+                    <munit:parameter propertyName="retriever-config" value="imaps-CommonTests"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="pop3">
+                <munit:parameters>
+                    <munit:parameter propertyName="retriever-config" value="pop3-CommonTests"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestPop3Server"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="pop3s">
+                <munit:parameters>
+                    <munit:parameter propertyName="retriever-config" value="pop3s-CommonTests"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestPop3Server"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <munit:dynamic-port propertyName="retriever.port" min="1024" max="64000"/>
+
+    <!-- Setup/Dispose -->
+    <munit:before-suite name="setUpRetrieverServer">
+        <java:invoke-static class="${serverName}" method="${startMethod}">
+            <java:args>
+                #[{
+                arg0: ${retriever.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="populateRetrieverServer">
+        <java:invoke-static class="${serverName}" method="sendEmail()"/>
+        <munit-tools:store key="messages">
+            <munit-tools:value>#[[]]</munit-tools:value>
+        </munit-tools:store>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpRetrieverServer">
+        <java:invoke-static class="${serverName}" method="setUserWithNormalPassword()"/>
+        <java:invoke-static class="${serverName}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownRetrieverServer">
+        <java:invoke-static class="${serverName}" method="stop()"/>
+    </munit:after-suite>
+
+    <!-- Tests -->
+    <munit:test name="retrieveNothing">
+        <munit:validation>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <flow-ref name="list-${retriever-config}"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]"/>
+        </munit:validation>
+    </munit:test>
+    
+    <munit:test name="retrieveAndCheckContent">
+        <munit:validation>
+            <flow-ref name="list-${retriever-config}"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#['Email Content']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.subject]" expected="#['Email Subject']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.toAddresses[0]]"
+                                       expected="#['juan.desimoni@mulesoft.com']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.fromAddresses[0]]"
+                                       expected="#['esteban.wasinger@mulesoft.com']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveMatchingSubjectAndFromAddress">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="sendEmailWithAllFields(String, String, String, String, String, String)">
+                <java:args>
+                    #[{
+                    arg0: "juan.desimoni@mulesoft.com",
+                    arg1: "ale.g.marra@mulesoft.com",
+                    arg2: "Email content",
+                    arg3: "text/plain",
+                    arg4: "Non Matching Subject",
+                    arg5: "esteban.wasinger@mulesoft.com"
+                    }]
+                </java:args>
+            </java:invoke-static>
+            <java:invoke-static class="${serverName}" method="sendEmailWithAllFields(String, String, String, String, String, String)">
+                <java:args>
+                    #[{
+                    arg0: "juan.desimoni@mulesoft.com",
+                    arg1: "ale.g.marra@mulesoft.com",
+                    arg2: "Email content",
+                    arg3: "text/plain",
+                    arg4: "Email Subject",
+                    arg5: "sebastian.elizalde@salesforce.com"
+                    }]
+                </java:args>
+            </java:invoke-static>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-Matcher-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]" />
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.subject]" expected="#['Email Subject']" />
+            <munit-tools:assert-equals actual="#[payload.attributes.fromAddresses[0]]" expected="#['esteban.wasinger@mulesoft.com']" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveEmailWithAttachments">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <java:invoke-static class="${serverName}" method="sendMultiPartTestEmail()"/>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-${retriever-config}" />
+            <set-payload value="#[payload[0]]"/>
+            <set-variable variableName="text" value="#[write(payload.payload.attachments.'text-attachment', 'text/plain')]" />
+            <set-variable variableName="json" value="#[write(payload.payload.attachments.'attachment.json', 'text/plain')]" />
+            <munit-tools:assert-equals expected="This is the email text attachment" actual="#[vars.text]"/>
+            <munit-tools:assert-equals expected='{"key": "value"}' actual="#[vars.json]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveAndDelete">
+        <munit:validation>
+            <flow-ref name="list-Delete-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+            <set-payload value="#[payload[0]]" />
+            <flow-ref name="list-Delete-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveWithPageSize">
+        <munit:execution>
+            <foreach collection="#[1 to 10]">
+                <java:invoke-static class="${serverName}" method="sendEmail()"/>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-PageSize-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[11]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveByDefaultIsNewerToOlder">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <foreach collection="#[1 to 5]">
+                <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                    <java:args>
+                        #[{
+                        arg0: vars.counter,
+                        arg1: 'esteban.wasinger@mulesoft.com'
+                        }]
+                    </java:args>
+                </java:invoke-static>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-${retriever-config}"/>
+            <foreach>
+                <munit-tools:assert-equals actual="#[attributes.subject as Number]" expected="#[6 - vars.counter]"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveWithLimit">
+        <munit:execution>
+            <foreach collection="#[1 to 5]">
+                <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                    <java:args>
+                        #[{
+                        arg0: vars.counter,
+                        arg1: 'esteban.wasinger@mulesoft.com'
+                        }]
+                    </java:args>
+                </java:invoke-static>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <!-- Expected behaviour: all 6 emails are retrieved and deleted but only 3 are shown. -->
+            <flow-ref name="list-Limit-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[3]" />
+            <flow-ref name="list-Limit-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveWithSpecialCharacterPassword">
+        <munit:validation>
+            <java:invoke-static class="${serverName}" method="setUserWithSpecialPassword()"/>
+            <flow-ref name="list-SpecialPassword-${retriever-config}"/>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#['Email Content']"/>
+            <munit-tools:assert-equals actual="#[payload.attributes.subject]" expected="#['Email Subject']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveMultiPartAlternative">
+        <munit:validation>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <java:invoke-static class="${serverName}" method="sendMultiPartAlternativeEmail()"/>
+            <flow-ref name="list-${retriever-config}"/>
+            <set-payload value="#[payload[0]]"/>
+            <!-- The expected field is the xml-escaped version of <html></html>\ntext -->
+            <munit-tools:assert-equals actual="#[payload.payload.body]"
+                                       expected="#['&lt;html&gt;&lt;/html&gt;\ntext']"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="configIncorrectCredentialsUser"  expectedErrorType="EMAIL:CONNECTIVITY">
+        <munit:validation>
+            <flow-ref name="list-IncorrectCredentialsUser-${retriever-config}"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="configIncorrectCredentialsPassword"  expectedErrorType="EMAIL:CONNECTIVITY">
+        <munit:validation>
+            <flow-ref name="list-IncorrectCredentialsPassword-${retriever-config}"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="configIncorrectPort" expectedErrorType="EMAIL:CONNECTIVITY">
+        <munit:validation>
+            <flow-ref name="list-IncorrectPort-${retriever-config}"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>

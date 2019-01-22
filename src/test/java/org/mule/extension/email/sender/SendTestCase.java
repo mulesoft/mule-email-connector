@@ -50,12 +50,14 @@ public class SendTestCase extends SMTPTestCase {
   private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
   private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
 
+  // Test migrated to MTF
   @Test
   public void sendEmail() throws Exception {
     flowRunner("sendEmail").run();
     assertSingleMail();
   }
 
+  // Test migrated to MTF
   @Test
   public void withReplyTo() throws Exception {
     flowRunner("withReplyTo").run();
@@ -94,6 +96,7 @@ public class SendTestCase extends SMTPTestCase {
     assertSingleMail();
   }
 
+  // Test migrated to MTF.
   @Test
   public void sendJson() throws Exception {
     String json = "{\"key\":\"value\"}";
@@ -103,6 +106,7 @@ public class SendTestCase extends SMTPTestCase {
     assertMessage(message, json, MediaType.create("text", "json", UTF8));
   }
 
+  // Test migrated to MTF
   @Test
   public void sendZipFile() throws Exception {
     flowRunner("sendZipFile")
@@ -117,6 +121,7 @@ public class SendTestCase extends SMTPTestCase {
     assertMessage(content.getBodyPart(1), ZIP, OCTET_STREAM_UTF8);
   }
 
+  // Test migrated to MTF.
   @Test
   public void sendEmailCustomHeaders() throws Exception {
     flowRunner("sendEmailHeaders").run();
@@ -165,6 +170,7 @@ public class SendTestCase extends SMTPTestCase {
     assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString(content.getBodyPart(1).getInputStream())));
   }
 
+  // Test migrated to MTF
   @Test
   public void sendEncodedMessage() throws Exception {
     String defaultEncoding = muleContext.getConfiguration().getDefaultEncoding();
@@ -181,6 +187,7 @@ public class SendTestCase extends SMTPTestCase {
     assertThat(actual, containsString(value));
   }
 
+  // Test cannot be migrated to MTF, because the email connector does not accept emails without body.
   @Test
   public void sendEmailWithoutBody() throws Exception {
     flowRunner("sendEmailWithoutBody").run();
