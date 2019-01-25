@@ -280,80 +280,74 @@
         </munit:validation>
     </munit:test>
 
-    <!-- Send Email with zip File -->
-    <!--    <munit:test name="sendWithZipFile">
-            <munit:execution>
-                <set-variable variableName="zipFile" value="#[{}]" mimeType="application/json" />
-
-                <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
-                            subject="Email Subject">
-                    <email:to-addresses>
-                        <email:to-address value="juan.desimoni@mulesoft.com"/>
-                    </email:to-addresses>
-                    <email:body contentType="text/plain">
-                        <email:content>Email Content</email:content>
-                    </email:body>
-                    <email:attachments>
-                        #[{zipFile : vars.zipFile}]
-                    </email:attachments>
-                </email:send>
-                <email:list-imap config-ref="imap-SenderTests"/>
-                <foreach>
-                    <logger level="ERROR" message="#[payload]"/>
-                </foreach>
-                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="getZipFile()" target="zipFile"/>
-            </munit:execution>
-            <munit:validation>
-                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
-                <email:list-imap config-ref="imap-SenderTests"/>
-            </munit:validation>
-        </munit:test>-->
-
+    <!-- TODO complete these tests once the Attachment(SE-10525) and Nobody(MULE-16302) bugs are fixed.-->
     <!-- Send Email without Body -->
-    <!--    <munit:test name="sendWithoutBody">
-            <munit:execution>
-                <email:send config-ref="${sender-config}" subject="Email Subject">
-                    <email:to-addresses>
-                        <email:to-address value="sebastian.elizalde@mulesoft.com"/>
-                    </email:to-addresses>
-                </email:send>
-            </munit:execution>
-            <munit:validation>
-                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
-                <email:list-imap config-ref="imap-config-SendTests"/>
-                <logger level="ERROR" message="#[payload]"/>
-                <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
-            </munit:validation>
-        </munit:test>-->
+    <munit:test name="sendWithoutBody" ignore="true">
+        <munit:execution>
+            <email:send config-ref="${sender-config}" subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- Send Email with zip File -->
+    <munit:test name="sendWithZipFile" ignore="true">
+        <munit:execution>
+            <!-- TODO figure out how to send a zipFile -->
+            <set-variable variableName="zipFile" value="#[{}]" mimeType="application/json"/>
+            <!--<java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="getZipFile()" target="zipFile"/>-->
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+                <email:attachments>
+                    #[{zipFile : vars.zipFile}]
+                </email:attachments>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+        </munit:validation>
+    </munit:test>
 
     <!-- Send Email with No Content Type Attachment -->
-    <!--    <munit:test name="sendWithAttachment">
-            <munit:execution>
-                <set-variable variableName="textAttachment" value="This is the email text attachment"
-                              mimeType="text/plain"/>
-                <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
-                            subject="Email Subject">
-                    <email:to-addresses>
-                        <email:to-address value="sebastian.elizalde@mulesoft.com"/>
-                    </email:to-addresses>
-                    <email:body contentType="text/plain">
-                        <email:content>Email Content</email:content>
-                    </email:body>
-                    &lt;!&ndash;                <email:attachments>
-                                        #[{'text-attachment' : 'This is the email text attachment'}]
-                                    </email:attachments>&ndash;&gt;
-                    <email:attachments>
-                        #[{'text-attachment' : vars.textAttachment}]
-                    </email:attachments>
-                </email:send>
-            </munit:execution>
-            <munit:validation>
-                <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
-                <email:list-imap config-ref="imap-SenderTests"/>
-                &lt;!&ndash;
-                            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
-                &ndash;&gt;
-            </munit:validation>
-        </munit:test>-->
+    <munit:test name="sendWithAttachment" ignore="true">
+        <munit:execution>
+            <set-variable variableName="textAttachment" value="This is the email text attachment"
+                          mimeType="text/plain"/>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+                <!--                <email:attachments>
+                                    #[{'text-attachment' : 'This is the email text attachment'}]
+                                </email:attachments>-->
+                <email:attachments>
+                    #[{'text-attachment' : vars.textAttachment}]
+                </email:attachments>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+        </munit:validation>
+    </munit:test>
 
 </mule>

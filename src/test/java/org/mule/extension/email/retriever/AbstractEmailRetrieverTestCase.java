@@ -91,49 +91,6 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     sendEmails(DEFAULT_TEST_PAGE_SIZE);
   }
 
-  // Test migrated to MTF
-  @Test
-  public void retrieveNothing() throws Exception {
-    server.purgeEmailFromAllMailboxes();
-    assertThat(server.getReceivedMessages(), arrayWithSize(0));
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
-    assertThat(paginationSize(messages), is(0));
-  }
-
-  // Test migrated to MTF
-  @Test
-  public void retrieveMatchingSubjectAndFromAddress() throws Exception {
-    for (int i = 0; i < DEFAULT_TEST_PAGE_SIZE; i++) {
-      String fromAddress = format("address.%s@enterprise.com", i);
-      MimeMessage mimeMessage =
-          getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, "Non Matching Subject", fromAddress);
-      user.deliver(mimeMessage);
-    }
-
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_SUBJECT_AND_FROM);
-    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE * 2));
-    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
-  }
-
-  // Test migrated to MTF
-  @Test
-  public void retrieveEmailWithAttachments() throws Exception {
-    server.purgeEmailFromAllMailboxes();
-    user.deliver(getMultipartTestMessage());
-    CoreEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
-    assertThat(getVariableAsString(event, "text"), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
-    assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
-  }
-
-  // Test migrated to MTF
-  @Test
-  public void retrieveAndDelete() throws Exception {
-    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DELETE);
-    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
-    assertThat(server.getReceivedMessages(), arrayWithSize(0));
-  }
-
   // Does this test make sense?: not migrated to MTF
   @Test
   public void retrieveEmptyPageInBetween() throws Exception {
@@ -154,28 +111,6 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     Iterator<Message> messages = runFlowAndGetMessagesWithPageSize(RETRIEVE_WITH_PAGE_SIZE_AND_MATCHER, 3);
     assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE * 3));
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
-  }
-
-  // Test migrated to MTF
-  @Test
-  public void retrieveFromNewerToOlder() throws Exception {
-    server.purgeEmailFromAllMailboxes();
-    int sentEmails = DEFAULT_TEST_PAGE_SIZE * 2;
-    sendNumberedEmails(sentEmails);
-
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DELETE);
-    assertThat(server.getReceivedMessages(), arrayWithSize(sentEmails));
-
-    int count = 0;
-    while (messages.hasNext()) {
-      Message m = messages.next();
-      count++;
-      assertThat(((BaseEmailAttributes) m.getAttributes().getValue()).getSubject(), is(String.valueOf(sentEmails - count)));
-    }
-
-    assertThat(count, is(sentEmails));
-    assertThat(server.getReceivedMessages(), is(emptyArray()));
-
   }
 
   // Does this test make sense?: not migrated to MTF
@@ -259,7 +194,6 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
             .keepStreamsOpen().run().getMessage().getPayload().getValue();
     return (Iterator<Message>) provider.openCursor();
   }
-
 
   Iterator<Message> runFlowAndGetMessages(String flowName) throws Exception {
     return runFlowAndGetMessages(flowName, valueOf(UNLIMITED), valueOf(DEFAULT_PAGE_SIZE));
