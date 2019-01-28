@@ -57,7 +57,7 @@ public class TestPop3Server extends AbstractTestServer {
       try {
         user.deliver(getMultipartTestMessage());
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException("Cause: " + e.getCause() + "\nMessage: " + e.getMessage());
       }
     });
   }
@@ -67,7 +67,7 @@ public class TestPop3Server extends AbstractTestServer {
       try {
         user.deliver(getMultipartAlternativeMessage());
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new RuntimeException("Cause: " + e.getCause() + "\nMessage: " + e.getMessage());
       }
     });
   }
@@ -89,8 +89,7 @@ public class TestPop3Server extends AbstractTestServer {
   }
 
   public static void setMailboxRecentFlag(boolean state) throws Exception {
-    MimeMessage[] messages = server.getReceivedMessages();
-    for (MimeMessage message : messages) {
+    for (MimeMessage message : server.getReceivedMessages()) {
       message.setFlag(RECENT, state);
     }
   }

@@ -50,7 +50,7 @@ public class SendTestCase extends SMTPTestCase {
   private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
   private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
 
-  // TODO: migrate remaining test once the Attachment(SE-10525) and Nobody(MULE-16302) bugs are fixed.
+  // TODO: migrate remaining test once the Attachment(SE-10525) bugs are fixed.
   @Test
   public void sendEmailWithLargePayloadsBase64() throws Exception {
     String random = RandomStringUtils.random(100);
@@ -129,7 +129,7 @@ public class SendTestCase extends SMTPTestCase {
     assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString(content.getBodyPart(1).getInputStream())));
   }
 
-  // Test cannot be migrated to MTF, because the email connector does not accept emails without body.
+  // TODO : migrate test once MULE-16302 is resolved.
   @Test
   public void sendEmailWithoutBody() throws Exception {
     flowRunner("sendEmailWithoutBody").run();

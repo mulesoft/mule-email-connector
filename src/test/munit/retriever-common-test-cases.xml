@@ -73,8 +73,10 @@
 
     <!-- Tests -->
     <munit:test name="retrieveNothing">
-        <munit:validation>
+        <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
+        </munit:execution>
+        <munit:validation>
             <flow-ref name="list-${retriever-config}"/>
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]"/>
         </munit:validation>
@@ -211,8 +213,10 @@
     </munit:test>
 
     <munit:test name="retrieveWithSpecialCharacterPassword">
-        <munit:validation>
+        <munit:execution>
             <java:invoke-static class="${serverName}" method="setUserWithSpecialPassword()"/>
+        </munit:execution>
+        <munit:validation>
             <flow-ref name="list-SpecialPassword-${retriever-config}"/>
             <set-payload value="#[payload[0]]"/>
             <munit-tools:assert-equals actual="#[payload.payload.body]" expected="#['Email Content']"/>
@@ -221,9 +225,11 @@
     </munit:test>
 
     <munit:test name="retrieveMultiPartAlternative">
-        <munit:validation>
+        <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
             <java:invoke-static class="${serverName}" method="sendMultiPartAlternativeEmail()"/>
+        </munit:execution>
+        <munit:validation>
             <flow-ref name="list-${retriever-config}"/>
             <set-payload value="#[payload[0]]"/>
             <!-- The expected field is the xml-escaped version of <html></html>\ntext -->

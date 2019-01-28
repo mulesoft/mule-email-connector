@@ -280,7 +280,7 @@
         </munit:validation>
     </munit:test>
 
-    <!-- TODO complete these tests once the Attachment(SE-10525) and Nobody(MULE-16302) bugs are fixed.-->
+    <!-- TODO MULE-16302: complete this test once the bug is fixed.-->
     <!-- Send Email without Body -->
     <munit:test name="sendWithoutBody" ignore="true">
         <munit:execution>
@@ -297,31 +297,7 @@
         </munit:validation>
     </munit:test>
 
-    <!-- Send Email with zip File -->
-    <munit:test name="sendWithZipFile" ignore="true">
-        <munit:execution>
-            <!-- TODO figure out how to send a zipFile -->
-            <set-variable variableName="zipFile" value="#[{}]" mimeType="application/json"/>
-            <!--<java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="getZipFile()" target="zipFile"/>-->
-            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
-                        subject="Email Subject">
-                <email:to-addresses>
-                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
-                </email:to-addresses>
-                <email:body contentType="text/plain">
-                    <email:content>Email Content</email:content>
-                </email:body>
-                <email:attachments>
-                    #[{zipFile : vars.zipFile}]
-                </email:attachments>
-            </email:send>
-        </munit:execution>
-        <munit:validation>
-            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
-            <email:list-imap config-ref="imap-SenderTests"/>
-        </munit:validation>
-    </munit:test>
-
+    <!-- TODO SE-10525: complete tests once the Attachment bugs are fixed.-->
     <!-- Send Email with No Content Type Attachment -->
     <munit:test name="sendWithAttachment" ignore="true">
         <munit:execution>
@@ -335,9 +311,6 @@
                 <email:body contentType="text/plain">
                     <email:content>Email Content</email:content>
                 </email:body>
-                <!--                <email:attachments>
-                                    #[{'text-attachment' : 'This is the email text attachment'}]
-                                </email:attachments>-->
                 <email:attachments>
                     #[{'text-attachment' : vars.textAttachment}]
                 </email:attachments>

@@ -47,9 +47,6 @@ public class TestSMTPandIMAPServer extends AbstractTestServer {
     ServerSetup[] ss = {new ServerSetup(smtp_port, "127.0.0.1", "smtp"),
         new ServerSetup(imap_port, "127.0.0.1", "imap")};
     server = new GreenMail(ss);
-    // server = new GreenMail(ServerSetupTest.SMTP_IMAP);
-    // ServerSetupTest configuration starts all default mail services using default ports + offset of 3000. SMTP : 3025 SMTPS :
-    // 3465 IMAP : 3143 IMAPS : 3993 POP3 : 3110 POP3S : 3995.
     server.start();
 
     user = server.setUser(JUANI_EMAIL, JUANI_EMAIL, JUANI_PASSWORD);
@@ -73,9 +70,7 @@ public class TestSMTPandIMAPServer extends AbstractTestServer {
   }
 
   public static void passEmailsToIMAPServer() {
-    MimeMessage[] messages = server.getReceivedMessages();
-    for (MimeMessage message : messages) {
-      // Pass the message to the IMAP server.
+    for (MimeMessage message : server.getReceivedMessages()) {
       user.deliver(message);
     }
   }
