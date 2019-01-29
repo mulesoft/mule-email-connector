@@ -91,45 +91,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     sendEmails(DEFAULT_TEST_PAGE_SIZE);
   }
 
-  @Test
-  public void retrieveNothing() throws Exception {
-    server.purgeEmailFromAllMailboxes();
-    assertThat(server.getReceivedMessages(), arrayWithSize(0));
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_READ);
-    assertThat(paginationSize(messages), is(0));
-  }
-
-  @Test
-  public void retrieveMatchingSubjectAndFromAddress() throws Exception {
-    for (int i = 0; i < DEFAULT_TEST_PAGE_SIZE; i++) {
-      String fromAddress = format("address.%s@enterprise.com", i);
-      MimeMessage mimeMessage =
-          getMimeMessage(ESTEBAN_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, "Non Matching Subject", fromAddress);
-      user.deliver(mimeMessage);
-    }
-
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_SUBJECT_AND_FROM);
-    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE * 2));
-    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
-  }
-
-  @Test
-  public void retrieveEmailWithAttachments() throws Exception {
-    server.purgeEmailFromAllMailboxes();
-    user.deliver(getMultipartTestMessage());
-    CoreEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
-    assertThat(getVariableAsString(event, "text"), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
-    assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
-  }
-
-  @Test
-  public void retrieveAndDelete() throws Exception {
-    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DELETE);
-    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
-    assertThat(server.getReceivedMessages(), arrayWithSize(0));
-  }
-
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveEmptyPageInBetween() throws Exception {
     sendNonMatchingEmails(DEFAULT_TEST_PAGE_SIZE);
@@ -140,6 +102,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
   }
 
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveHalfPageInBetween() throws Exception {
     sendNonMatchingEmails(DEFAULT_TEST_PAGE_SIZE);
@@ -150,27 +113,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
   }
 
-  @Test
-  public void retrieveFromNewerToOlder() throws Exception {
-    server.purgeEmailFromAllMailboxes();
-    int sentEmails = DEFAULT_TEST_PAGE_SIZE * 2;
-    sendNumberedEmails(sentEmails);
-
-    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DELETE);
-    assertThat(server.getReceivedMessages(), arrayWithSize(sentEmails));
-
-    int count = 0;
-    while (messages.hasNext()) {
-      Message m = messages.next();
-      count++;
-      assertThat(((BaseEmailAttributes) m.getAttributes().getValue()).getSubject(), is(String.valueOf(sentEmails - count)));
-    }
-
-    assertThat(count, is(sentEmails));
-    assertThat(server.getReceivedMessages(), is(emptyArray()));
-
-  }
-
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrievePaginatedAndFiltered() throws Exception {
     int sentEmails = DEFAULT_TEST_PAGE_SIZE * 2;
@@ -188,6 +131,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(count, is(sentEmails));
   }
 
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveWithLimitSmallerThanPageSize() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -199,7 +143,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(5));
   }
 
-
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveWithLimitLargerThanPageSize() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -211,6 +155,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(paginationSize(messages), is(15));
   }
 
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveEmailsContainsContentType() throws Exception {
     server.purgeEmailFromAllMailboxes();
@@ -224,6 +169,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(body.getDataType(), is(like(String.class, TEXT_JSON)));
   }
 
+  // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveMultiplePagesReadAndDeleteAfter() throws Exception {
     sendEmails(100);
@@ -248,7 +194,6 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
             .keepStreamsOpen().run().getMessage().getPayload().getValue();
     return (Iterator<Message>) provider.openCursor();
   }
-
 
   Iterator<Message> runFlowAndGetMessages(String flowName) throws Exception {
     return runFlowAndGetMessages(flowName, valueOf(UNLIMITED), valueOf(DEFAULT_PAGE_SIZE));

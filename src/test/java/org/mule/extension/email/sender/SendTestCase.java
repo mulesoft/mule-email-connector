@@ -50,22 +50,7 @@ public class SendTestCase extends SMTPTestCase {
   private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
   private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
 
-  @Test
-  public void sendEmail() throws Exception {
-    flowRunner("sendEmail").run();
-    assertSingleMail();
-  }
-
-  @Test
-  public void withReplyTo() throws Exception {
-    flowRunner("withReplyTo").run();
-    Message[] messages = getReceivedMessagesAndAssertCount(1);
-    Message sentMessage = messages[0];
-    Address[] replyTo = sentMessage.getReplyTo();
-    assertThat(replyTo.length, is(1));
-    assertThat(replyTo[0].toString(), is(ESTEBAN_EMAIL));
-  }
-
+  // TODO MULE-16388 : migrate remaining tests once the Attachment bugs are fixed.
   @Test
   public void sendEmailWithLargePayloadsBase64() throws Exception {
     String random = RandomStringUtils.random(100);
@@ -95,15 +80,6 @@ public class SendTestCase extends SMTPTestCase {
   }
 
   @Test
-  public void sendJson() throws Exception {
-    String json = "{\"key\":\"value\"}";
-    flowRunner("sendJson").withVariable("json", new ByteArrayInputStream(json.getBytes())).run();
-    Message[] messages = getReceivedMessagesAndAssertCount(1);
-    Message message = messages[0];
-    assertMessage(message, json, MediaType.create("text", "json", UTF8));
-  }
-
-  @Test
   public void sendZipFile() throws Exception {
     flowRunner("sendZipFile")
         .withVariable("zipFile", new ByteArrayInputStream("this is supposedly a zip file".getBytes()),
@@ -115,18 +91,6 @@ public class SendTestCase extends SMTPTestCase {
     MimeMultipart content = (MimeMultipart) message.getContent();
     assertMessage(content.getBodyPart(0), "Email Content", TEXT_PLAIN);
     assertMessage(content.getBodyPart(1), ZIP, OCTET_STREAM_UTF8);
-  }
-
-  @Test
-  public void sendEmailCustomHeaders() throws Exception {
-    flowRunner("sendEmailHeaders").run();
-    Message[] messages = getReceivedMessagesAndAssertCount(1);
-    Message sentMessage = messages[0];
-    assertSubject(sentMessage.getSubject());
-    assertBodyContent(sentMessage.getContent().toString().trim());
-
-    assertThat(sentMessage.getHeader("CustomOperationHeader"), arrayWithSize(1));
-    assertThat(sentMessage.getHeader("CustomOperationHeader")[0], is("Dummy"));
   }
 
   @Test
@@ -165,22 +129,7 @@ public class SendTestCase extends SMTPTestCase {
     assertThat(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, is(IOUtils.toString(content.getBodyPart(1).getInputStream())));
   }
 
-  @Test
-  public void sendEncodedMessage() throws Exception {
-    String defaultEncoding = muleContext.getConfiguration().getDefaultEncoding();
-    assertThat(defaultEncoding, is(notNullValue()));
-    Optional<String> enconding = availableCharsets().keySet().stream().filter(e -> !e.equals(defaultEncoding)).findFirst();
-    assertThat(enconding.isPresent(), is(true));
-
-    flowRunner("sendEncodedMessage").withPayload(WEIRD_CHAR_MESSAGE).withVariable("encoding", enconding.get()).run();
-    Message[] messages = getReceivedMessagesAndAssertCount(1);
-    InputStream content = messages[0].getInputStream();
-    Charset charset = MediaType.parse(messages[0].getContentType()).getCharset().get();
-    String actual = IOUtils.toString(content, charset);
-    String value = new String(WEIRD_CHAR_MESSAGE.getBytes(UTF8), enconding.get());
-    assertThat(actual, containsString(value));
-  }
-
+  // TODO : migrate test once MULE-16302 is resolved.
   @Test
   public void sendEmailWithoutBody() throws Exception {
     flowRunner("sendEmailWithoutBody").run();
