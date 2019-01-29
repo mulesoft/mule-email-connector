@@ -109,13 +109,13 @@
     </flow>
 
     <!-- Retrieve with 2 matchers flows -->
-    <email:pop3-matcher name="pop3Matcher" subjectRegex="Email Subject" fromRegex="@mulesoft"/>
+    <email:pop3-matcher name="popMatcher" subjectRegex="Email Subject" fromRegex="@mulesoft"/>
     <flow name="list-Matcher-pop3-CommonTests">
-        <email:list-pop3 config-ref="pop3-CommonTests" pop3Matcher="pop3Matcher"/>
+        <email:list-pop3 config-ref="pop3-CommonTests" pop3Matcher="popMatcher"/>
     </flow>
 
     <flow name="list-Matcher-pop3s-CommonTests">
-        <email:list-pop3 config-ref="pop3s-CommonTests" pop3Matcher="pop3Matcher"/>
+        <email:list-pop3 config-ref="pop3s-CommonTests" pop3Matcher="popMatcher"/>
     </flow>
 
     <!-- Retrieve with special character password flows -->
