@@ -36,7 +36,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="imap.server.port" min="10000" max="20000"/>
+    <munit:dynamic-port propertyName="imap.server.port" min="1024" max="64000"/>
 
     <!-- Configs -->
 
