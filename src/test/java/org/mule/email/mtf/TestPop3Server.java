@@ -57,7 +57,7 @@ public class TestPop3Server extends AbstractTestServer {
       try {
         user.deliver(getMultipartTestMessage());
       } catch (Exception e) {
-        throw new RuntimeException("Cause: " + e.getCause() + "\nMessage: " + e.getMessage());
+        throw new RuntimeException(e);
       }
     });
   }
@@ -67,7 +67,7 @@ public class TestPop3Server extends AbstractTestServer {
       try {
         user.deliver(getMultipartAlternativeMessage());
       } catch (Exception e) {
-        throw new RuntimeException("Cause: " + e.getCause() + "\nMessage: " + e.getMessage());
+        throw new RuntimeException(e);
       }
     });
   }

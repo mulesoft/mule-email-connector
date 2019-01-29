@@ -50,7 +50,7 @@ public class SendTestCase extends SMTPTestCase {
   private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
   private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
 
-  // TODO: migrate remaining test once the Attachment(SE-10525) bugs are fixed.
+  // TODO MULE-16388 : migrate remaining tests once the Attachment bugs are fixed.
   @Test
   public void sendEmailWithLargePayloadsBase64() throws Exception {
     String random = RandomStringUtils.random(100);
