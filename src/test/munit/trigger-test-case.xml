@@ -103,6 +103,9 @@
         <munit-tools:store key="messages">
             <munit-tools:value>#[[]]</munit-tools:value>
         </munit-tools:store>
+        <munit-tools:store key="attachments">
+            <munit-tools:value>#[[]]</munit-tools:value>
+        </munit-tools:store>
     </munit:before-test>
 
     <munit:after-test name="cleanUpServer">
@@ -238,6 +241,47 @@
         </munit:validation>
 
     </munit:test>
+
+    <!-- Tests polled emails attachments can be read -->
+    <munit:test name="attachments-after-dispatching">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-saves-attachments-${protocol}"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <foreach collection="#[1 to 10]">
+                <java:invoke-static class="${serverName}" method="sendMultiPartTestEmail()"/>
+            </foreach>
+        </munit:behavior>
+
+        <munit:validation>
+            <until-successful maxRetries="100" millisBetweenRetries="500">
+                <munit-tools:retrieve key="attachments"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="trigger-saves-attachments-imap" maxConcurrency="1">
+
+        <email:listener-imap config-ref="${config}" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:listener-imap>
+        <flow-ref name="storeAttachments"/>
+    </flow>
+
+    <flow name="trigger-saves-attachments-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="${config}" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:listener-pop3>
+        <flow-ref name="storeAttachments"/>
+    </flow>
 
     <flow name="trigger-deletes-emails-pop3" maxConcurrency="1">
 
