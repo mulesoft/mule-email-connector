@@ -54,5 +54,4 @@ public class POP3PollingSource extends BaseMailboxPollingSource {
   protected boolean isWatermarkEnabled() {
     return false;
   }
-
 }

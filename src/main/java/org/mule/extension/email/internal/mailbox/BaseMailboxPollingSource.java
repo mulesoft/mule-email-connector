@@ -140,7 +140,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    */
   @Override
   public void poll(PollContext<DefaultStoredEmailContent, BaseEmailAttributes> pollContext) {
-    if (usingFolderCounter.get() != 0) {
+    if (isFolderBeingUsed()) {
       LOGGER.debug("Poll will be skipped, since last poll emails are still being processed");
       return;
     }
@@ -169,6 +169,12 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
       }
     } finally {
       endUsingFolder();
+    }
+  }
+
+  private boolean isFolderBeingUsed() {
+    synchronized (usingFolderCounter) {
+      return usingFolderCounter.get() != 0;
     }
   }
 
