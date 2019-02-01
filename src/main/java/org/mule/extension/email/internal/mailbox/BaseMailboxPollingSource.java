@@ -121,9 +121,6 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
 
     connection = null;
     usingFolderCounter = null;
-    if (openFolder.isOpen()) {
-      connection.closeFolder(deleteAfterRetrieve);
-    }
   }
 
   /**
