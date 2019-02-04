@@ -297,7 +297,7 @@
         </munit:validation>
     </munit:test>
 
-    <!-- TODO MULE-16388: complete tests once the Attachment bugs are fixed.-->
+    <!-- TODO MULE-16413: complete tests once the Attachment bugs are fixed.-->
     <!-- Send Email with No Content Type Attachment -->
     <munit:test name="sendWithAttachment" ignore="true">
         <munit:execution>
