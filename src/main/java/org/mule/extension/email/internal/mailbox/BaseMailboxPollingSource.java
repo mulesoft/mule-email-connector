@@ -6,38 +6,45 @@
  */
 package org.mule.extension.email.internal.mailbox;
 
+import static javax.mail.Flags.Flag.DELETED;
+import static javax.mail.Folder.READ_WRITE;
+import static org.mule.extension.email.internal.errors.EmailError.READ_EMAIL;
+
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.extension.email.api.exception.ExpungeFolderException;
 import org.mule.extension.email.api.exception.EmailListException;
+import org.mule.extension.email.api.exception.ExpungeFolderException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
-import org.mule.runtime.extension.api.annotation.param.*;
+import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.Connection;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.values.OfValues;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.PollContext;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.mail.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Folder.READ_WRITE;
-import static org.mule.extension.email.internal.errors.EmailError.*;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of an email pooling source, contains all the logic to retrieve and push emails, add watermark and delete
  * retrieved emails if required.
  * <p>
- * This class should be implemented by protocols that can retrieve mails specifying if they can handle watermark or not,
- * and what kind of filter can be applied for the retrieved emails.
+ * This class should be implemented by protocols that can retrieve mails specifying if they can handle watermark or not, and what
+ * kind of filter can be applied for the retrieved emails.
  *
  * @since 1.1
  */
@@ -54,6 +61,8 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
   private MailboxConnection connection;
 
   private Predicate<BaseEmailAttributes> predicate;
+
+  private AtomicInteger usingFolderCounter;
 
   /**
    * The name of the folder to poll emails from. Defaults to "INBOX".
@@ -91,6 +100,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    */
   @Override
   protected void doStart() throws ConnectionException {
+    usingFolderCounter = new AtomicInteger(0);
     java.util.Optional<? extends BaseEmailPredicateBuilder> builder = getPredicateBuilder();
     predicate = builder.isPresent() ? builder.get().build() : a -> true;
     storedEmailContentFactory = new StoredEmailContentFactory();
@@ -105,12 +115,12 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
   @Override
   protected void doStop() {
     LOGGER.debug("Stopping Email Listener");
-
     if (connection != null) {
       connectionProvider.disconnect(connection);
     }
 
     connection = null;
+    usingFolderCounter = null;
   }
 
   /**
@@ -127,12 +137,17 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    */
   @Override
   public void poll(PollContext<DefaultStoredEmailContent, BaseEmailAttributes> pollContext) {
+    if (isFolderBeingUsed()) {
+      LOGGER.debug("Poll will be skipped, since last poll emails are still being processed");
+      return;
+    }
     try {
-      openFolder = connection.getFolder(folder, READ_WRITE);
+      beginUsingFolder();
       for (Message message : getMessages(openFolder)) {
         BaseEmailAttributes attributes = config.parseAttributesFromMessage(message, openFolder);
         String id = attributes.getId();
         if (predicate.test(attributes)) {
+          emailDispatchedToFlow();
           pollContext.accept(item -> {
             if (isWatermarkEnabled()) {
               item.setWatermark(Long.valueOf(id));
@@ -150,7 +165,35 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
         }
       }
     } finally {
-      connection.closeFolder(deleteAfterRetrieve);
+      endUsingFolder();
+    }
+  }
+
+  private boolean isFolderBeingUsed() {
+    synchronized (usingFolderCounter) {
+      return usingFolderCounter.get() != 0;
+    }
+  }
+
+  protected void emailDispatchedToFlow() {
+    // Do nothing.
+  }
+
+  protected void beginUsingFolder() {
+    synchronized (usingFolderCounter) {
+      int currentUsingFolderCounter = usingFolderCounter.incrementAndGet();
+      if (currentUsingFolderCounter == 1) {
+        openFolder = connection.getFolder(folder, READ_WRITE);
+      }
+    }
+  }
+
+  protected void endUsingFolder() {
+    synchronized (usingFolderCounter) {
+      int currentUsingFolderCounter = usingFolderCounter.decrementAndGet();
+      if (currentUsingFolderCounter == 0) {
+        connection.closeFolder(deleteAfterRetrieve);
+      }
     }
   }
 

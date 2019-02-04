@@ -6,27 +6,15 @@
  */
 package org.mule.extension.email.sender;
 
-import static java.nio.charset.Charset.availableCharsets;
 import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.hamcrest.text.IsEmptyString.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
-
-import javax.mail.Address;
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeMultipart;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,8 +22,12 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeMultipart;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
@@ -50,7 +42,7 @@ public class SendTestCase extends SMTPTestCase {
   private static final MediaType TEXT_PLAIN = MediaType.create("text", "plain", UTF8);
   private static final MediaType MULTIPART_MIXED = MediaType.create("multipart", "mixed");
 
-  // TODO MULE-16388 : migrate remaining tests once the Attachment bugs are fixed.
+  // TODO MULE-16413 : migrate remaining tests once the Attachment bugs are fixed.
   @Test
   public void sendEmailWithLargePayloadsBase64() throws Exception {
     String random = RandomStringUtils.random(100);

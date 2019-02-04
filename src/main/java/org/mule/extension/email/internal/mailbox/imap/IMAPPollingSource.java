@@ -6,17 +6,23 @@
  */
 package org.mule.extension.email.internal.mailbox.imap;
 
+import static java.util.Optional.of;
+
+import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
-import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
+import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
+import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.execution.OnTerminate;
 import org.mule.runtime.extension.api.annotation.metadata.MetadataScope;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
-
-import static java.util.Optional.*;
+import org.mule.runtime.extension.api.annotation.source.OnBackPressure;
+import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 /**
  * Retrieves all the emails from an IMAP mailbox folder, watermark can be enabled for polled items.
@@ -58,4 +64,27 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   protected boolean isWatermarkEnabled() {
     return watermarkEnabled;
   }
+
+  @Override
+  protected void emailDispatchedToFlow() {
+    beginUsingFolder();
+  }
+
+  @Override
+  public void onRejectedItem(Result<DefaultStoredEmailContent, BaseEmailAttributes> result,
+                             SourceCallbackContext sourceCallbackContext) {
+    endUsingFolder();
+    super.onRejectedItem(result, sourceCallbackContext);
+  }
+
+  @OnBackPressure
+  public void onBackPressure() {
+    endUsingFolder();
+  }
+
+  @OnTerminate
+  public void onTerminate() {
+    endUsingFolder();
+  }
+
 }

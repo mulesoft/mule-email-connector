@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 
     <!-- Subflow to Store Retrieved Messages -->
     <sub-flow name="storeMessages">
@@ -16,6 +18,26 @@
                 output application/java
                 ---
                 payload ++ [vars.message]
+                ]
+            </munit-tools:value>
+        </munit-tools:store>
+    </sub-flow>
+
+    <sub-flow name="storeAttachments">
+        <logger level="INFO" message='#[import * from dw::Runtime
+            output application/json
+            ---
+            { "delay" : 500 } wait 500]'/>
+        <set-variable variableName="attachment" value="#[payload.attachments.'text-attachment']"/>
+        <validation:is-not-null value="#[vars.attachment]"/>
+        <munit-tools:retrieve key="attachments"/>
+        <munit-tools:store key="attachments">
+            <munit-tools:value>
+                #[
+                %dw 2.0
+                output application/java
+                ---
+                payload ++ ['Attachment successfully retrieved']
                 ]
             </munit-tools:value>
         </munit-tools:store>
