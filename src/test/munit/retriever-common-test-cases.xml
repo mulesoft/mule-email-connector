@@ -141,8 +141,8 @@
             <set-payload value="#[payload[0]]"/>
             <set-variable variableName="text" value="#[write(payload.payload.attachments.'text-attachment', 'text/plain')]" />
             <set-variable variableName="json" value="#[write(payload.payload.attachments.'attachment.json', 'text/plain')]" />
-            <munit-tools:assert-equals expected="This is the email text attachment" actual="#[vars.text]"/>
-            <munit-tools:assert-equals expected='{"key": "value"}' actual="#[vars.json]"/>
+            <munit-tools:assert-equals expected="#['This is the email text attachment']" actual="#[vars.text]"/>
+            <munit-tools:assert-equals expected="#['{&quot;key&quot;: &quot;value&quot;}']" actual="#[vars.json]"/>
         </munit:validation>
     </munit:test>
 
