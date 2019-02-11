@@ -78,6 +78,16 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
     return protocol;
   }
 
+  // TODO MULE-16421 : Delete this test once the ticket is solved.
+  @Test
+  public void readMultiPartAlternative() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    user.deliver(getMultipartAlternativeMessage());
+    Message msg = runFlowAndGetMessages(RETRIEVE_AND_READ).next();
+    StoredEmailContent emailContent = (StoredEmailContent) msg.getPayload().getValue();
+    assertThat(emailContent.getBody().getValue(), is("<html></html>\ntext"));
+  }
+
   private void testMatcherFlag(String flowName, Flag flag, boolean flagState) throws Exception {
     for (int i = 0; i < 3; i++) {
       MimeMessage message = server.getReceivedMessages()[i];

@@ -131,7 +131,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="retrieveEmailWithAttachments">
+    <munit:test name="retrieveEmailWithAttachments" ignore="true">
         <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
             <java:invoke-static class="${serverName}" method="sendMultiPartTestEmail()"/>
@@ -146,17 +146,16 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="retrieveAndDelete">
+    <munit:test name="retrieveAndDelete" ignore="true">
         <munit:validation>
             <flow-ref name="list-Delete-${retriever-config}" />
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
-            <set-payload value="#[payload[0]]" />
-            <flow-ref name="list-Delete-${retriever-config}" />
+            <flow-ref name="list-${retriever-config}" />
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]"/>
         </munit:validation>
     </munit:test>
 
-    <munit:test name="retrieveWithPageSize">
+    <munit:test name="retrieveWithPageSize" ignore="true">
         <munit:execution>
             <foreach collection="#[1 to 10]">
                 <java:invoke-static class="${serverName}" method="sendEmail()"/>
@@ -224,7 +223,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="retrieveMultiPartAlternative">
+    <munit:test name="retrieveMultiPartAlternative" ignore="true">
         <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
             <java:invoke-static class="${serverName}" method="sendMultiPartAlternativeEmail()"/>
