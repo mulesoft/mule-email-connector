@@ -91,6 +91,25 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     sendEmails(DEFAULT_TEST_PAGE_SIZE);
   }
 
+  // TODO MULE-16421 : Delete this test once the ticket is solved.
+  @Test
+  public void retrieveEmailWithAttachments() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    user.deliver(getMultipartTestMessage());
+    CoreEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
+    assertThat(getVariableAsString(event, "text"), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
+    assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
+  }
+
+  // TODO MULE-16421 : Delete this test once the ticket is solved.
+  @Test
+  public void retrieveAndDelete() throws Exception {
+    assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE));
+    Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_AND_DELETE);
+    assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE));
+    assertThat(server.getReceivedMessages(), arrayWithSize(0));
+  }
+
   // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveEmptyPageInBetween() throws Exception {
