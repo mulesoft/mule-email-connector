@@ -31,9 +31,14 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.0.0-BETA</munit.extensions.maven.plugin.version>
+        <munit.extensions.maven.plugin.version>1.0.0-SNAPSHOT</munit.extensions.maven.plugin.version>
         <munit.version>2.2.0-SNAPSHOT</munit.version>
         <mavenResourcesVersion>3.0.2</mavenResourcesVersion>
+
+        <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
+        <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
+        <javaXmlBindVersion>2.3.1</javaXmlBindVersion>
+        <istackCommonsRuntimeVersion>2.24</istackCommonsRuntimeVersion>
 
         <validations.module.version>1.1.0</validations.module.version>
         <java.module.version>1.1.1</java.module.version>
@@ -118,6 +123,28 @@
             <artifactId>javax.activation</artifactId>
             <version>${javaActivationVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${javaXmlBindApiVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <version>${javaXmlBindVersion}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.xml.stream</groupId>
+                    <artifactId>stax-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.istack</groupId>
+            <artifactId>istack-commons-runtime</artifactId>
+            <version>${istackCommonsRuntimeVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
