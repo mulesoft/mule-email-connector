@@ -20,9 +20,12 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEF
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 
@@ -91,7 +94,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   @Test
   public void retrieveEmailWithAttachments() throws Exception {
     server.purgeEmailFromAllMailboxes();
-    user.deliver(getMultipartTestMessage());
+    user.deliver(getMixedTestMessage());
     CoreEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
     assertThat(getVariableAsString(event, "text"), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
     assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
