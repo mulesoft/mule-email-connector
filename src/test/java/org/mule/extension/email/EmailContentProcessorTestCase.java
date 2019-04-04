@@ -13,18 +13,22 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_HTML_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessageWithInlineAttachment;
-import static org.mule.extension.email.util.EmailTestUtils.getSinglePartTestMessage;
-import static org.mule.runtime.api.metadata.MediaType.TEXT;
-import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
+import static org.mule.extension.email.util.EmailTestUtils.getAlternativeRelatedTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeRelatedTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getRelatedTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getSimpleHTMLTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getSimpleTextTestMessage;
 
 import org.mule.extension.email.internal.StoredEmailContentFactory;
-import org.mule.extension.email.util.EmailTestUtils;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
@@ -54,31 +58,104 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   }
 
   @Test
-  public void emailInlineAttachmentsFromMultipart() throws Exception {
-    javax.mail.Message message = getMultipartTestMessageWithInlineAttachment();
+  public void textFromSimpleTextMail() throws Exception {
+    javax.mail.Message message = getSimpleTextTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_CONTENT));
+    assertThat(body.getDataType().getMediaType().getPrimaryType(), is("text"));
+    assertThat(body.getDataType().getMediaType().getSubType(), is("plain"));
+  }
+
+  @Test
+  public void textFromSimpleHTMLMail() throws Exception {
+    javax.mail.Message message = getSimpleHTMLTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_HTML_CONTENT));
+    assertThat(body.getDataType().getMediaType().getPrimaryType(), is("text"));
+    assertThat(body.getDataType().getMediaType().getSubType(), is("html"));
+  }
+
+  @Test
+  public void textFromRelatedMail() throws Exception {
+    javax.mail.Message message = getRelatedTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_RELATED_CONTENT));
+  }
+
+  @Test
+  public void attachmentFromRelatedMail() throws Exception {
+    javax.mail.Message message = getRelatedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
     assertThat(attachments.entrySet(), hasSize(1));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
   }
 
   @Test
-  public void emailTextBodyFromMultipart() throws Exception {
-    javax.mail.Message message = getMultipartTestMessage();
-    String body = contentFactory.fromMessage(message).getBody().getValue();
-    assertThat(body, is(EMAIL_CONTENT));
+  public void textFromAlternativeMail() throws Exception {
+    javax.mail.Message message = getAlternativeTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_HTML_CONTENT));
   }
 
   @Test
-  public void emailTextBodyFromSinglePart() throws Exception {
-    javax.mail.Message message = getSinglePartTestMessage();
+  public void textFromAlternativeRelatedMail() throws Exception {
+    javax.mail.Message message = getAlternativeRelatedTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT));
+  }
+
+  @Test
+  public void attachmentFromAlternativeRelatedMail() throws Exception {
+    javax.mail.Message message = getAlternativeRelatedTestMessage();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(1));
+    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
+  }
+
+  @Test
+  public void textFromMixedMail() throws Exception {
+    javax.mail.Message message = getMixedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT));
-    assertThat(body.getDataType(), is(like(String.class, TEXT)));
+    assertThat(body.getDataType().getMediaType().getPrimaryType(), is("text"));
+    assertThat(body.getDataType().getMediaType().getSubType(), is("plain"));
   }
 
   @Test
-  public void emailAttachmentsFromMultipart() throws Exception {
-    javax.mail.Message message = getMultipartTestMessage();
+  public void attachmentsFromMixedMail() throws Exception {
+    javax.mail.Message message = getMixedTestMessage();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(2));
+    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
+    assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+  }
+
+  @Test
+  public void textFromMixedAlternativeMail() throws Exception {
+    javax.mail.Message message = getMixedAlternativeTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_HTML_CONTENT));
+  }
+
+  @Test
+  public void attachmentsFromMixedAlternativeMail() throws Exception {
+    javax.mail.Message message = getMixedAlternativeTestMessage();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(2));
+    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
+    assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+  }
+
+  @Test
+  public void textFromMixedAlternativeRelatedMail() throws Exception {
+    javax.mail.Message message = getMixedAlternativeRelatedTestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT));
+  }
+
+  @Test
+  public void attachmentsFromMixedAlternativeRelatedMail() throws Exception {
+    javax.mail.Message message = getMixedAlternativeRelatedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);

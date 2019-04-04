@@ -55,7 +55,7 @@ public class TestPop3Server extends AbstractTestServer {
   public static void sendMultiPartTestEmail() {
     withContextClassLoader(server.getClass().getClassLoader(), () -> {
       try {
-        user.deliver(getMultipartTestMessage());
+        user.deliver(getMixedTestMessage());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -65,7 +65,7 @@ public class TestPop3Server extends AbstractTestServer {
   public static void sendMultiPartAlternativeEmail() {
     withContextClassLoader(server.getClass().getClassLoader(), () -> {
       try {
-        user.deliver(getMultipartAlternativeMessage());
+        user.deliver(getAlternativeTestMessage());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

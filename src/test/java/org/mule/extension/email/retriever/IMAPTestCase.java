@@ -18,7 +18,6 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.getMultipartAlternativeMessage;
 
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailNotFoundException;

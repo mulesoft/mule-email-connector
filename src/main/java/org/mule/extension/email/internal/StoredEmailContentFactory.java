@@ -16,7 +16,6 @@ import static org.mule.runtime.api.metadata.MediaType.MULTIPART_RELATED;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
-import org.mule.extension.email.internal.util.EmailConnectorConstants;
 import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
@@ -37,6 +36,8 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import javax.mail.util.SharedByteArrayInputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,68 +77,105 @@ public class StoredEmailContentFactory {
 
   /**
    * Processes a single {@link Part} and adds it to the body of the message or as a new attachment depending on it's disposition
-   * type.
+   * type. Only the first part of the message or the parts in a multipart/alternative message are considered as body parts, everything
+   * else is considered as an attachment, whether is has Content-Disposition or not.
+   *
+   * @param part the part to be processed.
+   * @param bodyCollector collects the text from the body parts as they are processed and builds the final text.
+   * @param attachments collects the attachments as each part is processed.
+   * @param streamingHelper helps resolve the content for attachments.
    */
-  private void processPart(Part part, StringJoiner bodyCollector, Map<String, TypedValue<InputStream>> attachments,
-                           StreamingHelper streamingHelper) {
+  void processPart(Part part, StringJoiner bodyCollector, Map<String, TypedValue<InputStream>> attachments,
+                   StreamingHelper streamingHelper) {
     try {
-      Object content = part.getContent();
-      if (isMultipart(part)) {
-        Multipart mp;
-        if (content instanceof InputStream) {
-          ByteArrayDataSource fa = new ByteArrayDataSource(((InputStream) content), part.getContentType());
-          mp = new MimeMultipart(fa);
+      if (part.isMimeType("multipart/*")) {
+        Multipart mp = getMultipart(part);
+        if (part.isMimeType("multipart/alternative")) {
+          for (int i = 0; i < mp.getCount(); i++) {
+            processBodyPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
+          }
         } else {
-          mp = (Multipart) content;
+          processBodyPart(mp.getBodyPart(0), bodyCollector, attachments, streamingHelper);
+          for (int i = 1; i < mp.getCount(); i++) {
+            processAttachment(mp.getBodyPart(i), attachments, streamingHelper);
+          }
         }
-        for (int i = 0; i < mp.getCount(); i++) {
-          processPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
-        }
+      } else if (part.isMimeType("text/*")) {
+        processBodyPart(part, bodyCollector, attachments, streamingHelper);
       } else {
-        if (isAttachment(part)) {
-          processAttachment(part, attachments, streamingHelper);
-        } else {
-          processBodyPart(part, bodyCollector, attachments, content, streamingHelper);
-        }
+        LOGGER.error("Error processing part. Invalid/Unrecognized MimeType: " + part.getContentType());
       }
-
     } catch (MessagingException | IOException e) {
-      throw new EmailException("Error while processing message content.", e);
+      throw new EmailException("Error while processing the message contents.", e);
     }
   }
 
   /**
-   * Processes a body part, adding it to the body that is being built.
+   * Processes a body part, adding its text to the body that is being built.
    *
-   * @param part the attachment part to be processed
-   * @param attachments
+   * @param part the part to be processed.
+   * @param bodyCollector collects the text from the body parts as they are processed and builds the final text.
+   * @param attachments collects the attachments as each part is processed.
+   * @param streamingHelper helps resolve the content for attachments.
    */
   private void processBodyPart(Part part, StringJoiner bodyCollector, Map<String, TypedValue<InputStream>> attachments,
-                               Object content, StreamingHelper streamingHelper)
-      throws MessagingException {
-    if (isText(content)) {
-      bodyCollector.add((String) content);
-    } else if (content instanceof InputStream && isInline(part) && part.isMimeType(EmailConnectorConstants.TEXT)) {
-      String inline = IOUtils.toString((InputStream) content);
-      bodyCollector.add(inline);
-    } else if (content instanceof IMAPInputStream) {
-      MimeMultipart mp = new MimeMultipart(part.getDataHandler().getDataSource());
-      for (int i = 0; i < mp.getCount(); i++) {
-        processPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
+                               StreamingHelper streamingHelper) {
+    try {
+      if (part.isMimeType("multipart/alternative")) {
+        Multipart mp = getMultipart(part);
+        for (int i = 0; i < mp.getCount(); i++) {
+          processBodyPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
+        }
+      } else if (part.isMimeType("multipart/related")) {
+        Multipart mp = getMultipart(part);
+        processBodyPart(mp.getBodyPart(0), bodyCollector, attachments, streamingHelper);
+        for (int i = 1; i < mp.getCount(); i++) {
+          processAttachment(mp.getBodyPart(i), attachments, streamingHelper);
+        }
+      } else if (part.isMimeType("text/*")) {
+        Object content = part.getContent();
+        if (content instanceof String) {
+          bodyCollector.add((String) content);
+        } else if (content instanceof InputStream) {
+          String inline = IOUtils.toString((InputStream) content);
+          bodyCollector.add(inline);
+        }
+      } else {
+        LOGGER.error("Error processing body part. Invalid/Unrecognized MimeType: " + part.getContentType());
       }
-    } else if (content instanceof MimeMultipart) {
-      MimeMultipart mp = (MimeMultipart) content;
-      for (int i = 0; i < mp.getCount(); i++) {
-        processPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
+    } catch (MessagingException | IOException e) {
+      throw new EmailException("Error while processing the message body.", e);
+    }
+  }
+
+  /**
+   * Processes a single {@link Part} and returns its content as a {@link MimeMultipart}.
+   *
+   * @param part the part to be processed.
+   * @return the part's content as a {@link MimeMultipart}.
+   */
+  private MimeMultipart getMultipart(Part part) {
+    try {
+      Object content = part.getContent();
+      if (content instanceof InputStream) {
+        ByteArrayDataSource fa = new ByteArrayDataSource(((InputStream) content), part.getContentType());
+        return new MimeMultipart(fa);
+      } else if (content instanceof IMAPInputStream || content instanceof SharedByteArrayInputStream) {
+        return new MimeMultipart(part.getDataHandler().getDataSource());
+      } else {
+        return (MimeMultipart) content;
       }
+    } catch (MessagingException | IOException e) {
+      throw new EmailException("Could not convert the part's content to a MimeMultipart", e);
     }
   }
 
   /**
    * Processes an attachment part, adding it to the attachments list.
    *
-   * @param part the attachment part to be processed
-   * @param attachments
+   * @param part the attachment part to be processed.
+   * @param attachments collects the attachment.
+   * @param streamingHelper helps resolve the content for attachments.
    */
   private void processAttachment(Part part, Map<String, TypedValue<InputStream>> attachments, StreamingHelper streamingHelper)
       throws MessagingException, IOException {
@@ -146,51 +184,6 @@ public class StoredEmailContentFactory {
         streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
     DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
     attachments.put(part.getFileName(), new TypedValue(content, dataType));
-  }
-
-  /**
-   * Evaluates whether the disposition of the {@link Part} is INLINE or not.
-   *
-   * @param part the part to be validated.
-   * @return true is the part is dispositioned as inline, false otherwise
-   */
-  private boolean isInline(Part part) throws MessagingException {
-    return !isAttachment(part);
-  }
-
-  /**
-   * Evaluates whether a {@link Part} is an attachment or not.
-   *
-   * @param part the part to be validated.
-   * @return true is the part is dispositioned as an attachment, false otherwise
-   */
-  private boolean isAttachment(Part part) throws MessagingException {
-    return part.getFileName() != null
-        && (part.getDisposition() == null || (part.getDisposition().equalsIgnoreCase(ATTACHMENT)) || isInlineAttachment(part));
-  }
-
-  private boolean isInlineAttachment(Part part) throws MessagingException {
-    return part.getDisposition().equalsIgnoreCase(INLINE) && part.isMimeType(BINARY.toString());
-  }
-
-  /**
-   * Evaluates whether a content is multipart or not.
-   *
-   * @param part the content to be evaluated.
-   * @return true if is multipart, false otherwise
-   */
-  private boolean isMultipart(Part part) throws IOException, MessagingException {
-    return part.getContent() instanceof Multipart || part.getContentType().contains(MULTIPART_RELATED.getPrimaryType());
-  }
-
-  /**
-   * Evaluates whether a content is text or not.
-   *
-   * @param content the content to be evaluated.
-   * @return true if is text, false otherwise
-   */
-  private boolean isText(Object content) {
-    return content instanceof String;
   }
 
   private static MediaType getMediaType(Message message) {
