@@ -86,7 +86,7 @@ public class StoredEmailContentFactory {
    * @param streamingHelper helps resolve the content for attachments.
    */
   private void processPart(Part part, StringJoiner bodyCollector, Map<String, TypedValue<InputStream>> attachments,
-                   StreamingHelper streamingHelper) {
+                           StreamingHelper streamingHelper) {
     try {
       if (part.isMimeType("multipart/*")) {
         Multipart mp = getMultipart(part);
