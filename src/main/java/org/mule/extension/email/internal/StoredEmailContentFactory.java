@@ -162,7 +162,7 @@ public class StoredEmailContentFactory {
         return new MimeMultipart(fa);
       } else if (content instanceof IMAPInputStream || content instanceof SharedByteArrayInputStream) {
         return new MimeMultipart(part.getDataHandler().getDataSource());
-      } else if (content instanceof Multipart){
+      } else if (content instanceof Multipart) {
         return (Multipart) content;
       } else {
         throw new IllegalArgumentException("The expected content of the part is not a multipart.");
