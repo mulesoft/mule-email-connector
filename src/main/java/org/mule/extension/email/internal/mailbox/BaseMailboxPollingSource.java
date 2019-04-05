@@ -15,7 +15,6 @@ import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.exception.ExpungeFolderException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
-import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -226,9 +225,9 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     }
   }
 
-  private DefaultStoredEmailContent getEmailContent(Message message, String id) {
+  private StoredEmailContent getEmailContent(Message message, String id) {
     try {
-      return (DefaultStoredEmailContent) storedEmailContentFactory.fromMessage(message);
+      return storedEmailContentFactory.fromMessage(message);
     } catch (Exception e) {
       throw new ModuleException("Error reading email: [" + id + "]:" + e.getMessage(), READ_EMAIL, e);
     }
