@@ -8,10 +8,10 @@ package org.mule.extension.email.internal.mailbox.imap;
 
 import static java.util.Optional.of;
 
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
-import org.mule.extension.email.internal.DefaultStoredEmailContent;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 import org.mule.runtime.extension.api.annotation.Alias;
@@ -71,7 +71,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   }
 
   @Override
-  public void onRejectedItem(Result<DefaultStoredEmailContent, BaseEmailAttributes> result,
+  public void onRejectedItem(Result<StoredEmailContent, BaseEmailAttributes> result,
                              SourceCallbackContext sourceCallbackContext) {
     endUsingFolder();
     super.onRejectedItem(result, sourceCallbackContext);

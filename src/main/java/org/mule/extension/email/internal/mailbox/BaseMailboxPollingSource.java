@@ -10,6 +10,7 @@ import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Folder.READ_WRITE;
 import static org.mule.extension.email.internal.errors.EmailError.READ_EMAIL;
 
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.exception.ExpungeFolderException;
@@ -48,7 +49,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.1
  */
-public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStoredEmailContent, BaseEmailAttributes> {
+public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmailContent, BaseEmailAttributes> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseMailboxPollingSource.class);
 
@@ -136,7 +137,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    * By default only UNREAD emails are going to be polled.
    */
   @Override
-  public void poll(PollContext<DefaultStoredEmailContent, BaseEmailAttributes> pollContext) {
+  public void poll(PollContext<StoredEmailContent, BaseEmailAttributes> pollContext) {
     if (isFolderBeingUsed()) {
       LOGGER.debug("Poll will be skipped, since last poll emails are still being processed");
       return;
@@ -153,7 +154,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
               item.setWatermark(Long.valueOf(id));
             }
             item.setId(id);
-            item.setResult(Result.<DefaultStoredEmailContent, BaseEmailAttributes>builder()
+            item.setResult(Result.<StoredEmailContent, BaseEmailAttributes>builder()
                 .output(getEmailContent(message, id))
                 .attributes(attributes)
                 .build());
@@ -201,7 +202,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<DefaultStor
    * Logs a warning if an email was rejected for processing.
    */
   @Override
-  public void onRejectedItem(Result<DefaultStoredEmailContent, BaseEmailAttributes> result,
+  public void onRejectedItem(Result<StoredEmailContent, BaseEmailAttributes> result,
                              SourceCallbackContext sourceCallbackContext) {
     result.getAttributes().ifPresent(a -> LOGGER.debug("Email [" + a.getId() + "] was not processed."));
   }
