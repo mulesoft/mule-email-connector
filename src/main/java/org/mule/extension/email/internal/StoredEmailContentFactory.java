@@ -154,7 +154,7 @@ public class StoredEmailContentFactory {
    * @param part the part to be processed.
    * @return the part's content as a {@link MimeMultipart}.
    */
-  private MimeMultipart getMultipart(Part part) {
+  private Multipart getMultipart(Part part) {
     try {
       Object content = part.getContent();
       if (content instanceof InputStream) {
@@ -162,11 +162,13 @@ public class StoredEmailContentFactory {
         return new MimeMultipart(fa);
       } else if (content instanceof IMAPInputStream || content instanceof SharedByteArrayInputStream) {
         return new MimeMultipart(part.getDataHandler().getDataSource());
+      } else if (content instanceof Multipart){
+        return (Multipart) content;
       } else {
-        return (MimeMultipart) content;
+        throw new IllegalArgumentException("The expected content of the part is not a multipart.");
       }
     } catch (MessagingException | IOException e) {
-      throw new EmailException("Could not convert the part's content to a MimeMultipart", e);
+      throw new EmailException("Could not obtain the part's content", e);
     }
   }
 
