@@ -59,7 +59,7 @@ public class SimpleBody implements MessageBody {
         content = part.getContent();
       } else {
         LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
-                part.getContentType()));
+                            part.getContentType()));
         return;
       }
       text = (content instanceof InputStream ? IOUtils.toString((InputStream) content) : (String) content);
