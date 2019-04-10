@@ -36,14 +36,13 @@ public class AlternativeBody implements MessageBody {
    */
   public AlternativeBody(Part part) {
     try {
-      if (part.isMimeType("multipart/alternative")) {
-        Multipart mp = getMultipart(part);
-        for (int i = 0; i < mp.getCount(); i++) {
-          bodies.add(new SimpleBody(mp.getBodyPart(i)));
-        }
-      } else {
+      if (!hasAlternativeBodies(part)) {
         throw new IllegalArgumentException(format("Expected MimeType of the part is 'multipart/alternative', but was: '%s'.",
                                                   part.getContentType()));
+      }
+      Multipart mp = getMultipart(part);
+      for (int i = 0; i < mp.getCount(); i++) {
+        bodies.add(new SimpleBody(mp.getBodyPart(i)));
       }
     } catch (MessagingException e) {
       throw new EmailException("Could not process alternative message part", e);
@@ -64,6 +63,10 @@ public class AlternativeBody implements MessageBody {
       attachments.addAll(body.getInlineAttachments());
     }
     return attachments;
+  }
+
+  private boolean hasAlternativeBodies(Part part) throws MessagingException {
+    return part.isMimeType("multipart/alternative");
   }
 
 }

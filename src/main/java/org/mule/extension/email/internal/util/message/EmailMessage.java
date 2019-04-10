@@ -6,7 +6,6 @@
  */
 package org.mule.extension.email.internal.util.message;
 
-import static java.lang.String.format;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 
 import org.mule.extension.email.api.exception.EmailException;
@@ -31,23 +30,10 @@ public class EmailMessage {
 
   public EmailMessage(Part message) {
     try {
-      if (message.isMimeType("multipart/*")) {
-        Multipart mp = getMultipart(message);
-        Part first = mp.getBodyPart(0);
-        if (message.isMimeType("multipart/alternative") || first.isMimeType("multipart/alternative")) {
-          body = new AlternativeBody(message.isMimeType("multipart/alternative") ? message : first);
-        } else if (message.isMimeType("multipart/related") || first.isMimeType("multipart/related")) {
-          body = new SimpleBody(message.isMimeType("multipart/related") ? message : first);
-        } else if (message.isMimeType("multipart/mixed")) {
-          body = new SimpleBody(first);
-        }
-        if (message.isMimeType("multipart/mixed")) {
-          for (int i = 1; i < mp.getCount(); i++) {
-            attachments.add(new MessageAttachment(mp.getBodyPart(i)));
-          }
-        }
+      if (hasBodyAndAttachments(message)) {
+        initMultipartEmail(message);
       } else {
-        body = new SimpleBody(message);
+        initBody(message);
       }
     } catch (MessagingException e) {
       throw new EmailException("Error while processing the message contents.", e);
@@ -61,6 +47,26 @@ public class EmailMessage {
 
   public Collection<MessageAttachment> getAttachments() {
     return attachments;
+  }
+
+  private void initMultipartEmail(Part message) throws MessagingException {
+    Multipart mp = getMultipart(message);
+    initBody(mp.getBodyPart(0));
+    for (int i = 1; i < mp.getCount(); i++) {
+      attachments.add(new MessageAttachment(mp.getBodyPart(i)));
+    }
+  }
+
+  private void initBody(Part part) throws MessagingException {
+    body = hasAlternativeBodies(part) ? new AlternativeBody(part) : new SimpleBody(part);
+  }
+
+  private boolean hasBodyAndAttachments(Part message) throws MessagingException {
+    return message.isMimeType("multipart/mixed");
+  }
+
+  private boolean hasAlternativeBodies(Part part) throws MessagingException {
+    return part.isMimeType("multipart/alternative");
   }
 
 }

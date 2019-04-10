@@ -36,7 +36,7 @@ public class SimpleBody implements MessageBody {
   /**
    * A collection of all the inline attachments present in the body.
    */
-  private Collection<MessageAttachment> attachments = new ArrayList<>();
+  private Collection<MessageAttachment> inlineAttachments = new ArrayList<>();
 
   /**
    * @param part the {@link Part} from which the message will be extracted.
@@ -44,13 +44,11 @@ public class SimpleBody implements MessageBody {
   public SimpleBody(Part part) {
     try {
       Object content;
-      if (part.isMimeType("multipart/related")) {
+      if (hasInlineAttachments(part)) {
         Multipart mp = getMultipart(part);
-        content = mp.getBodyPart(0).getContent();
-        for (int i = 1; i < mp.getCount(); i++) {
-          attachments.add(new MessageAttachment(mp.getBodyPart(i)));
-        }
-      } else if (part.isMimeType("text/*")) {
+        content = extractBodyContent(mp);
+        initInlineAttachments(mp);
+      } else if (isTextBody(part)) {
         content = part.getContent();
       } else {
         throw new IllegalArgumentException(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
@@ -67,7 +65,25 @@ public class SimpleBody implements MessageBody {
   }
 
   public Collection<MessageAttachment> getInlineAttachments() {
-    return attachments;
+    return inlineAttachments;
+  }
+
+  private void initInlineAttachments(Multipart mp) throws MessagingException {
+    for (int i = 1; i < mp.getCount(); i++) {
+      inlineAttachments.add(new MessageAttachment(mp.getBodyPart(i)));
+    }
+  }
+
+  private Object extractBodyContent(Multipart mp) throws IOException, MessagingException {
+    return mp.getBodyPart(0).getContent();
+  }
+
+  private boolean hasInlineAttachments(Part part) throws MessagingException {
+    return part.isMimeType("multipart/related");
+  }
+
+  private boolean isTextBody(Part part) throws MessagingException {
+    return part.isMimeType("text/*");
   }
 
 }

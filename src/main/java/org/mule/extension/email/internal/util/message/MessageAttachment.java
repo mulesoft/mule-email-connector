@@ -37,11 +37,7 @@ public class MessageAttachment {
    */
   public String getAttachmentName(String defaultName) {
     try {
-      if (content.getFileName() != null) {
-        return content.getFileName();
-      } else {
-        return defaultName;
-      }
+      return content.getFileName() != null ? content.getFileName() : defaultName;
     } catch (MessagingException e) {
       throw new EmailException("Error file trying to get the attachment's name", e);
     }

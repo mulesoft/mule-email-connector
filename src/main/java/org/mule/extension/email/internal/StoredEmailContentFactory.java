@@ -78,8 +78,7 @@ public class StoredEmailContentFactory {
     LinkedHashMap<String, TypedValue<InputStream>> namedAttachments = new LinkedHashMap<>();
     for (MessageAttachment attachment : attachments) {
       if (namedAttachments.containsKey(defaultName)) {
-        defaultName = "Unnamed_" + i;
-        i++;
+        defaultName = "Unnamed_" + i++;
       }
       TypedValue<InputStream> content = resolveAttachment(attachment.getContent(), streamingHelper);
       namedAttachments.put(attachment.getAttachmentName(defaultName), content);
