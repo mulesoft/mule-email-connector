@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.runtime.api.metadata.MediaType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +26,8 @@ import javax.mail.Part;
  * @since 1.2.0
  */
 public class AlternativeBody implements MessageBody {
+
+  private static final String MULTIPART_ALTERNATIVE = MediaType.create("multipart", "alternative").toRfcString();
 
   /**
    * A list of all the alternative bodies in the multipart.
@@ -66,7 +69,7 @@ public class AlternativeBody implements MessageBody {
   }
 
   private boolean hasAlternativeBodies(Part part) throws MessagingException {
-    return part.isMimeType("multipart/alternative");
+    return part.isMimeType(MULTIPART_ALTERNATIVE);
   }
 
 }

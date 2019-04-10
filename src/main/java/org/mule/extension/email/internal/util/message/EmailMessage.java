@@ -9,17 +9,14 @@ package org.mule.extension.email.internal.util.message;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.extension.email.internal.StoredEmailContentFactory;
+import org.mule.runtime.api.metadata.MediaType;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
-
-import org.slf4j.LoggerFactory;
 
 /**
  * Abstraction to represent a email message, exposing its body text and attachments.
@@ -28,7 +25,8 @@ import org.slf4j.LoggerFactory;
  */
 public class EmailMessage {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final String MULTIPART_MIXED = MediaType.MULTIPART_MIXED.toRfcString();
+  private static final String MULTIPART_ALTERNATIVE = MediaType.create("multipart", "alternative").toRfcString();
 
   private MessageBody body;
 
@@ -68,11 +66,11 @@ public class EmailMessage {
   }
 
   private boolean hasBodyAndAttachments(Part message) throws MessagingException {
-    return message.isMimeType("multipart/mixed");
+    return message.isMimeType(MULTIPART_MIXED);
   }
 
   private boolean hasAlternativeBodies(Part part) throws MessagingException {
-    return part.isMimeType("multipart/alternative");
+    return part.isMimeType(MULTIPART_ALTERNATIVE);
   }
 
 }
