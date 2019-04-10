@@ -40,8 +40,6 @@ public class EmailMessage {
           body = new SimpleBody(message.isMimeType("multipart/related") ? message : first);
         } else if (message.isMimeType("multipart/mixed")) {
           body = new SimpleBody(first);
-        } else {
-          throw new EmailException(format("Error processing part. Invalid/Unsupported MimeType: %s", message.getContentType()));
         }
         if (message.isMimeType("multipart/mixed")) {
           for (int i = 1; i < mp.getCount(); i++) {
