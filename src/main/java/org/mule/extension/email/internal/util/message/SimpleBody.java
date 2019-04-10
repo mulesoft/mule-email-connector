@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.core.api.util.IOUtils;
 
 import java.io.IOException;
@@ -21,6 +22,8 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * Models a body of MimeType 'multipart/related' or 'text/*'.
  *
@@ -28,10 +31,12 @@ import javax.mail.Part;
  */
 public class SimpleBody implements MessageBody {
 
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+
   /**
    * The text extracted from the given part.
    */
-  private String text;
+  private String text = "";
 
   /**
    * A collection of all the inline attachments present in the body.
@@ -51,8 +56,9 @@ public class SimpleBody implements MessageBody {
       } else if (isTextBody(part)) {
         content = part.getContent();
       } else {
-        throw new IllegalArgumentException(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
-                                                  part.getContentType()));
+        LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
+                            part.getContentType()));
+        return;
       }
       text = (content instanceof InputStream ? IOUtils.toString((InputStream) content) : (String) content);
     } catch (IOException | MessagingException e) {

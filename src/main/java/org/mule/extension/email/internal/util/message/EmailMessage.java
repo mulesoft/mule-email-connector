@@ -9,13 +9,17 @@ package org.mule.extension.email.internal.util.message;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.internal.StoredEmailContentFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstraction to represent a email message, exposing its body text and attachments.
@@ -23,6 +27,8 @@ import javax.mail.Part;
  * @since 1.2.0
  */
 public class EmailMessage {
+
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
 
   private MessageBody body;
 
