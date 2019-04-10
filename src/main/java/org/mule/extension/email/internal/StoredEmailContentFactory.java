@@ -8,7 +8,6 @@ package org.mule.extension.email.internal;
 
 import static java.util.Collections.emptyMap;
 import static org.mule.runtime.api.metadata.DataType.builder;
-import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.exception.EmailException;
@@ -19,19 +18,15 @@ import org.mule.extension.email.internal.util.message.MessageAttachment;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
-import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.StringJoiner;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.Part;
 
 import org.slf4j.Logger;
@@ -58,17 +53,11 @@ public class StoredEmailContentFactory {
   public StoredEmailContentFactory() {}
 
   /**
-   * Creates an instance and process the message content.
+   * Creates an instance and processes the message content.
    *
    * @param message the {@link Message} to be processed.
    */
   public StoredEmailContent fromMessage(Message message) {
-    /*    StringJoiner bodyBuilder = new StringJoiner("\n");
-    LinkedHashMap<String, TypedValue<InputStream>> attachments = new LinkedHashMap<>();
-    processPart(message, bodyBuilder, attachments, streamingHelper);
-    TypedValue<String> body =
-            new TypedValue<>(bodyBuilder.toString().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());*/
-
     EmailMessage email = new EmailMessage(message);
     TypedValue<String> body =
         new TypedValue<>(email.getText().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());
@@ -76,6 +65,13 @@ public class StoredEmailContentFactory {
     return new DefaultStoredEmailContent(body, attachments);
   }
 
+  /**
+   * Processes a collection of attachments by obtaining their names and resolving their content, to return a map with
+   * that information.
+   *
+   * @param attachments the collection of {@link MessageAttachment}s
+   * @return a map with the attachment's name as the key and the resolved attachment's content as the value.
+   */
   private LinkedHashMap<String, TypedValue<InputStream>> getNamedAttachments(Collection<MessageAttachment> attachments) {
     String defaultName = "Unnamed";
     Integer i = 1;
@@ -91,6 +87,11 @@ public class StoredEmailContentFactory {
     return namedAttachments;
   }
 
+  /**
+   * @param part the content to be resolved.
+   * @param streamingHelper helps resolve the content for attachments.
+   * @return the attachment's content as a {@link TypedValue}.
+   */
   private TypedValue<InputStream> resolveAttachment(Part part, StreamingHelper streamingHelper) {
     try {
       InputStream partContent = contentResolver.resolveInputStream(part);
@@ -100,95 +101,6 @@ public class StoredEmailContentFactory {
     } catch (MessagingException | IOException e) {
       throw new EmailException("Could not resolve the attachment", e);
     }
-  }
-
-  /**
-   * Processes a single {@link Part} and adds it to the message of the message or as a new attachment depending on it's disposition
-   * type. Only the first part of the message or the parts in a multipart/alternative message are considered as message parts,
-   * everything else is considered as an attachment, whether is has Content-Disposition or not.
-   *
-   * @param part the part to be processed.
-   * @param bodyCollector collects the text from the message parts as they are processed and builds the final text.
-   * @param attachments collects the attachments as each part is processed.
-   * @param streamingHelper helps resolve the content for attachments.
-   */
-  private void processPart(Part part, StringJoiner bodyCollector, Map<String, TypedValue<InputStream>> attachments,
-                           StreamingHelper streamingHelper) {
-    try {
-      if (part.isMimeType("multipart/*")) {
-        Multipart mp = getMultipart(part);
-        if (part.isMimeType("multipart/alternative")) {
-          for (int i = 0; i < mp.getCount(); i++) {
-            processBodyPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
-          }
-        } else {
-          processBodyPart(mp.getBodyPart(0), bodyCollector, attachments, streamingHelper);
-          for (int i = 1; i < mp.getCount(); i++) {
-            processAttachment(mp.getBodyPart(i), attachments, streamingHelper);
-          }
-        }
-      } else if (part.isMimeType("text/*")) {
-        processBodyPart(part, bodyCollector, attachments, streamingHelper);
-      } else {
-        LOGGER.error("Error processing part. Invalid/Unrecognized MimeType: " + part.getContentType());
-      }
-    } catch (MessagingException | IOException e) {
-      throw new EmailException("Error while processing the message contents.", e);
-    }
-  }
-
-  /**
-   * Processes a message part, adding its text to the message that is being built.
-   *
-   * @param part the part to be processed.
-   * @param bodyCollector collects the text from the message parts as they are processed and builds the final text.
-   * @param attachments collects the attachments as each part is processed.
-   * @param streamingHelper helps resolve the content for attachments.
-   */
-  private void processBodyPart(Part part, StringJoiner bodyCollector, Map<String, TypedValue<InputStream>> attachments,
-                               StreamingHelper streamingHelper) {
-    try {
-      if (part.isMimeType("multipart/alternative")) {
-        Multipart mp = getMultipart(part);
-        for (int i = 0; i < mp.getCount(); i++) {
-          processBodyPart(mp.getBodyPart(i), bodyCollector, attachments, streamingHelper);
-        }
-      } else if (part.isMimeType("multipart/related")) {
-        Multipart mp = getMultipart(part);
-        processBodyPart(mp.getBodyPart(0), bodyCollector, attachments, streamingHelper);
-        for (int i = 1; i < mp.getCount(); i++) {
-          processAttachment(mp.getBodyPart(i), attachments, streamingHelper);
-        }
-      } else if (part.isMimeType("text/*")) {
-        Object content = part.getContent();
-        if (content instanceof String) {
-          bodyCollector.add((String) content);
-        } else if (content instanceof InputStream) {
-          String inline = IOUtils.toString((InputStream) content);
-          bodyCollector.add(inline);
-        }
-      } else {
-        LOGGER.error("Error processing message part. Invalid/Unrecognized MimeType: " + part.getContentType());
-      }
-    } catch (MessagingException | IOException e) {
-      throw new EmailException("Error while processing the message message.", e);
-    }
-  }
-
-  /**
-   * Processes an attachment part, adding it to the attachments map.
-   *
-   * @param part the attachment part to be processed.
-   * @param attachments collects the attachment.
-   * @param streamingHelper helps resolve the content for attachments.
-   */
-  private void processAttachment(Part part, Map<String, TypedValue<InputStream>> attachments, StreamingHelper streamingHelper)
-      throws MessagingException, IOException {
-    InputStream partContent = contentResolver.resolveInputStream(part);
-    Object content =
-        streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
-    DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
-    attachments.put(part.getFileName(), new TypedValue(content, dataType));
   }
 
   private static MediaType getMediaType(Message message) {

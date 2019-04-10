@@ -18,8 +18,11 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 
-
-
+/**
+ * Abstraction to represent a email message, exposing its body text and attachments.
+ *
+ * @since 1.2.0
+ */
 public class EmailMessage {
 
   private MessageBody body;

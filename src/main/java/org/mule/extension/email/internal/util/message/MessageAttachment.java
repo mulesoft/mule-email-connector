@@ -11,6 +11,11 @@ import org.mule.extension.email.api.exception.EmailException;
 import javax.mail.MessagingException;
 import javax.mail.Part;
 
+/**
+ * A wrapper for {@link Part}s that represent an attachment.
+ *
+ * @since 1.2.0
+ */
 public class MessageAttachment {
 
   private Part content;
@@ -19,10 +24,17 @@ public class MessageAttachment {
     content = part;
   }
 
+  /**
+   * @return the attachment's content as a {@link Part}.
+   */
   public Part getContent() {
     return content;
   }
 
+  /**
+   * @param defaultName the default name if the attachment does not have one.
+   * @return the attachment's name. If it has no name, it will return the given {@code defaultName}.
+   */
   public String getAttachmentName(String defaultName) {
     try {
       if (content.getFileName() != null) {

@@ -21,23 +21,28 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 
+/**
+ * Models a body of MimeType 'multipart/related' or 'text/*'.
+ *
+ * @since 1.2.0
+ */
 public class SimpleBody implements MessageBody {
-
-  /**
-   * Specifies the {@link Part} from which the text and attachments will be extracted.
-   */
-  private Part part;
 
   /**
    * The text extracted from the given part.
    */
   private String text;
 
+  /**
+   * A collection of all the inline attachments present in the body.
+   */
   private Collection<MessageAttachment> attachments = new ArrayList<>();
 
+  /**
+   * @param part the {@link Part} from which the message will be extracted.
+   */
   public SimpleBody(Part part) {
     try {
-      this.part = part;
       Object content;
       if (part.isMimeType("multipart/related")) {
         Multipart mp = getMultipart(part);

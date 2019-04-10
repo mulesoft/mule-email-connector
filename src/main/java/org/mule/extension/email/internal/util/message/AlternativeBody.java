@@ -19,20 +19,22 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 
+/**
+ * Models a body of MimeType 'multipart/alternative' as a collection of {@link SimpleBody}.
+ *
+ * @since 1.2.0
+ */
 public class AlternativeBody implements MessageBody {
-
-  /**
-   * Specifies the {@link Part} from which the message will be extracted.
-   */
-  private Part part;
 
   /**
    * A list of all the alternative bodies in the multipart.
    */
   private List<SimpleBody> bodies = new ArrayList<>();
 
+  /**
+   * @param part the {@link Part} from which the message will be extracted.
+   */
   public AlternativeBody(Part part) {
-    this.part = part;
     try {
       if (part.isMimeType("multipart/alternative")) {
         Multipart mp = getMultipart(part);
@@ -40,7 +42,7 @@ public class AlternativeBody implements MessageBody {
           bodies.add(new SimpleBody(mp.getBodyPart(i)));
         }
       } else {
-        throw new IllegalArgumentException(format("Expected MimeType of the part was 'multipart/alternative', but was: '%s'.",
+        throw new IllegalArgumentException(format("Expected MimeType of the part is 'multipart/alternative', but was: '%s'.",
                                                   part.getContentType()));
       }
     } catch (MessagingException e) {

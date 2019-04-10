@@ -8,10 +8,21 @@ package org.mule.extension.email.internal.util.message;
 
 import java.util.Collection;
 
+/**
+ * Represents the body an email message whether its a multipart message or not.
+ *
+ * @since 1.2.0
+ */
 public interface MessageBody {
 
+  /**
+   * @return the text of the body part.
+   */
   String getText();
 
+  /**
+   * @return a collection of {@link MessageAttachment}. If the body has no inline attachments it returns an empty collection.
+   */
   Collection<MessageAttachment> getInlineAttachments();
 
 }
