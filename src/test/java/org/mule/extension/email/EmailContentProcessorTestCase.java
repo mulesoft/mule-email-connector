@@ -6,6 +6,7 @@
  */
 package org.mule.extension.email;
 
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -21,6 +22,7 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTA
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeRelatedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getBadBodyEmail;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeRelatedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
@@ -158,6 +160,16 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     javax.mail.Message message = getMixedAlternativeRelatedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
+    assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
+    assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+  }
+
+  @Test
+  public void skipBadlyFormedParts() throws Exception {
+    javax.mail.Message message = getBadBodyEmail();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
+    assertThat(body.getValue(), is(""));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
   }

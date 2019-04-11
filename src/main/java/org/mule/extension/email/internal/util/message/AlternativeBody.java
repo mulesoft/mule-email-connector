@@ -39,7 +39,7 @@ public class AlternativeBody implements MessageBody {
    */
   public AlternativeBody(Part part) {
     try {
-      if (!hasAlternativeBodies(part)) {
+      if (isNotAlternative(part)) {
         throw new IllegalArgumentException(format("Expected MimeType of the part is 'multipart/alternative', but was: '%s'.",
                                                   part.getContentType()));
       }
@@ -68,8 +68,8 @@ public class AlternativeBody implements MessageBody {
     return attachments;
   }
 
-  private boolean hasAlternativeBodies(Part part) throws MessagingException {
-    return part.isMimeType(MULTIPART_ALTERNATIVE);
+  private boolean isNotAlternative(Part part) throws MessagingException {
+    return !part.isMimeType(MULTIPART_ALTERNATIVE);
   }
 
 }
