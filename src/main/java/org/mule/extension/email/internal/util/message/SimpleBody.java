@@ -8,10 +8,11 @@ package org.mule.extension.email.internal.util.message;
 
 import static java.lang.String.format;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
+import static org.mule.extension.email.internal.util.EmailUtils.hasInlineAttachments;
+import static org.mule.extension.email.internal.util.EmailUtils.isTextBody;
 
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
-import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.util.IOUtils;
 
 import java.io.IOException;
@@ -33,8 +34,6 @@ import org.slf4j.LoggerFactory;
 public class SimpleBody implements MessageBody {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
-  private static final String MULTIPART_RELATED = MediaType.MULTIPART_RELATED.toRfcString();
-  private static final String TEXT_ANY = MediaType.create("text", "*").toRfcString();
 
   /**
    * The text extracted from the given part.
@@ -85,14 +84,6 @@ public class SimpleBody implements MessageBody {
 
   private Object extractBodyContent(Multipart mp) throws IOException, MessagingException {
     return mp.getBodyPart(0).getContent();
-  }
-
-  private boolean hasInlineAttachments(Part part) throws MessagingException {
-    return part.isMimeType(MULTIPART_RELATED);
-  }
-
-  private boolean isTextBody(Part part) throws MessagingException {
-    return part.isMimeType(TEXT_ANY);
   }
 
 }

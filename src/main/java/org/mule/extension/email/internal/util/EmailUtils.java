@@ -36,13 +36,18 @@ public class EmailUtils {
 
   private EmailUtils() {}
 
+  public static final String TEXT_ANY = MediaType.create("text", "*").toRfcString();
+  public static final String MULTIPART_MIXED = MediaType.MULTIPART_MIXED.toRfcString();
+  public static final String MULTIPART_ALTERNATIVE = MediaType.create("multipart", "alternative").toRfcString();
+  public static final String MULTIPART_RELATED = MediaType.MULTIPART_RELATED.toRfcString();
+
   /**
-   * Resolves which is the {@link MediaType} that describes the body content.
-   *
-   * @param body email body which contains the information about the content's charset
-   * @param configCharset the default charset to be used if the content charset and the operation override charset are not defined
-   * @return the {@link MediaType} that describes the body content.
-   */
+  * Resolves which is the {@link MediaType} that describes the body content.
+  *
+  * @param body email body which contains the information about the content's charset
+  * @param configCharset the default charset to be used if the content charset and the operation override charset are not defined
+  * @return the {@link MediaType} that describes the body content.
+  */
   public static MediaType getMediaType(EmailBody body, String configCharset) {
     Charset charset = body.getContent()
         .getDataType()
@@ -89,4 +94,21 @@ public class EmailUtils {
       throw new EmailException("Could not obtain the part's content", e);
     }
   }
+
+  public static boolean hasBodyAndAttachments(Part message) throws MessagingException {
+    return message.isMimeType(MULTIPART_MIXED);
+  }
+
+  public static boolean hasAlternativeBodies(Part part) throws MessagingException {
+    return part.isMimeType(MULTIPART_ALTERNATIVE);
+  }
+
+  public static boolean hasInlineAttachments(Part part) throws MessagingException {
+    return part.isMimeType(MULTIPART_RELATED);
+  }
+
+  public static boolean isTextBody(Part part) throws MessagingException {
+    return part.isMimeType(TEXT_ANY);
+  }
+
 }

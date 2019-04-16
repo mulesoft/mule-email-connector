@@ -7,9 +7,10 @@
 package org.mule.extension.email.internal.util.message;
 
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
+import static org.mule.extension.email.internal.util.EmailUtils.hasBodyAndAttachments;
+import static org.mule.extension.email.internal.util.EmailUtils.hasAlternativeBodies;
 
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.runtime.api.metadata.MediaType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,9 +25,6 @@ import javax.mail.Part;
  * @since 1.2.0
  */
 public class EmailMessage {
-
-  private static final String MULTIPART_MIXED = MediaType.MULTIPART_MIXED.toRfcString();
-  private static final String MULTIPART_ALTERNATIVE = MediaType.create("multipart", "alternative").toRfcString();
 
   private MessageBody body;
 
@@ -63,14 +61,6 @@ public class EmailMessage {
 
   private void initBody(Part part) throws MessagingException {
     body = hasAlternativeBodies(part) ? new AlternativeBody(part) : new SimpleBody(part);
-  }
-
-  private boolean hasBodyAndAttachments(Part message) throws MessagingException {
-    return message.isMimeType(MULTIPART_MIXED);
-  }
-
-  private boolean hasAlternativeBodies(Part part) throws MessagingException {
-    return part.isMimeType(MULTIPART_ALTERNATIVE);
   }
 
 }

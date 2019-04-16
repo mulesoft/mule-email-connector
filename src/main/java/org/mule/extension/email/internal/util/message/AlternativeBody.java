@@ -8,9 +8,9 @@ package org.mule.extension.email.internal.util.message;
 
 import static java.lang.String.format;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
+import static org.mule.extension.email.internal.util.EmailUtils.hasAlternativeBodies;
 
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.runtime.api.metadata.MediaType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,8 +27,6 @@ import javax.mail.Part;
  */
 public class AlternativeBody implements MessageBody {
 
-  private static final String MULTIPART_ALTERNATIVE = MediaType.create("multipart", "alternative").toRfcString();
-
   /**
    * A list of all the alternative bodies in the multipart.
    */
@@ -39,7 +37,7 @@ public class AlternativeBody implements MessageBody {
    */
   public AlternativeBody(Part part) {
     try {
-      if (isNotAlternative(part)) {
+      if (!hasAlternativeBodies(part)) {
         throw new IllegalArgumentException(format("Expected MimeType of the part is 'multipart/alternative', but was: '%s'.",
                                                   part.getContentType()));
       }
@@ -53,11 +51,11 @@ public class AlternativeBody implements MessageBody {
   }
 
   public String getText() {
-    String text = "";
+    StringBuilder text = new StringBuilder();
     for (SimpleBody body : bodies) {
-      text = text + "\n" + body.getText();
+      text.append("\n").append(body.getText());
     }
-    return text;
+    return text.toString();
   }
 
   public Collection<MessageAttachment> getInlineAttachments() {
@@ -66,10 +64,6 @@ public class AlternativeBody implements MessageBody {
       attachments.addAll(body.getInlineAttachments());
     }
     return attachments;
-  }
-
-  private boolean isNotAlternative(Part part) throws MessagingException {
-    return !part.isMimeType(MULTIPART_ALTERNATIVE);
   }
 
 }
