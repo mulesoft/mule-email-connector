@@ -58,6 +58,7 @@ public class StoredEmailContentFactory {
    * @param message the {@link Message} to be processed.
    */
   public StoredEmailContent fromMessage(Message message) {
+    Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     EmailMessage email = new EmailMessage(message);
     TypedValue<String> body =
         new TypedValue<>(email.getText().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());
