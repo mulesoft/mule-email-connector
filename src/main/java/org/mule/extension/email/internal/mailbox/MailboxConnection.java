@@ -193,7 +193,7 @@ public class MailboxConnection extends AbstractEmailConnection {
    * @return true if is the same folder, false otherwise.
    */
   private boolean isCurrentFolder(String mailBoxFolder) {
-    return folder.getName().equalsIgnoreCase(mailBoxFolder);
+    return folder.getName() != null && folder.getName().equalsIgnoreCase(mailBoxFolder);
   }
 
   private void handleIllegalArgumentException(IllegalArgumentException e) throws EmailConnectionException {
