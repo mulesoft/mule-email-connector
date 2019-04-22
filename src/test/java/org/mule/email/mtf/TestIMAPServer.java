@@ -13,8 +13,6 @@ import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
 import static javax.mail.Flags.Flag.RECENT;
 
-import org.mule.runtime.core.api.util.ClassUtils;
-
 import javax.mail.internet.MimeMessage;
 
 import com.icegreen.greenmail.store.FolderException;
@@ -55,23 +53,19 @@ public class TestIMAPServer extends AbstractTestServer {
   }
 
   public static void sendMultiPartAlternativeEmail() {
-    withContextClassLoader(server.getClass().getClassLoader(), () -> {
-      try {
-        user.deliver(getAlternativeTestMessage());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    });
+    try {
+      user.deliver(getAlternativeTestMessage());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static void sendMultiPartTestEmail() {
-    withContextClassLoader(server.getClass().getClassLoader(), () -> {
-      try {
-        user.deliver(getMixedTestMessage());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    });
+    try {
+      user.deliver(getMixedTestMessage());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static void stop() {

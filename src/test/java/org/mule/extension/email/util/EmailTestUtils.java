@@ -10,6 +10,7 @@ import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
 import static javax.mail.Part.INLINE;
+import static org.mule.extension.email.internal.StoredEmailContentFactory.DEFAULT_NAME;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
@@ -43,6 +44,7 @@ public class EmailTestUtils {
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_NAME = "text-attachment";
   public static final String EMAIL_JSON_ATTACHMENT_CONTENT = "{\"key\": \"value\"}";
   public static final String EMAIL_JSON_ATTACHMENT_NAME = "attachment.json";
+  public static final String EMAIL_UNNAMED_ATTACHMENT_NAME = DEFAULT_NAME;
 
   public static final String PABLON_EMAIL = "pablo.musumeci@mulesoft.com";
   public static final String ESTEBAN_EMAIL = "esteban.wasinger@mulesoft.com";
@@ -286,6 +288,31 @@ public class EmailTestUtils {
 
     MimeMessage message = new MimeMessage(testSession);
     message.setContent(mixedMultipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    message.saveChanges();
+    return message;
+  }
+
+  public static MimeMessage getMessageRFC822TestMessage() throws MessagingException {
+    MimeMessage messageAsAttachment = new MimeMessage(testSession);
+    messageAsAttachment.setContent(EMAIL_HTML_CONTENT, "text/html");
+    messageAsAttachment.setSubject(EMAIL_SUBJECT);
+    messageAsAttachment.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    messageAsAttachment.saveChanges();
+
+    MimeBodyPart emailAttachment = new MimeBodyPart();
+    emailAttachment.setContent(messageAsAttachment, "message/rfc822");
+
+    MimeBodyPart body = new MimeBodyPart();
+    body.setContent(EMAIL_CONTENT, TEXT.toString());
+
+    Multipart multipart = new MimeMultipart("mixed");
+    multipart.addBodyPart(body);
+    multipart.addBodyPart(emailAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(multipart);
     message.setSubject(EMAIL_SUBJECT);
     message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
     message.saveChanges();
