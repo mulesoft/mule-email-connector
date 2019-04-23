@@ -6,10 +6,10 @@
  */
 package org.mule.extension.email;
 
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,11 +18,14 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_HTML_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_UNNAMED_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeRelatedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getBadBodyEmail;
+import static org.mule.extension.email.util.EmailTestUtils.getMessageRFC822TestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeRelatedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
@@ -172,6 +175,26 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     assertThat(body.getValue(), is(""));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+  }
+
+  @Test
+  public void textFromMixedMessageRFC822() throws Exception {
+    javax.mail.Message message = getMessageRFC822TestMessage();
+    TypedValue<String> body = contentFactory.fromMessage(message).getBody();
+    assertThat(body.getValue(), is(EMAIL_CONTENT));
+  }
+
+  @Test
+  public void attachmentFromMixedMessageRFC822() throws Exception {
+    javax.mail.Message message = getMessageRFC822TestMessage();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(1));
+    Object attachmentContent = attachments.get(EMAIL_UNNAMED_ATTACHMENT_NAME).getValue();
+    if (attachmentContent instanceof CursorProvider) {
+      attachmentContent = ((CursorProvider) attachmentContent).openCursor();
+    }
+    assertTrue(attachmentContent.toString().contains(EMAIL_HTML_CONTENT));
+    assertTrue(attachmentContent.toString().contains("Subject: " + EMAIL_SUBJECT));
   }
 
   private void assertAttachmentContent(Map<String, TypedValue<InputStream>> attachments, String name, String expected)
