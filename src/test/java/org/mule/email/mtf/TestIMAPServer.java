@@ -53,23 +53,19 @@ public class TestIMAPServer extends AbstractTestServer {
   }
 
   public static void sendMultiPartAlternativeEmail() {
-    withContextClassLoader(server.getClass().getClassLoader(), () -> {
-      try {
-        user.deliver(getAlternativeTestMessage());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    });
+    try {
+      user.deliver(getAlternativeTestMessage());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static void sendMultiPartTestEmail() {
-    withContextClassLoader(server.getClass().getClassLoader(), () -> {
-      try {
-        user.deliver(getMixedTestMessage());
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    });
+    try {
+      user.deliver(getMixedTestMessage());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public static void stop() {
