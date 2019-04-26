@@ -61,7 +61,7 @@ public class StoredEmailContentFactory {
   public StoredEmailContent fromMessage(Message message) {
     ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
     if (currentClassLoader != getClass().getClassLoader()) {
-      LOGGER.warn("Incorrect class loader. Switching to the right one.");
+      LOGGER.debug("Incorrect class loader. Switching to the right one.");
       Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     }
     EmailMessage email = new EmailMessage(message);
