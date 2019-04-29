@@ -49,8 +49,7 @@ import org.slf4j.LoggerFactory;
 public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     implements PagingProvider<MailboxConnection, Result<StoredEmailContent, T>> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PagingProviderEmailDelegate.class);
-
+  private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
   private final List<BaseEmailAttributes> emailsToBeDeleted;
@@ -68,14 +67,14 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   private boolean initialized = false;
 
   /**
-   * @param configuration The {@link MailboxAccessConfiguration} associated to this operation.
-   * @param folderName the name of the folder where the emails are stored.
-   * @param matcherBuilder a {@link Predicate} of {@link BaseEmailAttributes} used to filter the output list
-   * @param pageSize size of the block that would be retrieved from the email server. This page doesn't represent the page size to
-   *        be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
-   *        matcher after retrieval to see if they fulfill matcher's condition.
-   * @param limit The maximum amount of emails that will be retrieved by htis {@link PagingProvider}
-   * @param deleteAfterRetrieve whether the emails should be deleted after retrieval
+   * @param configuration           The {@link MailboxAccessConfiguration} associated to this operation.
+   * @param folderName              the name of the folder where the emails are stored.
+   * @param matcherBuilder          a {@link Predicate} of {@link BaseEmailAttributes} used to filter the output list
+   * @param pageSize                size of the block that would be retrieved from the email server. This page doesn't represent the page size to
+   *                                be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
+   *                                matcher after retrieval to see if they fulfill matcher's condition.
+   * @param limit                   The maximum amount of emails that will be retrieved by htis {@link PagingProvider}
+   * @param deleteAfterRetrieve     whether the emails should be deleted after retrieval
    * @param deleteAfterReadCallback callback for deleting each email
    */
   public PagingProviderEmailDelegate(MailboxAccessConfiguration configuration, String folderName,
@@ -139,9 +138,9 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public List<Result<StoredEmailContent, T>> getPage(MailboxConnection connection) {
-    /* Due to a bug in the Mule PagingProviderWrapper, this delegate is not called with the appropriate Class Loader.
+    /* Due to a bug in the Mule PagingProviderWrapper, this delegate was not called with the appropriate Class Loader.
     That fix went live with the 4.2.1 mule runtime version, so once the MinMuleVersion is 4.2.1 or higher, this code can be
-    removed. In the meanwhile, this code is required in order to avoid the exception:
+    removed. In the meanwhile, this code is required in this extension in order to avoid the exception:
     'javax.activation.UnsupportedDataTypeException: no object DCH for MIME type multipart/mixed' */
     ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
     if (currentClassLoader != getClass().getClassLoader()) {
@@ -181,7 +180,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
         if (retrievedPageSize > 0) {
           // if limited and the limit was exceeded, return the amount that is left until reaching the limit
           int limitedPage =
-              limit > 0 && retrievedEmailCount > limit ? min(retrievedPageSize, retrievedEmailCount - limit) : retrievedPageSize;
+                  limit > 0 && retrievedEmailCount > limit ? min(retrievedPageSize, retrievedEmailCount - limit) : retrievedPageSize;
           emails = emails.subList(0, limitedPage);
           reverse(emails);
           return emails;
@@ -198,7 +197,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   /**
    * @param connection The connection to be used to do the query.
    * @return {@link Optional#empty()} because a priori there is no way for knowing how many emails are going to be tested
-   *         {@code true} against the {@link BaseEmailPredicateBuilder} matcher.
+   * {@code true} against the {@link BaseEmailPredicateBuilder} matcher.
    */
   @Override
   public Optional<Integer> getTotalResults(MailboxConnection connection) {
