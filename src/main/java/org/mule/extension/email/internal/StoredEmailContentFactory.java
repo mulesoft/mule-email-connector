@@ -59,11 +59,6 @@ public class StoredEmailContentFactory {
    * @param message the {@link Message} to be processed.
    */
   public StoredEmailContent fromMessage(Message message) {
-    ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
-    if (currentClassLoader != getClass().getClassLoader()) {
-      LOGGER.debug("Incorrect class loader. Switching to the right one.");
-      Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-    }
     EmailMessage email = new EmailMessage(message);
     TypedValue<String> body =
         new TypedValue<>(email.getText().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());

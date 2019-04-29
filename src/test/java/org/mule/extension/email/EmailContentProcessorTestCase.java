@@ -10,7 +10,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
@@ -56,7 +56,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   @Before
   public void before() {
     helper = mock(StreamingHelper.class);
-    when(helper.resolveCursorProvider(anyObject()))
+    when(helper.resolveCursorProvider(any()))
         .then(inv -> new ByteArrayBasedCursorStreamProvider(IOUtils.toByteArray(((InputStream) inv.getArguments()[0]))));
 
     contentFactory = new StoredEmailContentFactory(helper);
