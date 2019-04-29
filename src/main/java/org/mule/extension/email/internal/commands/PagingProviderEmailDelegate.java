@@ -180,7 +180,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
         if (retrievedPageSize > 0) {
           // if limited and the limit was exceeded, return the amount that is left until reaching the limit
           int limitedPage =
-                  limit > 0 && retrievedEmailCount > limit ? min(retrievedPageSize, retrievedEmailCount - limit) : retrievedPageSize;
+              limit > 0 && retrievedEmailCount > limit ? min(retrievedPageSize, retrievedEmailCount - limit) : retrievedPageSize;
           emails = emails.subList(0, limitedPage);
           reverse(emails);
           return emails;
