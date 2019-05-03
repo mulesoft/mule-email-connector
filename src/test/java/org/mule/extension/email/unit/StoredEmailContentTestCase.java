@@ -37,6 +37,10 @@ public class StoredEmailContentTestCase {
     Message message = mock(Message.class);
     when(message.getContent()).thenReturn(multipart);
     when(message.getContentType()).thenReturn("multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
+    when(message.isMimeType("multipart/*")).thenReturn(true);
+    when(message.isMimeType("multipart/alternative")).thenReturn(false);
+    when(message.isMimeType("multipart/related")).thenReturn(false);
+    when(message.isMimeType("multipart/mixed")).thenReturn(true);
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));

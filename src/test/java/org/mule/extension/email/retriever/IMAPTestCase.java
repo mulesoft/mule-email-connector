@@ -9,19 +9,13 @@ package org.mule.extension.email.retriever;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.stream;
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.RECENT;
-import static javax.mail.Flags.Flag.SEEN;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.email.internal.errors.EmailError.EMAIL_NOT_FOUND;
-import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.getMultipartAlternativeMessage;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_HTML_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
 
-import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
-import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.SystemProperty;
@@ -82,10 +76,10 @@ public class IMAPTestCase extends AbstractEmailRetrieverTestCase {
   @Test
   public void readMultiPartAlternative() throws Exception {
     server.purgeEmailFromAllMailboxes();
-    user.deliver(getMultipartAlternativeMessage());
+    user.deliver(getAlternativeTestMessage());
     Message msg = runFlowAndGetMessages(RETRIEVE_AND_READ).next();
     StoredEmailContent emailContent = (StoredEmailContent) msg.getPayload().getValue();
-    assertThat(emailContent.getBody().getValue(), is("<html></html>\ntext"));
+    assertThat(emailContent.getBody().getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_HTML_CONTENT));
   }
 
   private void testMatcherFlag(String flowName, Flag flag, boolean flagState) throws Exception {

@@ -12,7 +12,6 @@ import static java.lang.String.format;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
 import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
@@ -26,7 +25,7 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.getMultipartTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 
@@ -95,7 +94,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   @Test
   public void retrieveEmailWithAttachments() throws Exception {
     server.purgeEmailFromAllMailboxes();
-    user.deliver(getMultipartTestMessage());
+    user.deliver(getMixedTestMessage());
     CoreEvent event = flowRunner(RETRIEVE_WITH_ATTACHMENTS).keepStreamsOpen().run();
     assertThat(getVariableAsString(event, "text"), is(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT));
     assertThat(getVariableAsString(event, "json"), is(EMAIL_JSON_ATTACHMENT_CONTENT));
