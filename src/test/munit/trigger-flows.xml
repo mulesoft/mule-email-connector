@@ -29,6 +29,7 @@
             ---
             { "delay" : 500 } wait 500]'/>
         <set-variable variableName="attachment" value="#[payload.attachments.'text-attachment']"/>
+        <!-- This validation is done to skip empty emails (which are usually the ones sent during the before-test flow -->
         <validation:is-not-null value="#[vars.attachment]"/>
         <munit-tools:retrieve key="attachments"/>
         <munit-tools:store key="attachments">

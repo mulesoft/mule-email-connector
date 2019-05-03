@@ -12,6 +12,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
+import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailException;
@@ -36,6 +37,9 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * {@link PagingProvider} implementation for list emails operation.
@@ -45,6 +49,7 @@ import java.util.function.Predicate;
 public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     implements PagingProvider<MailboxConnection, Result<StoredEmailContent, T>> {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
   private final List<BaseEmailAttributes> emailsToBeDeleted;
@@ -133,7 +138,20 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
 
   @Override
   public List<Result<StoredEmailContent, T>> getPage(MailboxConnection connection) {
+    /* Due to a bug in the Mule PagingProviderWrapper, this delegate was not called with the appropriate Class Loader.
+    That was fixed in MULE-16617, which went live with the 4.2.1 mule runtime version, so once the MinMuleVersion
+    is 4.2.1 or higher, this code can be removed. Meanwhile, this code is required to avoid execution with an invalid
+    Class Loader for older Mule Runtimes. */
+    ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+    if (currentClassLoader != getClass().getClassLoader()) {
+      LOGGER.debug("Incorrect class loader. Switching to the right one.");
+      return withContextClassLoader(getClass().getClassLoader(), () -> doGetPage(connection));
+    } else {
+      return doGetPage(connection);
+    }
+  }
 
+  private List<Result<StoredEmailContent, T>> doGetPage(MailboxConnection connection) {
     if (limit > 0 && retrievedEmailCount >= limit) {
       return emptyList();
     }

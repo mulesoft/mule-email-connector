@@ -231,9 +231,9 @@
         <munit:validation>
             <flow-ref name="list-${retriever-config}"/>
             <set-payload value="#[payload[0]]"/>
-            <!-- The expected field is the xml-escaped version of <html></html>\ntext -->
+            <!-- The expected field is the xml-escaped version of Email Content\n<html>HTML Content</html> -->
             <munit-tools:assert-equals actual="#[payload.payload.body]"
-                                       expected="#['&lt;html&gt;&lt;/html&gt;\ntext']"/>
+                                       expected="#['Email Content\n&lt;html&gt;HTML Content&lt;/html&gt;']"/>
         </munit:validation>
     </munit:test>
 
