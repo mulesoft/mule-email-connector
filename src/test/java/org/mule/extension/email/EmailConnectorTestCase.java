@@ -24,11 +24,11 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
+import java.io.IOException;
+
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-
-import java.io.IOException;
 
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
@@ -36,7 +36,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 
-@ArtifactClassLoaderRunnerConfig(applicationSharedRuntimeLibs = {"com.sun.mail:javax.mail"},
+@ArtifactClassLoaderRunnerConfig(applicationSharedRuntimeLibs = {"com.sun.mail:jakarta.mail"},
     testExclusions = {"org.mule.module:mule-java-module"},
     exportPluginClasses = EmailError.class)
 public abstract class EmailConnectorTestCase extends MuleArtifactFunctionalTestCase {

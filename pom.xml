@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.1.2</version>
+        <version>1.1.5</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -22,7 +22,7 @@
         <commonsIoVersion>2.6</commonsIoVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.7</commonsLangVersion>
-        <javaMailVersion>1.6.2</javaMailVersion>
+        <javaMailVersion>1.6.3</javaMailVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
         <powermockVersion>1.6.5</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -98,7 +98,7 @@
                     </dependency>
                     <dependency>
                         <groupId>com.sun.mail</groupId>
-                        <artifactId>javax.mail</artifactId>
+                        <artifactId>jakarta.mail</artifactId>
                         <version>${javaMailVersion}</version>
                     </dependency>
                 </dependencies>
@@ -109,7 +109,7 @@
     <dependencies>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
             <version>${javaMailVersion}</version>
         </dependency>
         <dependency>
