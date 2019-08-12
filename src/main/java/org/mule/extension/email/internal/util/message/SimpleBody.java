@@ -8,21 +8,21 @@ package org.mule.extension.email.internal.util.message;
 
 import static java.lang.String.format;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
+import static org.mule.extension.email.internal.util.EmailUtils.hasAlternativeBodies;
 import static org.mule.extension.email.internal.util.EmailUtils.hasInlineAttachments;
 import static org.mule.extension.email.internal.util.EmailUtils.isTextBody;
 
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
-import org.mule.runtime.core.api.util.IOUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.internet.MimeBodyPart;
 
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,7 @@ public class SimpleBody implements MessageBody {
   /**
    * The text extracted from the given part.
    */
-  private String text = "";
+  private MessageBody body;
 
   /**
    * A collection of all the inline attachments present in the body.
@@ -50,26 +50,29 @@ public class SimpleBody implements MessageBody {
    */
   public SimpleBody(Part part) {
     try {
-      Object content;
+      Part bodyPart;
       if (hasInlineAttachments(part)) {
         Multipart mp = getMultipart(part);
-        content = extractBodyContent(mp);
+        bodyPart = mp.getBodyPart(0);
         initInlineAttachments(mp);
       } else if (isTextBody(part)) {
-        content = part.getContent();
+        bodyPart = part;
       } else {
-        LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
-                            part.getContentType()));
-        return;
+        bodyPart = new MimeBodyPart(new ByteArrayInputStream(new byte[0]));
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
+                              part.getContentType()));
+        }
       }
-      text = (content instanceof InputStream ? IOUtils.toString((InputStream) content) : (String) content);
-    } catch (IOException | MessagingException e) {
+      body = hasAlternativeBodies(bodyPart) ? new AlternativeBody(bodyPart) : new TextBody(bodyPart);
+      inlineAttachments.addAll(body.getInlineAttachments());
+    } catch (MessagingException e) {
       throw new EmailException("Could not process simple message part", e);
     }
   }
 
   public String getText() {
-    return text;
+    return body.getText();
   }
 
   public Collection<MessageAttachment> getInlineAttachments() {
@@ -81,9 +84,4 @@ public class SimpleBody implements MessageBody {
       inlineAttachments.add(new MessageAttachment(mp.getBodyPart(i)));
     }
   }
-
-  private Object extractBodyContent(Multipart mp) throws IOException, MessagingException {
-    return mp.getBodyPart(0).getContent();
-  }
-
 }
