@@ -12,6 +12,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
+import com.icegreen.greenmail.imap.ImapHostManager;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -20,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.Security;
+import java.util.List;
 import java.util.Optional;
 
 import javax.mail.Message;
@@ -91,4 +93,12 @@ public class TestSMTPandIMAPServer extends AbstractTestServer {
     assertThat(encoding.isPresent(), is(true));
     return new String(WEIRD_CHAR_MESSAGE.getBytes(UTF8), encoding.get());
   }
+
+  public static void createMailboxes(List<String> mailboxes) throws Exception {
+    ImapHostManager imapHostManager = server.getManagers().getImapHostManager();
+    for (String mailbox : mailboxes) {
+      imapHostManager.createMailbox(user, mailbox);
+    }
+  }
+
 }

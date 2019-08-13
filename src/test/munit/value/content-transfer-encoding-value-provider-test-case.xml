@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:mtf="http://www.mulesoft.org/schema/mule/mtf"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/mtf http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <munit:config name="content-transfer-encoding-value-provider-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="imap-server.port" min="1024" max="64000"/>
+    <munit:dynamic-port propertyName="smtp-server.port" min="1024" max="64000"/>
+
+    <!-- Setup/Dispose -->
+    <munit:before-suite name="setUpContentTransferEncodingBefore">
+        <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="start(Integer, Integer)">
+            <java:args>
+                #[{
+                arg0: ${imap-server.port},
+                arg1: ${smtp-server.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="cleanUpContentTransferEncodingBefore">
+        <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="clean()"/>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpContentTransferEncodingAfter">
+        <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownContentTransferEncodingBefore">
+        <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="stop()"/>
+    </munit:after-suite>
+
+    <!-- Configs -->
+    <email:smtp-config name="smtp-config">
+        <email:smtp-connection host="127.0.0.1" port="${smtp-server.port}"/>
+    </email:smtp-config>
+
+    <!-- Tests-->
+    <mtf:tooling-test name="contentTransferEncodingAsValueProvider">
+        <mtf:get-values parameter="contentTransferEncoding">
+            <email:send config-ref="smtp-config" subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="juan.desimoni@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+            </email:send>
+        </mtf:get-values>
+        <mtf:validation>
+            <!--Get all ids ordered alphabetically-->
+            <munit-tools:assert-equals actual="#[payload pluck $$ orderBy $]"
+                                       expected="#[['7BIT', '8BIT', 'Base64', 'Binary', 'Quoted-Printable']]"/>
+        </mtf:validation>
+    </mtf:tooling-test>
+
+</mule>
