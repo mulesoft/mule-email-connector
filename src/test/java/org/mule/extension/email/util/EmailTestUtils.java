@@ -319,6 +319,52 @@ public class EmailTestUtils {
     return message;
   }
 
+  public static MimeMessage getMixedRelatedAlternativeTestMessage() throws MessagingException {
+    MimeMultipart mixedMultipart = new MimeMultipart("mixed");
+
+    MimeBodyPart relatedPart = new MimeBodyPart();
+    mixedMultipart.addBodyPart(relatedPart);
+    MimeMultipart relatedMultipart = new MimeMultipart("related");
+    relatedPart.setContent(relatedMultipart);
+
+    MimeBodyPart alternativePart = new MimeBodyPart();
+    relatedMultipart.addBodyPart(alternativePart);
+    MimeMultipart alternativeMultipart = new MimeMultipart("alternative");
+    alternativePart.setContent(alternativeMultipart);
+
+    MimeBodyPart textPart = new MimeBodyPart();
+    alternativeMultipart.addBodyPart(textPart);
+    textPart.setContent(EMAIL_CONTENT, "text/plain");
+
+    MimeBodyPart html = new MimeBodyPart();
+    html.setContent(EMAIL_RELATED_CONTENT, "text/html");
+    alternativeMultipart.addBodyPart(html);
+
+    MimeBodyPart binaryInlineAttachment = new MimeBodyPart();
+    DataSource dataSrc = new ByteArrayDataSource(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT.getBytes(), BINARY.toString());
+    binaryInlineAttachment.setDataHandler(new DataHandler(dataSrc));
+    binaryInlineAttachment.setFileName(EMAIL_TEXT_PLAIN_ATTACHMENT_NAME);
+    binaryInlineAttachment.setDisposition(INLINE);
+    binaryInlineAttachment.setContentID("att1");
+    binaryInlineAttachment.addHeader(CONTENT_TYPE_HEADER, BINARY.toString());
+    relatedMultipart.addBodyPart(binaryInlineAttachment);
+
+    MimeBodyPart jsonAttachment = new MimeBodyPart();
+    URL resource = currentThread().getContextClassLoader().getResource(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setFileName(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setDataHandler(new DataHandler(resource));
+
+    mixedMultipart.addBodyPart(jsonAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(mixedMultipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    message.saveChanges();
+    return message;
+  }
+
+
   public static ServerSetup setUpServer(int port, String protocol) {
     ServerSetup serverSetup = new ServerSetup(port, null, protocol);
     serverSetup.setServerStartupTimeout(SERVER_STARTUP_TIMEOUT);
