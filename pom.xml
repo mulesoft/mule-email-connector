@@ -32,7 +32,8 @@
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
         <munit.extensions.maven.plugin.version>1.0.0-SNAPSHOT</munit.extensions.maven.plugin.version>
-        <munit.version>2.2.0</munit.version>
+        <munit.version>2.2.1</munit.version>
+        <mtf.tools.version>1.0.0-SNAPSHOT</mtf.tools.version>
         <mavenResourcesVersion>3.0.2</mavenResourcesVersion>
 
         <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
@@ -41,7 +42,7 @@
         <istackCommonsRuntimeVersion>2.24</istackCommonsRuntimeVersion>
 
         <validations.module.version>1.1.0</validations.module.version>
-        <java.module.version>1.1.1</java.module.version>
+        <java.module.version>1.2.1</java.module.version>
     </properties>
 
     <build>
@@ -105,6 +106,12 @@
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>munit-tools</artifactId>
                         <version>${munit.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.mulesoft.munit</groupId>
+                        <artifactId>mtf-tools</artifactId>
+                        <version>${mtf.tools.version}</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
                     <dependency>
