@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:mtf="http://www.mulesoft.org/schema/mule/mtf"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+              http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+              http://www.mulesoft.org/schema/mule/mtf http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
+              http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+              http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+
+    <munit:config name="imap-negative-connectivity-test-case.xml" minMuleVersion="4.2.0"/>
+
+    <munit:dynamic-port propertyName="connectivityTestingPort" min="1024" max="64000"/>
+
+    <email:imap-config name="configIncorrectCredentials">
+        <email:imap-connection host="127.0.0.1" port="${connectivityTestingPort}" password="password" user="XXXXXXXXXXX@mulesoft.com"/>
+    </email:imap-config>
+    <email:imap-config name="configIncorrectCredentialsOnlyPassword">
+        <email:imap-connection host="127.0.0.1" port="${connectivityTestingPort}" password="password" />
+    </email:imap-config>
+
+    <email:imap-config name="configUnknownHost">
+        <email:imap-connection host="adasdasdsadsa" port="${connectivityTestingPort}" password="password" user="juan.desimoni@mulesoft.com"/>
+    </email:imap-config>
+
+    <email:imap-config name="configCannotReach">
+        <email:imap-connection host="127.0.0.1" port="12323" password="password" user="juan.desimoni@mulesoft.com"/>
+    </email:imap-config>
+
+    <email:imap-config name="configSocketTimeout">
+        <email:imap-connection host="127.0.0.1" readTimeout="1" timeoutUnit="MILLISECONDS" port="${connectivityTestingPort}" password="password" user="juan.desimoni@mulesoft.com"/>
+    </email:imap-config>
+
+    <email:imap-config name="configInvalidPort">
+        <email:imap-connection host="127.0.0.1" port="12344423" password="password" user="juan.desimoni@mulesoft.com"/>
+    </email:imap-config>
+
+    <!-- Setup/Dispose -->
+    <munit:before-suite name="setUpConnectivityTesting">
+        <java:invoke-static class="org.mule.email.mtf.TestIMAPServer" method="start(Integer)">
+            <java:args>
+                #[{
+                arg0: ${connectivityTestingPort}
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:test name="incorrectCredentials"
+                expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
+                expectedErrorType="EMAIL:INVALID_CREDENTIALS">
+        <munit:execution>
+            <mtf:test-connectivity config-ref="configIncorrectCredentials"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="incorrectCredentialsOnlyPassword"
+                expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
+                expectedErrorType="EMAIL:INVALID_CREDENTIALS">
+        <munit:execution>
+            <mtf:test-connectivity config-ref="configIncorrectCredentialsOnlyPassword"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="invalidPort"
+                expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
+                expectedErrorType="EMAIL:UNKNOWN_HOST">
+        <munit:execution>
+            <mtf:test-connectivity config-ref="configInvalidPort"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="unknownHost"
+                expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
+                expectedErrorType="EMAIL:UNKNOWN_HOST">
+        <munit:execution>
+            <mtf:test-connectivity config-ref="configUnknownHost"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="cannotReach"
+                expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
+                expectedErrorType="EMAIL:UNKNOWN_HOST">
+        <munit:execution>
+            <mtf:test-connectivity config-ref="configCannotReach"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:after-suite name="shutDownConnectivityTesting">
+        <java:invoke-static class="org.mule.email.mtf.TestIMAPServer" method="stop()"/>
+    </munit:after-suite>
+
+</mule>
