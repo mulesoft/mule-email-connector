@@ -36,7 +36,7 @@
         <mtf.tools.version>1.0.0-SNAPSHOT</mtf.tools.version>
         <mavenResourcesVersion>3.0.2</mavenResourcesVersion>
 
-        <maven.surefire.plugin.version>2.22.1</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
         <javaXmlBindVersion>2.3.1</javaXmlBindVersion>
         <istackCommonsRuntimeVersion>2.24</istackCommonsRuntimeVersion>
