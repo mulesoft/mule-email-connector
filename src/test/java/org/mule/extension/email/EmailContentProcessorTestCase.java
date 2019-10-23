@@ -17,7 +17,7 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_HTML_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT_NORMALIZED;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
@@ -86,7 +86,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   public void textFromRelatedMail() throws Exception {
     javax.mail.Message message = getRelatedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message).getBody();
-    assertThat(body.getValue(), is(EMAIL_RELATED_CONTENT));
+    assertThat(body.getValue(), is(EMAIL_RELATED_CONTENT_NORMALIZED));
   }
 
   @Test
@@ -108,7 +108,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   public void textFromAlternativeRelatedMail() throws Exception {
     javax.mail.Message message = getAlternativeRelatedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message).getBody();
-    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT));
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT_NORMALIZED));
   }
 
   @Test
@@ -157,7 +157,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
   public void textFromMixedAlternativeRelatedMail() throws Exception {
     javax.mail.Message message = getMixedAlternativeRelatedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message).getBody();
-    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT));
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT_NORMALIZED));
   }
 
   @Test
@@ -205,8 +205,8 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     StoredEmailContent email = contentFactory.fromMessage(message);
     TypedValue<String> body = email.getBody();
     Map<String, TypedValue<InputStream>> attachments = email.getAttachments();
-    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT));
-    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT));
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT_NORMALIZED));
+    assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT_NORMALIZED));
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);

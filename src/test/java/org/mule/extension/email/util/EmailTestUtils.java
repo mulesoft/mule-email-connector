@@ -39,7 +39,8 @@ public class EmailTestUtils {
   public static final String EMAIL_SUBJECT = "Email Subject";
   public static final String EMAIL_CONTENT = "Email Content";
   public static final String EMAIL_HTML_CONTENT = "<html>HTML Content</html>";
-  public static final String EMAIL_RELATED_CONTENT = "\"<H1>Hello</H1><a href=\\\"cid:att1\\\">here</a>\"";
+  public static final String EMAIL_RELATED_CONTENT = "<H1>Hello</H1><a href=\"cid:att1\">here</a>";
+  public static final String EMAIL_RELATED_CONTENT_NORMALIZED = "<H1>Hello</H1><a href=\"cid:text-attachment\">here</a>";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT = "This is the email text attachment";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_NAME = "text-attachment";
   public static final String EMAIL_JSON_ATTACHMENT_CONTENT = "{\"key\": \"value\"}";
