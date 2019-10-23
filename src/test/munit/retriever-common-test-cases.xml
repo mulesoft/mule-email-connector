@@ -42,8 +42,6 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="retriever.port" min="1024" max="64000"/>
-
     <!-- Setup/Dispose -->
     <munit:before-suite name="setUpRetrieverServer">
         <java:invoke-static class="${serverName}" method="${startMethod}">

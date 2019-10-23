@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
                http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+               http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
                http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+
+    <munit:dynamic-port propertyName="retriever.port" min="1024" max="64000"/>
 
     <!-- IMAP configs -->
     <email:imap-config name="imap-CommonTests">
