@@ -6,7 +6,9 @@
  */
 package org.mule.extension.email.internal;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static java.util.Optional.empty;
 import static org.mule.runtime.api.metadata.DataType.builder;
 
 import org.mule.extension.email.api.StoredEmailContent;
@@ -22,9 +24,11 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Part;
@@ -40,6 +44,7 @@ import org.slf4j.LoggerFactory;
 public class StoredEmailContentFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final String CID_MASK = "\"cid:%s\"";
 
   private MailPartContentResolver contentResolver = new DefaultMailPartContentResolver();
 
@@ -59,32 +64,43 @@ public class StoredEmailContentFactory {
    * @param message the {@link Message} to be processed.
    */
   public StoredEmailContent fromMessage(Message message) {
-    EmailMessage email = new EmailMessage(message);
-    TypedValue<String> body =
-        new TypedValue<>(email.getText().trim(), builder().type(String.class).mediaType(getMediaType(message)).build());
-    LinkedHashMap<String, TypedValue<InputStream>> attachments = getNamedAttachments(email.getAttachments());
-    return new DefaultStoredEmailContent(body, attachments);
-  }
-
-  /**
-   * Processes a collection of attachments by obtaining their names and resolving their content, to return a map with
-   * that information.
-   *
-   * @param attachments the collection of {@link MessageAttachment}s
-   * @return a map with the attachment's name as the key and the resolved attachment's content as the value.
-   */
-  private LinkedHashMap<String, TypedValue<InputStream>> getNamedAttachments(Collection<MessageAttachment> attachments) {
     String defaultName = DEFAULT_NAME;
-    Integer i = 1;
+    int i = 0;
+    EmailMessage email = new EmailMessage(message);
+    String text = email.getText().trim();
+
     LinkedHashMap<String, TypedValue<InputStream>> namedAttachments = new LinkedHashMap<>();
-    for (MessageAttachment attachment : attachments) {
+    for (MessageAttachment attachment : email.getAttachments()) {
       if (namedAttachments.containsKey(defaultName)) {
-        defaultName = DEFAULT_NAME + "_" + i++;
+        defaultName = DEFAULT_NAME + "_" + ++i;
       }
       TypedValue<InputStream> content = resolveAttachment(attachment.getContent(), streamingHelper);
-      namedAttachments.put(attachment.getAttachmentName(defaultName), content);
+      String attachmentName = attachment.getAttachmentName(defaultName);
+      namedAttachments.put(attachmentName, content);
+
+      Optional<String> contentId = extractContentID(attachment);
+      if (contentId.isPresent()) {
+        text = text.replace(format(CID_MASK, contentId.get()), format(CID_MASK, attachmentName));
+      }
     }
-    return namedAttachments;
+
+    DataType dataType = builder().type(String.class).mediaType(getMediaType(message)).build();
+    return new DefaultStoredEmailContent(new TypedValue<>(text, dataType), namedAttachments);
+  }
+
+  private Optional<String> extractContentID(MessageAttachment attachment) {
+    try {
+      Enumeration<Header> headers = attachment.getContent().getAllHeaders();
+      while (headers.hasMoreElements()) {
+        Header header = headers.nextElement();
+        if (header.getName().equalsIgnoreCase("content-id")) {
+          return Optional.ofNullable(header.getValue());
+        }
+      }
+    } catch (MessagingException e) {
+      // ignore
+    }
+    return empty();
   }
 
   /**
