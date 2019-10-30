@@ -9,6 +9,7 @@ package org.mule.extension.email.internal;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.mule.runtime.api.metadata.DataType.builder;
 
 import org.mule.extension.email.api.StoredEmailContent;
@@ -93,8 +94,8 @@ public class StoredEmailContentFactory {
       Enumeration<Header> headers = attachment.getContent().getAllHeaders();
       while (headers.hasMoreElements()) {
         Header header = headers.nextElement();
-        if (header.getName().equalsIgnoreCase("content-id")) {
-          return Optional.ofNullable(header.getValue());
+        if (header.getName().equalsIgnoreCase("content-id") && header.getValue() != null) {
+          return of(header.getValue().replaceAll("^<?([^>]+)>?$", "$1"));
         }
       }
     } catch (MessagingException e) {
