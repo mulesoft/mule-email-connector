@@ -85,7 +85,7 @@ public class EmailTestUtils {
     binaryInlineAttachment.setDataHandler(new DataHandler(dataSrc));
     binaryInlineAttachment.setFileName(EMAIL_TEXT_PLAIN_ATTACHMENT_NAME);
     binaryInlineAttachment.setDisposition(INLINE);
-    binaryInlineAttachment.setContentID("att1");
+    binaryInlineAttachment.setContentID("<att1>");
     binaryInlineAttachment.addHeader(CONTENT_TYPE_HEADER, BINARY.toString());
     relatedMultipart.addBodyPart(binaryInlineAttachment);
 
