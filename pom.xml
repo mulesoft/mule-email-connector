@@ -20,7 +20,7 @@
 
     <properties>
         <commonsIoVersion>2.6</commonsIoVersion>
-        <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
+        <commonsCollectionsVersion>20040616</commonsCollectionsVersion>
         <commonsLangVersion>3.7</commonsLangVersion>
         <javaMailVersion>1.6.3</javaMailVersion>
         <javaActivationVersion>1.2.1</javaActivationVersion>
