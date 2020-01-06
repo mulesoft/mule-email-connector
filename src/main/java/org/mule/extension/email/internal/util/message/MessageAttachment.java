@@ -8,6 +8,11 @@ package org.mule.extension.email.internal.util.message;
 
 import org.mule.extension.email.api.exception.EmailException;
 
+import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.Part;
 
@@ -18,6 +23,7 @@ import javax.mail.Part;
  */
 public class MessageAttachment {
 
+  private static final Pattern NAME_HEADER = Pattern.compile("^name=\"(.+)\"");
   private Part content;
 
   public MessageAttachment(Part part) {
@@ -37,7 +43,21 @@ public class MessageAttachment {
    */
   public String getAttachmentName(String defaultName) {
     try {
-      return content.getFileName() != null ? content.getFileName() : defaultName;
+      String fileName = content.getFileName();
+      if (fileName == null || fileName.trim().isEmpty()) {
+        Enumeration<Header> headers = content.getAllHeaders();
+        while (headers.hasMoreElements()) {
+          Header header = headers.nextElement();
+          Matcher matcher = NAME_HEADER.matcher(header.getName());
+          if (matcher.matches()) {
+            fileName = matcher.group(1);
+            break;
+          }
+        }
+      }
+
+      return fileName != null && !fileName.trim().isEmpty() ? fileName : defaultName;
+
     } catch (MessagingException e) {
       throw new EmailException("Error file trying to get the attachment's name", e);
     }
