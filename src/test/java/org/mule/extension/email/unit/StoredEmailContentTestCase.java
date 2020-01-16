@@ -7,8 +7,6 @@
 
 package org.mule.extension.email.unit;
 
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
@@ -36,37 +34,17 @@ public class StoredEmailContentTestCase {
     InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
+    Message message = mock(Message.class);
+    when(message.getContent()).thenReturn(multipart);
+    when(message.getContentType()).thenReturn("multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
+    when(message.isMimeType("multipart/*")).thenReturn(true);
+    when(message.isMimeType("multipart/alternative")).thenReturn(false);
+    when(message.isMimeType("multipart/related")).thenReturn(false);
+    when(message.isMimeType("multipart/mixed")).thenReturn(true);
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
     TypedValue<InputStream> csv = attachments.get("input.csv");
     assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
-  }
-
-  @Test
-  public void inputStreamContentFromOutlook() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
-    StreamingHelper helper = mock(StreamingHelper.class);
-    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed;\n"
-        + "boundary=\"----=_NextPart_000_0039_01D5B1D7.2E5205B0\"");
-    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message);
-    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
-    assertThat(attachments.size(), is(2));
-    TypedValue<InputStream> image = attachments.get("image001.jpg");
-    assertThat(image.getDataType().getMediaType().toString(), is("image/jpeg"));
-    assertThat(image.getValue(), not(nullValue()));
-  }
-
-  private Message mockMessage(InputStream multipart, String contentType) throws IOException, MessagingException {
-    Message message = mock(Message.class);
-    when(message.getContent()).thenReturn(multipart);
-    when(message.getContentType()).thenReturn(contentType);
-    when(message.isMimeType("multipart/*")).thenReturn(true);
-    when(message.isMimeType("multipart/alternative")).thenReturn(false);
-    when(message.isMimeType("multipart/related")).thenReturn(false);
-    when(message.isMimeType("multipart/mixed")).thenReturn(true);
-    return message;
   }
 }
