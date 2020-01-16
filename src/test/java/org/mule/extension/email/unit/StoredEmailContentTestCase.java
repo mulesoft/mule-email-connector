@@ -59,6 +59,22 @@ public class StoredEmailContentTestCase {
     assertThat(image.getValue(), not(nullValue()));
   }
 
+  @Test
+  public void inputStreamContentFromOutlook_NestedEmailAttachment() throws IOException, MessagingException {
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart_nested_email_attachment");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message =
+        mockMessage(multipart, "multipart/mixed; boundary=\"_004_FR1PR80MB4581A7AAC99CFF0C630598C192360FR1PR80MB4581lamp_\"");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+    TypedValue<InputStream> attachedEmail = attachments.get("TestEmail");
+    assertThat(attachedEmail.getDataType().getMediaType().toString(), is("message/rfc822"));
+    assertThat(attachedEmail.getValue(), not(nullValue()));
+  }
+
   private Message mockMessage(InputStream multipart, String contentType) throws IOException, MessagingException {
     Message message = mock(Message.class);
     when(message.getContent()).thenReturn(multipart);

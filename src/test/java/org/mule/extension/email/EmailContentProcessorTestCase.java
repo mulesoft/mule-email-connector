@@ -21,7 +21,6 @@ import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_UNNAMED_ATTACHMENT_NAME;
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeRelatedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getBadBodyEmail;
@@ -191,7 +190,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     javax.mail.Message message = getMessageRFC822TestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message).getAttachments();
     assertThat(attachments.entrySet(), hasSize(1));
-    Object attachmentContent = attachments.get(EMAIL_UNNAMED_ATTACHMENT_NAME).getValue();
+    Object attachmentContent = attachments.get(EMAIL_SUBJECT).getValue();
     if (attachmentContent instanceof CursorProvider) {
       attachmentContent = ((CursorProvider) attachmentContent).openCursor();
     }

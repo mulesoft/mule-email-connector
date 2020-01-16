@@ -6,15 +6,24 @@
  */
 package org.mule.extension.email.internal.util.message;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.trim;
+import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.email.api.exception.EmailException;
 
+import java.io.IOException;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.Part;
+import javax.mail.internet.MimeMessage;
+
+import org.slf4j.Logger;
 
 /**
  * A wrapper for {@link Part}s that represent an attachment.
@@ -23,6 +32,7 @@ import javax.mail.Part;
  */
 public class MessageAttachment {
 
+  private static final Logger LOGGER = getLogger(MessageAttachment.class);
   private static final Pattern NAME_HEADER = Pattern.compile("^name=\"(.+)\"");
   private Part content;
 
@@ -44,7 +54,8 @@ public class MessageAttachment {
   public String getAttachmentName(String defaultName) {
     try {
       String fileName = content.getFileName();
-      if (fileName == null || fileName.trim().isEmpty()) {
+
+      if (isBlank(fileName)) {
         Enumeration<Header> headers = content.getAllHeaders();
         while (headers.hasMoreElements()) {
           Header header = headers.nextElement();
@@ -56,7 +67,26 @@ public class MessageAttachment {
         }
       }
 
-      return fileName != null && !fileName.trim().isEmpty() ? fileName : defaultName;
+      if (isBlank(fileName)) {
+        if (content instanceof BodyPart) {
+          Object nestedMessage;
+          try {
+            nestedMessage = content.getDataHandler().getContent();
+            if (nestedMessage instanceof MimeMessage) {
+              String subject = ((MimeMessage) nestedMessage).getSubject();
+              if (isNotBlank(subject)) {
+                fileName = subject;
+              }
+            }
+          } catch (IOException e) {
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug("Could not get attachment name from data handler", e);
+            }
+          }
+        }
+      }
+
+      return isNotBlank(fileName) ? trim(fileName) : defaultName;
 
     } catch (MessagingException e) {
       throw new EmailException("Error file trying to get the attachment's name", e);
