@@ -78,7 +78,7 @@
 
     <!-- Ignored until https://www.mulesoft.org/jira/browse/MULE-16413 gets fixed -->
     <!-- Attachment streaming is not working for Imap/Imaps -->
-    <munit:test name="retrieveEmailWithAttachments_SubjectStrategy" ignore="true">
+    <munit:test name="retrieveEmailWithAttachments_SubjectStrategy" ignore="#['${protocol}' == 'imap' or '${protocol}' == 'imaps']">
         <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
             <java:invoke-static class="${serverName}" method="sendRFC822TestMessage()"/>
