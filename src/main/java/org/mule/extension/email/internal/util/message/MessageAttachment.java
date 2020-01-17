@@ -8,11 +8,11 @@ package org.mule.extension.email.internal.util.message;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME;
-import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME_HEADERS;
+import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
+import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 
 import java.io.IOException;
 import java.util.Enumeration;

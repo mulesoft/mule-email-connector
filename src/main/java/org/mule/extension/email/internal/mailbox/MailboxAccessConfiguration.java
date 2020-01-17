@@ -7,7 +7,7 @@
 package org.mule.extension.email.internal.mailbox;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 
 import javax.mail.Folder;
 import javax.mail.Message;

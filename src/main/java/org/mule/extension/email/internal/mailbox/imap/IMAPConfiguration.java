@@ -9,7 +9,7 @@ package org.mule.extension.email.internal.mailbox.imap;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
-import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.runtime.extension.api.annotation.Configuration;
 import org.mule.runtime.extension.api.annotation.Operations;

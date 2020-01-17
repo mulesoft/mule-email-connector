@@ -7,7 +7,7 @@
 package org.mule.extension.email.internal.mailbox;
 
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
-import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
