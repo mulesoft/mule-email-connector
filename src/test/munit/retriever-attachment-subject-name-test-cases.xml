@@ -92,6 +92,34 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="retrieveEmailWithAttachments_HeaderStrategy" ignore="#['${protocol}' == 'imap' or '${protocol}' == 'imaps']">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <java:invoke-static class="${serverName}" method="sendRFC822TestMessage()"/>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-attachment-name-from-header-${protocol}" />
+            <foreach>
+                <set-variable variableName="attachment" value="#[write(payload.attachments.'Unnamed', 'text/plain')]" />
+                <munit-tools:assert-that expression="#[vars.attachment]" is="#[MunitTools::notNullValue()]"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveEmailWithAttachments_NameStrategy" ignore="#['${protocol}' == 'imap' or '${protocol}' == 'imaps']">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <java:invoke-static class="${serverName}" method="sendRFC822TestMessage()"/>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-attachment-name-from-name-${protocol}" />
+            <foreach>
+                <set-variable variableName="attachment" value="#[write(payload.attachments.'Unnamed', 'text/plain')]" />
+                <munit-tools:assert-that expression="#[vars.attachment]" is="#[MunitTools::notNullValue()]"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
     <!-- Retrieve using attachment subject strategy -->
     <flow name="list-attachment-name-from-subject-imap">
         <email:list-imap config-ref="imap-attachment-name-from-subject"/>
@@ -107,6 +135,40 @@
 
     <flow name="list-attachment-name-from-subject-pop3s">
         <email:list-pop3 config-ref="pop3s-attachment-name-from-subject"/>
+    </flow>
+
+    <!-- Retrieve using attachment header strategy -->
+    <flow name="list-attachment-name-from-header-imap">
+        <email:list-imap config-ref="imap-attachment-name-from-header"/>
+    </flow>
+
+    <flow name="list-attachment-name-from-header-imaps">
+        <email:list-imap config-ref="imaps-attachment-name-from-header"/>
+    </flow>
+
+    <flow name="list-attachment-name-from-header-pop3">
+        <email:list-pop3 config-ref="pop3-attachment-name-from-header"/>
+    </flow>
+
+    <flow name="list-attachment-name-from-header-pop3s">
+        <email:list-pop3 config-ref="pop3s-attachment-name-from-header"/>
+    </flow>
+
+    <!-- Retrieve using attachment name strategy -->
+    <flow name="list-attachment-name-from-name-imap">
+        <email:list-imap config-ref="imap-attachment-name-from-name"/>
+    </flow>
+
+    <flow name="list-attachment-name-from-name-imaps">
+        <email:list-imap config-ref="imaps-attachment-name-from-name"/>
+    </flow>
+
+    <flow name="list-attachment-name-from-name-pop3">
+        <email:list-pop3 config-ref="pop3-attachment-name-from-name"/>
+    </flow>
+
+    <flow name="list-attachment-name-from-name-pop3s">
+        <email:list-pop3 config-ref="pop3s-attachment-name-from-name"/>
     </flow>
 
     <email:pop3-config name="pop3-attachment-name-from-subject" attachmentNamingStrategy="NAME_HEADERS_SUBJECT">
@@ -137,4 +199,59 @@
         </email:imaps-connection>
     </email:imap-config>
 
+    <email:pop3-config name="pop3-attachment-name-from-name" attachmentNamingStrategy="NAME">
+        <email:pop3-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                               user="juan.desimoni@mulesoft.com"/>
+    </email:pop3-config>
+
+    <email:pop3-config name="pop3s-attachment-name-from-name" attachmentNamingStrategy="NAME">
+        <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                                user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.jks" password="changeit"/>
+            </tls:context>
+        </email:pop3s-connection>
+    </email:pop3-config>
+
+    <email:imap-config name="imap-attachment-name-from-name" attachmentNamingStrategy="NAME">
+        <email:imap-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                               user="juan.desimoni@mulesoft.com"/>
+    </email:imap-config>
+
+    <email:imap-config name="imaps-attachment-name-from-name" attachmentNamingStrategy="NAME">
+        <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                                user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.jks" password="changeit"/>
+            </tls:context>
+        </email:imaps-connection>
+    </email:imap-config>
+
+    <email:pop3-config name="pop3-attachment-name-from-header" attachmentNamingStrategy="NAME_HEADERS">
+        <email:pop3-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                               user="juan.desimoni@mulesoft.com"/>
+    </email:pop3-config>
+
+    <email:pop3-config name="pop3s-attachment-name-from-header" attachmentNamingStrategy="NAME_HEADERS">
+        <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                                user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.jks" password="changeit"/>
+            </tls:context>
+        </email:pop3s-connection>
+    </email:pop3-config>
+
+    <email:imap-config name="imap-attachment-name-from-header" attachmentNamingStrategy="NAME_HEADERS">
+        <email:imap-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                               user="juan.desimoni@mulesoft.com"/>
+    </email:imap-config>
+
+    <email:imap-config name="imaps-attachment-name-from-header" attachmentNamingStrategy="NAME_HEADERS">
+        <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="password"
+                                user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.jks" password="changeit"/>
+            </tls:context>
+        </email:imaps-connection>
+    </email:imap-config>
 </mule>
