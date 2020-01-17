@@ -14,7 +14,7 @@ import static org.mule.runtime.api.metadata.DataType.builder;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.exception.EmailException;
-import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
 import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.extension.email.internal.util.message.EmailMessage;

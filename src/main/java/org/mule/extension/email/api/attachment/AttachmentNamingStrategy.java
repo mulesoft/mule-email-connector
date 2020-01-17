@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.metadata;
+package org.mule.extension.email.api.attachment;
 
 /**
  * Indicates how attachment names should be retrieved.
