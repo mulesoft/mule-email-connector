@@ -11,8 +11,6 @@ import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.io.InputStream;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -45,7 +45,7 @@ public class IMAPConfiguration implements MailboxAccessConfiguration {
   @Summary("Defines which strategy must be used when searching for the attachment name")
   @Parameter
   @Placement(tab = ADVANCED_TAB)
-  @Optional(defaultValue = "DEFAULT")
+  @Optional(defaultValue = "NAME")
   private AttachmentNamingStrategy attachmentNamingStrategy;
 
   /**

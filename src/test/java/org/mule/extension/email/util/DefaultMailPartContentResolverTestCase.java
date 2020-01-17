@@ -13,13 +13,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
 import org.mule.extension.email.internal.util.MailPartContentResolver;

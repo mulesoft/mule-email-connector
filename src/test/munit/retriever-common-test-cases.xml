@@ -144,6 +144,20 @@
         </munit:validation>
     </munit:test>
 
+
+    <munit:test name="retrieveEmailWithAttachments" ignore="true">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <java:invoke-static class="${serverName}" method="sendRFC822TestMessage()"/>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-subject-attachment-${retriever-config}" />
+            <set-payload value="#[payload[0]]"/>
+            <set-variable variableName="attachment" value="#[write(payload.payload.attachments.'Email Subject', 'text/plain')]" />
+            <munit-tools:assert-that expression="#[vars.attachment]" is="#[MunitTools::notNullValue()]"/>
+        </munit:validation>
+    </munit:test>
+
     <munit:test name="retrieveAndDelete" ignore="true">
         <munit:validation>
             <flow-ref name="list-Delete-${retriever-config}" />
