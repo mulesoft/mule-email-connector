@@ -200,7 +200,7 @@ public abstract class AbstractEmailConnection {
    *
    * @since 1.0
    */
-  private final class PasswordAuthenticator extends Authenticator {
+  private final static class PasswordAuthenticator extends Authenticator {
 
     private String user;
     private String pass;

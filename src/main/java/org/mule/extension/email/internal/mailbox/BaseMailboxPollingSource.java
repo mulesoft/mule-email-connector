@@ -9,6 +9,7 @@ package org.mule.extension.email.internal.mailbox;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Folder.READ_WRITE;
 import static org.mule.extension.email.internal.errors.EmailError.READ_EMAIL;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
@@ -23,6 +24,7 @@ import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.values.OfValues;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
@@ -54,6 +56,9 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   @Config
   private MailboxAccessConfiguration config;
+
+  @ParameterGroup(name = CONFIG_OVERRIDES_PARAM_GROUP)
+  private MailboxAccessConfigOverrides overrides;
 
   @Connection
   private ConnectionProvider<MailboxConnection> connectionProvider;
@@ -227,7 +232,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   private StoredEmailContent getEmailContent(Message message, String id) {
     try {
-      return storedEmailContentFactory.fromMessage(message);
+      return storedEmailContentFactory.fromMessage(message, overrides.getAttachmentNamingStrategy());
     } catch (Exception e) {
       throw new ModuleException("Error reading email: [" + id + "]:" + e.getMessage(), READ_EMAIL, e);
     }

@@ -6,11 +6,13 @@
  */
 package org.mule.extension.email.internal.util.message;
 
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.trim;
+import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.DEFAULT;
+import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -48,49 +50,98 @@ public class MessageAttachment {
   }
 
   /**
-   * @param defaultName the default name if the attachment does not have one.
+   * @param defaultName               The default name if the attachment does not have one.
+   * @param attachmentNamingStrategy  The strategy that must be used when searching for the attachment name.
    * @return the attachment's name. If it has no name, it will return the given {@code defaultName}.
    */
-  public String getAttachmentName(String defaultName) {
-    try {
-      String fileName = content.getFileName();
+  public String getAttachmentName(String defaultName, AttachmentNamingStrategy attachmentNamingStrategy) {
+    return getNamingStrategy(attachmentNamingStrategy)
+        .getAttachmentNameOrDefault(defaultName);
+  }
 
-      if (isBlank(fileName)) {
-        Enumeration<Header> headers = content.getAllHeaders();
-        while (headers.hasMoreElements()) {
-          Header header = headers.nextElement();
-          Matcher matcher = NAME_HEADER.matcher(header.getName());
-          if (matcher.matches()) {
-            fileName = matcher.group(1);
-            break;
-          }
-        }
-      }
-
-      if (isBlank(fileName)) {
-        if (content instanceof BodyPart) {
-          Object nestedMessage;
-          try {
-            nestedMessage = content.getDataHandler().getContent();
-            if (nestedMessage instanceof MimeMessage) {
-              String subject = ((MimeMessage) nestedMessage).getSubject();
-              if (isNotBlank(subject)) {
-                fileName = subject;
-              }
-            }
-          } catch (IOException e) {
-            if (LOGGER.isDebugEnabled()) {
-              LOGGER.debug("Could not get attachment name from data handler", e);
-            }
-          }
-        }
-      }
-
-      return isNotBlank(fileName) ? trim(fileName) : defaultName;
-
-    } catch (MessagingException e) {
-      throw new EmailException("Error file trying to get the attachment's name", e);
+  private NamingStrategy getNamingStrategy(AttachmentNamingStrategy attachmentNamingStrategy) {
+    if (attachmentNamingStrategy.equals(DEFAULT)) {
+      return new FilenameStrategy();
+    } else if (attachmentNamingStrategy.equals(NAME_HEADERS)) {
+      return new FilenameHeadersStrategy();
+    } else {
+      return new FilenameHeadersSubjectStrategy();
     }
   }
 
+  private abstract static class NamingStrategy {
+
+    public String getAttachmentNameOrDefault(String defaultName) {
+      try {
+        String attachmentName = getAttachmentName();
+        return isNotBlank(attachmentName) ? attachmentName : defaultName;
+      } catch (MessagingException e) {
+        throw new EmailException("Error file trying to get the attachment's name", e);
+      }
+    }
+
+    protected abstract String getAttachmentName() throws MessagingException;
+  }
+
+  private class FilenameStrategy extends NamingStrategy {
+
+    @Override
+    public String getAttachmentName() throws MessagingException {
+      return content.getFileName();
+    }
+  }
+
+  private class FilenameHeadersStrategy extends FilenameStrategy {
+
+    @Override
+    public String getAttachmentName() throws MessagingException {
+      String name = super.getAttachmentName();
+
+      return isNotBlank(name) ? name : getNameFromHeaders();
+    }
+
+    private String getNameFromHeaders() throws MessagingException {
+      Enumeration<Header> headers = content.getAllHeaders();
+      while (headers.hasMoreElements()) {
+        Header header = headers.nextElement();
+        Matcher matcher = NAME_HEADER.matcher(header.getName());
+        if (matcher.matches()) {
+          return matcher.group(1);
+        }
+      }
+
+      return EMPTY;
+    }
+  }
+
+  private class FilenameHeadersSubjectStrategy extends FilenameHeadersStrategy {
+
+    @Override
+    public String getAttachmentName() throws MessagingException {
+      String name = super.getAttachmentName();
+
+      return isNotBlank(name) ? name : getNameFromSubject();
+    }
+
+    private String getNameFromSubject() throws MessagingException {
+      if (content instanceof BodyPart) {
+        Object nestedMessage;
+        try {
+          nestedMessage = content.getDataHandler().getContent();
+          if (nestedMessage instanceof MimeMessage) {
+            String subject = ((MimeMessage) nestedMessage).getSubject();
+            if (isNotBlank(subject)) {
+              return subject;
+            }
+          }
+        } catch (IOException e) {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Could not get attachment name from data handler", e);
+          }
+        }
+      }
+
+      return EMPTY;
+    }
+  }
 }
