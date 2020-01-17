@@ -8,7 +8,7 @@ package org.mule.extension.email.internal.util.message;
 
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.DEFAULT;
+import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.email.api.exception.EmailException;
@@ -60,7 +60,7 @@ public class MessageAttachment {
   }
 
   private NamingStrategy getNamingStrategy(AttachmentNamingStrategy attachmentNamingStrategy) {
-    if (attachmentNamingStrategy.equals(DEFAULT)) {
+    if (attachmentNamingStrategy.equals(NAME)) {
       return new FilenameStrategy();
     } else if (attachmentNamingStrategy.equals(NAME_HEADERS)) {
       return new FilenameHeadersStrategy();

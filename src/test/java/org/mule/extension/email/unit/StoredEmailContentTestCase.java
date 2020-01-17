@@ -14,7 +14,7 @@ import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.DEFAULT;
+import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.mule.extension.email.api.metadata.AttachmentNamingStrategy.NAME_HEADERS_SUBJECT;
 import org.mule.extension.email.api.StoredEmailContent;
@@ -40,7 +40,7 @@ public class StoredEmailContentTestCase {
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
-    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, DEFAULT);
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
     TypedValue<InputStream> csv = attachments.get("input.csv");
@@ -80,7 +80,7 @@ public class StoredEmailContentTestCase {
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed;\n"
         + "boundary=\"----=_NextPart_000_0039_01D5B1D7.2E5205B0\"");
-    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, DEFAULT);
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
     TypedValue<InputStream> image = attachments.get("Unnamed_1");
@@ -126,7 +126,7 @@ public class StoredEmailContentTestCase {
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message =
         mockMessage(multipart, "multipart/mixed; boundary=\"_004_FR1PR80MB4581A7AAC99CFF0C630598C192360FR1PR80MB4581lamp_\"");
-    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, DEFAULT);
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
     TypedValue<InputStream> attachedEmail = attachments.get("Unnamed");

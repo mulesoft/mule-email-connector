@@ -16,7 +16,7 @@ public enum AttachmentNamingStrategy {
   /**
    * Look at the actual attachment name only.
    */
-  DEFAULT,
+  NAME,
 
   /**
    * Look at the attachment name, if is is not found, also look at the 'name' header.

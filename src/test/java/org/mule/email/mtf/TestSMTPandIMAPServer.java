@@ -9,7 +9,6 @@ package org.mule.email.mtf;
 import static java.nio.charset.Charset.availableCharsets;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 
 import com.icegreen.greenmail.imap.ImapHostManager;
@@ -24,7 +23,6 @@ import java.security.Security;
 import java.util.List;
 import java.util.Optional;
 
-import javax.mail.Message;
 import javax.mail.internet.MimeMessage;
 
 import com.icegreen.greenmail.store.FolderException;
@@ -32,7 +30,6 @@ import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.DummySSLSocketFactory;
-import org.apache.commons.io.IOUtils;
 
 public class TestSMTPandIMAPServer extends AbstractTestServer {
 

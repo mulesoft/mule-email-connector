@@ -8,7 +8,6 @@ package org.mule.extension.email.internal.mailbox.imap;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
-import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 
 import java.util.function.Predicate;

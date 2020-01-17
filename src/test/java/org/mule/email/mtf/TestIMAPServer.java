@@ -8,7 +8,6 @@ package org.mule.email.mtf;
 
 import static com.icegreen.greenmail.util.ServerSetup.*;
 import static org.mule.extension.email.util.EmailTestUtils.*;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
 import static javax.mail.Flags.Flag.RECENT;
@@ -56,6 +55,16 @@ public class TestIMAPServer extends AbstractTestServer {
     withContextClassLoader(server.getClass().getClassLoader(), () -> {
       try {
         user.deliver(getAlternativeTestMessage());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  public static void sendRFC822TestMessage() {
+    withContextClassLoader(server.getClass().getClassLoader(), () -> {
+      try {
+        user.deliver(getMessageRFC822TestMessage());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
