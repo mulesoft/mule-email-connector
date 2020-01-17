@@ -49,19 +49,6 @@
         <email:list-imap config-ref="imaps-CommonTests-SpecialPassword"/>
     </flow>
 
-    <!-- Retrieve using attachment subject strategy -->
-    <flow name="list-Matcher-imap-attachment-name-from-subject">
-        <email:list-imap config-ref="imap-attachment-name-from-subject">
-            <email:imap-matcher subjectRegex="Email Subject" fromRegex="@mulesoft"/>
-        </email:list-imap>
-    </flow>
-
-    <flow name="list-Matcher-imaps-attachment-name-from-subject">
-        <email:list-imap config-ref="imaps-attachment-name-from-subject">
-            <email:imap-matcher subjectRegex="Email Subject" fromRegex="@mulesoft"/>
-        </email:list-imap>
-    </flow>
-
     <!-- Retrieve with pageSize -->
     <flow name="list-PageSize-imap-CommonTests">
         <email:list-imap config-ref="imap-CommonTests" pageSize="#[3]"/>
@@ -116,15 +103,6 @@
 
     <flow name="list-pop3s-CommonTests">
         <email:list-pop3 config-ref="pop3s-CommonTests"/>
-    </flow>
-
-    <!-- Delete after retrieve flows -->
-    <flow name="list-Delete-pop3-attachment-name-from-subject">
-        <email:list-pop3 config-ref="pop3-attachment-name-from-subject"/>
-    </flow>
-
-    <flow name="list-Delete-pop3s-attachment-name-from-subject">
-        <email:list-pop3 config-ref="pop3s-attachment-name-from-subject"/>
     </flow>
 
     <!-- Delete after retrieve flows -->
