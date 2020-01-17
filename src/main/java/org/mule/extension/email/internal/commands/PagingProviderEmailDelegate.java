@@ -19,6 +19,7 @@ import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
+import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
@@ -65,17 +66,19 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   private final BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback;
   private final Predicate<BaseEmailAttributes> matcher;
   private boolean initialized = false;
+  private MailboxAccessConfigOverrides overrides;
 
   /**
    * @param configuration           The {@link MailboxAccessConfiguration} associated to this operation.
-   * @param folderName              the name of the folder where the emails are stored.
-   * @param matcherBuilder          a {@link Predicate} of {@link BaseEmailAttributes} used to filter the output list
-   * @param pageSize                size of the block that would be retrieved from the email server. This page doesn't represent the page size to
+   * @param folderName              The name of the folder where the emails are stored.
+   * @param matcherBuilder          A {@link Predicate} of {@link BaseEmailAttributes} used to filter the output list
+   * @param pageSize                Size of the block that would be retrieved from the email server. This page doesn't represent the page size to
    *                                be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
    *                                matcher after retrieval to see if they fulfill matcher's condition.
    * @param limit                   The maximum amount of emails that will be retrieved by htis {@link PagingProvider}
-   * @param deleteAfterRetrieve     whether the emails should be deleted after retrieval
-   * @param deleteAfterReadCallback callback for deleting each email
+   * @param deleteAfterRetrieve     Whether the emails should be deleted after retrieval
+   * @param deleteAfterReadCallback Callback for deleting each email
+   * @param overrides               The {@link MailboxAccessConfigOverrides} associated to this operation.
    */
   public PagingProviderEmailDelegate(MailboxAccessConfiguration configuration, String folderName,
                                      BaseEmailPredicateBuilder matcherBuilder,
@@ -83,7 +86,8 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
                                      int limit,
                                      boolean deleteAfterRetrieve,
                                      BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback,
-                                     StreamingHelper streamingHelper) {
+                                     StreamingHelper streamingHelper,
+                                     MailboxAccessConfigOverrides overrides) {
     this.configuration = configuration;
     this.folderName = folderName;
     this.matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
@@ -96,6 +100,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     this.deleteAfterReadCallback = deleteAfterReadCallback;
     this.emailsToBeDeleted = new LinkedList<>();
     this.storedEmailContentFactory = new StoredEmailContentFactory(streamingHelper);
+    this.overrides = overrides;
   }
 
   /**
@@ -117,7 +122,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
         T attributes = configuration.parseAttributesFromMessage(message, folder);
         if (matcher.test(attributes)) {
           if (configuration.isEagerlyFetchContent()) {
-            content = storedEmailContentFactory.fromMessage(message);
+            content = storedEmailContentFactory.fromMessage(message, overrides.getAttachmentNamingStrategy());
             // Attributes are parsed again since they may change after the email has been read.
             attributes = configuration.parseAttributesFromMessage(message, folder);
           }

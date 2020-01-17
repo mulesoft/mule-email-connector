@@ -30,7 +30,6 @@ import java.util.Map;
 
 import javax.mail.Address;
 import javax.mail.Folder;
-import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
@@ -123,7 +122,7 @@ public abstract class BaseEmailAttributes implements Serializable {
   public BaseEmailAttributes(Message msg) {
     try {
       Map<String, String> headers = new HashMap<>();
-      list(msg.getAllHeaders()).forEach(h -> headers.put(((Header) h).getName(), ((Header) h).getValue()));
+      list(msg.getAllHeaders()).forEach(h -> headers.put(h.getName(), h.getValue()));
 
       this.number = msg.getMessageNumber();
       this.subject = msg.getSubject();

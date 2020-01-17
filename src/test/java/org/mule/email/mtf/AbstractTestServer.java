@@ -6,25 +6,12 @@
  */
 package org.mule.email.mtf;
 
-import com.icegreen.greenmail.store.FolderException;
-import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
-
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import java.util.Date;
-import java.util.Map;
 
-import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAPS;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
 import static org.mule.extension.email.util.EmailTestUtils.*;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.testSession;
-import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
 
 public class AbstractTestServer {
 

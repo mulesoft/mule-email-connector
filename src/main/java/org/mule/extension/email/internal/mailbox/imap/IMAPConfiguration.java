@@ -6,10 +6,11 @@
  */
 package org.mule.extension.email.internal.mailbox.imap;
 
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
+import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
-import org.mule.extension.email.internal.mailbox.pop3.POP3PollingSource;
 import org.mule.runtime.extension.api.annotation.Configuration;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.Sources;
@@ -17,6 +18,8 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import com.sun.mail.imap.IMAPFolder;
 
@@ -36,11 +39,29 @@ import javax.mail.Message;
 public class IMAPConfiguration implements MailboxAccessConfiguration {
 
   /**
+   * Indicates how attachment names should be retrieved.
+   */
+  @DisplayName("Attachment Naming Strategy")
+  @Summary("Defines which strategy must be used when searching for the attachment name")
+  @Parameter
+  @Placement(tab = ADVANCED_TAB)
+  @Optional(defaultValue = "DEFAULT")
+  private AttachmentNamingStrategy attachmentNamingStrategy;
+
+  /**
    * Indicates whether the retrieved emails should be opened and read. The default value is "true".
    */
   @Parameter
   @Optional(defaultValue = "true")
   private boolean eagerlyFetchContent;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public AttachmentNamingStrategy getAttachmentNamingStrategy() {
+    return attachmentNamingStrategy;
+  }
 
   /**
    * {@inheritDoc}

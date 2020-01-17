@@ -6,14 +6,20 @@
  */
 package org.mule.extension.email.internal.mailbox.pop3;
 
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
+import org.mule.extension.email.api.metadata.AttachmentNamingStrategy;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.runtime.extension.api.annotation.Configuration;
 import org.mule.runtime.extension.api.annotation.Operations;
 import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import com.sun.mail.pop3.POP3Folder;
 
@@ -31,6 +37,24 @@ import javax.mail.Message;
 @DisplayName("POP3")
 @Sources(POP3PollingSource.class)
 public class POP3Configuration implements MailboxAccessConfiguration {
+
+  /**
+   * Indicates how attachment names should be retrieved.
+   */
+  @DisplayName("Attachment Naming Strategy")
+  @Summary("Defines which strategy must be used when searching for the attachment name")
+  @Parameter
+  @Placement(tab = ADVANCED_TAB)
+  @Optional(defaultValue = "DEFAULT")
+  private AttachmentNamingStrategy attachmentNamingStrategy;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public AttachmentNamingStrategy getAttachmentNamingStrategy() {
+    return attachmentNamingStrategy;
+  }
 
   /**
    * {@inheritDoc}
