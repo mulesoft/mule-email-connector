@@ -116,7 +116,6 @@
         <java:invoke-static class="${serverName}" method="stop()"/>
     </munit:after-suite>
 
-
     <!-- Test messages being polled and assert its content -->
     <munit:test name="check-messages-content">
 
@@ -184,13 +183,14 @@
         </munit:behavior>
 
         <munit:execution>
-            <until-successful maxRetries="100" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="2" max="2"/>
             </until-successful>
         </munit:execution>
 
         <munit:validation>
+            <munit-tools:retrieve key="messages"/>
             <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(2)]"/>
             <foreach>
                 <munit-tools:assert-equals actual="#[attributes.subject]" expected="#['Find me matcher']"/>
@@ -211,7 +211,7 @@
 
     <flow name="trigger-with-matcher-pop3" maxConcurrency="1">
 
-        <email:listener-pop3 config-ref="${config}">
+        <email:listener-pop3 config-ref="${config}" deleteAfterRetrieve="true">
             <scheduling-strategy>
                 <fixed-frequency/>
             </scheduling-strategy>
@@ -229,7 +229,7 @@
         </munit:enable-flow-sources>
 
         <munit:execution>
-            <until-successful maxRetries="100" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
@@ -256,7 +256,7 @@
         </munit:behavior>
 
         <munit:validation>
-            <until-successful maxRetries="100" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="attachments"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
