@@ -11,7 +11,8 @@ import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
 import static javax.mail.Folder.READ_WRITE;
-import org.mule.extension.email.internal.resolver.ArrayStoredEmailContentTypeResolver;
+import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
@@ -37,6 +38,7 @@ import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.annotation.values.OfValues;
@@ -83,13 +85,15 @@ public class IMAPOperations {
                                                                                                          defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
                                                                                                      @Optional(
                                                                                                          defaultValue = UNLIMITED) int limit,
-                                                                                                     StreamingHelper streamingHelper) {
+                                                                                                     StreamingHelper streamingHelper,
+                                                                                                     @ParameterGroup(
+                                                                                                         name = CONFIG_OVERRIDES_PARAM_GROUP) MailboxAccessConfigOverrides overrides) {
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
     return new PagingProviderEmailDelegate<>(config, mailboxFolder, imapMatcher, pageSize, limit, deleteAfterRetrieve,
                                              (connection, attributes) -> setFlagCommand.setByUID(connection, mailboxFolder,
                                                                                                  DELETED,
                                                                                                  parseLong(attributes.getId())),
-                                             streamingHelper);
+                                             streamingHelper, overrides);
   }
 
   /**

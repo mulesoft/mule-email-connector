@@ -93,6 +93,11 @@ public final class EmailConnectorConstants {
   public static final String CONTENT_TRANSFER_ENCODING_DISPLAY_NAME = "Content Transfer Encoding";
 
   /**
+   * Connector overrides parameter group name
+   */
+  public static final String CONFIG_OVERRIDES_PARAM_GROUP = "Configuration Overrides";
+
+  /**
    * Hide constructor
    */
   private EmailConnectorConstants() {}

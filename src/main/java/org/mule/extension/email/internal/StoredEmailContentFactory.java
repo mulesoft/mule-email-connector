@@ -14,6 +14,7 @@ import static org.mule.runtime.api.metadata.DataType.builder;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
 import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.extension.email.internal.util.message.EmailMessage;
@@ -64,7 +65,7 @@ public class StoredEmailContentFactory {
    *
    * @param message the {@link Message} to be processed.
    */
-  public StoredEmailContent fromMessage(Message message) {
+  public StoredEmailContent fromMessage(Message message, AttachmentNamingStrategy attachmentNamingStrategy) {
     String defaultName = DEFAULT_NAME;
     int i = 0;
     EmailMessage email = new EmailMessage(message);
@@ -76,7 +77,7 @@ public class StoredEmailContentFactory {
         defaultName = DEFAULT_NAME + "_" + ++i;
       }
       TypedValue<InputStream> content = resolveAttachment(attachment.getContent(), streamingHelper);
-      String attachmentName = attachment.getAttachmentName(defaultName);
+      String attachmentName = attachment.getAttachmentName(defaultName, attachmentNamingStrategy);
       namedAttachments.put(attachmentName, content);
 
       Optional<String> contentId = extractContentID(attachment);

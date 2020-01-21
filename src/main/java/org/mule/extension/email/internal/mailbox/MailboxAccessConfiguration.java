@@ -7,6 +7,7 @@
 package org.mule.extension.email.internal.mailbox;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
+import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -17,6 +18,11 @@ import javax.mail.Message;
  * @since 1.0
  */
 public interface MailboxAccessConfiguration {
+
+  /**
+   * @return An { @link AttachmentNaming } that indicates how attachment names should be retrieved.
+   */
+  AttachmentNamingStrategy getAttachmentNamingStrategy();
 
   /**
    * @return a boolean value that indicates whether the retrieved emails should be opened and read or not.
