@@ -252,4 +252,5 @@
             <flow-ref name="list-IncorrectPort-${retriever-config}"/>
         </munit:validation>
     </munit:test>
+
 </mule>
