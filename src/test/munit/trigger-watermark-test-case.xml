@@ -90,7 +90,7 @@
 
         <munit:execution>
             <try>
-                <until-successful maxRetries="100" millisBetweenRetries="500">
+                <until-successful maxRetries="20" millisBetweenRetries="500">
                     <munit-tools:retrieve key="messages"/>
                     <validation:validate-size value="#[payload]" min="11"/>
                 </until-successful>
@@ -133,7 +133,7 @@
 
         <munit:execution>
             <try>
-                <until-successful maxRetries="100" millisBetweenRetries="500">
+                <until-successful maxRetries="20" millisBetweenRetries="500">
                     <munit-tools:retrieve key="messages"/>
                     <validation:validate-size value="#[payload]" min="10" max="10"/>
                 </until-successful>
@@ -149,7 +149,7 @@
                     </java:invoke-static>
                 </foreach>
 
-                <until-successful maxRetries="100" millisBetweenRetries="500">
+                <until-successful maxRetries="20" millisBetweenRetries="500">
                     <munit-tools:retrieve key="messages"/>
 
                     <validation:validate-size value="#[payload]" max="1"/>
