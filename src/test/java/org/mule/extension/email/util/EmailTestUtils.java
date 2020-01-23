@@ -176,6 +176,58 @@ public class EmailTestUtils {
     return message;
   }
 
+  public static MimeMessage getMixedTestMessageWithRepeatedAttachmentNames() throws MessagingException {
+    MimeBodyPart body = new MimeBodyPart();
+    body.setContent(EMAIL_CONTENT, TEXT.toString());
+
+    MimeBodyPart textAttachment = new MimeBodyPart();
+    textAttachment.setDisposition(ATTACHMENT);
+    textAttachment.setFileName(EMAIL_JSON_ATTACHMENT_NAME);
+    textAttachment.setContent(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, TEXT.toString());
+
+    MimeBodyPart jsonAttachment = new MimeBodyPart();
+    URL resource = currentThread().getContextClassLoader().getResource(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setFileName(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setDataHandler(new DataHandler(resource));
+
+    Multipart multipart = new MimeMultipart("mixed");
+    multipart.addBodyPart(body);
+    multipart.addBodyPart(textAttachment);
+    multipart.addBodyPart(jsonAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(multipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    message.saveChanges();
+    return message;
+  }
+
+  public static MimeMessage getMixedTestMessageWithUnnamedAttachments() throws MessagingException {
+    MimeBodyPart body = new MimeBodyPart();
+    body.setContent(EMAIL_CONTENT, TEXT.toString());
+
+    MimeBodyPart textAttachment = new MimeBodyPart();
+    textAttachment.setDisposition(ATTACHMENT);
+    textAttachment.setContent(EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT, TEXT.toString());
+
+    MimeBodyPart jsonAttachment = new MimeBodyPart();
+    URL resource = currentThread().getContextClassLoader().getResource(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setDataHandler(new DataHandler(resource));
+
+    Multipart multipart = new MimeMultipart("mixed");
+    multipart.addBodyPart(body);
+    multipart.addBodyPart(textAttachment);
+    multipart.addBodyPart(jsonAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(multipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    message.saveChanges();
+    return message;
+  }
+
   public static MimeMessage getMixedAlternativeTestMessage() throws MessagingException {
     MimeMultipart mixedMultipart = new MimeMultipart("mixed");
 

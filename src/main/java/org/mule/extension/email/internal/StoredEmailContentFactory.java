@@ -26,9 +26,13 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.mail.Header;
 import javax.mail.Message;
@@ -67,17 +71,21 @@ public class StoredEmailContentFactory {
    */
   public StoredEmailContent fromMessage(Message message, AttachmentNamingStrategy attachmentNamingStrategy) {
     String defaultName = DEFAULT_NAME;
-    int i = 0;
     EmailMessage email = new EmailMessage(message);
     String text = email.getText().trim();
 
     LinkedHashMap<String, TypedValue<InputStream>> namedAttachments = new LinkedHashMap<>();
-    for (MessageAttachment attachment : email.getAttachments()) {
+    ArrayList<MessageAttachment> attachments = email.getAttachments();
+    Collections.reverse(attachments);
+    for (MessageAttachment attachment : attachments) {
       if (namedAttachments.containsKey(defaultName)) {
-        defaultName = DEFAULT_NAME + "_" + ++i;
+        defaultName = resolveUniqueFileName(namedAttachments.keySet(), defaultName, 0);
       }
       TypedValue<InputStream> content = resolveAttachment(attachment.getContent(), streamingHelper);
       String attachmentName = attachment.getAttachmentName(defaultName, attachmentNamingStrategy);
+      if (namedAttachments.containsKey(attachmentName)) {
+        attachmentName = resolveUniqueFileName(namedAttachments.keySet(), attachmentName, 0);
+      }
       namedAttachments.put(attachmentName, content);
 
       Optional<String> contentId = extractContentID(attachment);
@@ -133,5 +141,21 @@ public class StoredEmailContentFactory {
       LOGGER.error("Could not obtain the message content type", e);
       return MediaType.TEXT;
     }
+  }
+
+  private String resolveUniqueFileName(Set<String> keys, String fileName, Integer lastSuffixTried) {
+    String extension = "";
+    String baseName = fileName;
+    int lastIndexOf = fileName.lastIndexOf('.');
+    if (lastIndexOf != -1) {
+      extension = fileName.substring(fileName.lastIndexOf('.'));
+      baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+    }
+
+    String candidateFileName = baseName + "_" + ++lastSuffixTried + extension;
+    if (keys.contains(candidateFileName)) {
+      return resolveUniqueFileName(keys, fileName, lastSuffixTried);
+    }
+    return candidateFileName;
   }
 }

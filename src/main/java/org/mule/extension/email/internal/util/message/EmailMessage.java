@@ -28,7 +28,7 @@ public class EmailMessage {
 
   private MessageBody body;
 
-  private Collection<MessageAttachment> attachments = new ArrayList<>();
+  private ArrayList<MessageAttachment> attachments = new ArrayList<>();
 
   public EmailMessage(Part message) {
     try {
@@ -47,7 +47,7 @@ public class EmailMessage {
     return body.getText();
   }
 
-  public Collection<MessageAttachment> getAttachments() {
+  public ArrayList<MessageAttachment> getAttachments() {
     return attachments;
   }
 
