@@ -83,7 +83,7 @@ public class StoredEmailContentTestCase {
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
-    TypedValue<InputStream> image = attachments.get("Unnamed_1");
+    TypedValue<InputStream> image = attachments.get("Unnamed");
     assertThat(image.getDataType().getMediaType().toString(), is("image/jpeg"));
     assertThat(image.getValue(), not(nullValue()));
   }

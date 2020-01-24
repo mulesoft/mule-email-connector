@@ -13,8 +13,8 @@ import static java.util.Optional.of;
 import static org.mule.runtime.api.metadata.DataType.builder;
 
 import org.mule.extension.email.api.StoredEmailContent;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
+import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
 import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.extension.email.internal.util.message.EmailMessage;
@@ -27,7 +27,6 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
