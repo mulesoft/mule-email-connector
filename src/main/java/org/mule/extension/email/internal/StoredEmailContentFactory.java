@@ -72,6 +72,7 @@ public class StoredEmailContentFactory {
   public StoredEmailContent fromMessage(Message message, AttachmentNamingStrategy attachmentNamingStrategy) {
     EmailMessage email = new EmailMessage(message);
     String text = email.getText().trim();
+    StringBuilder textBuilder = new StringBuilder(text);
 
     LinkedHashMap<String, TypedValue<InputStream>> processedAttachments = new LinkedHashMap<>();
     LinkedList<MessageAttachment> unnamedAttachments = new LinkedList<>();
@@ -81,34 +82,41 @@ public class StoredEmailContentFactory {
     for (MessageAttachment attachment : unprocessedAttachments) {
       Optional<String> attachmentName = attachment.getAttachmentName(attachmentNamingStrategy);
       if (attachmentName.isPresent()) {
-        text = addNamedAttachment(processedAttachments, attachment, attachmentName.get(), text);
+        addNamedAttachment(processedAttachments, attachment, attachmentName.get(), textBuilder);
       } else {
         unnamedAttachments.add(attachment);
       }
     }
-    text = processUnnamedAttachments(processedAttachments, unnamedAttachments, text);
+    processUnnamedAttachments(processedAttachments, unnamedAttachments, textBuilder);
     DataType dataType = builder().type(String.class).mediaType(getMediaType(message)).build();
-    return new DefaultStoredEmailContent(new TypedValue<>(text, dataType), processedAttachments);
+    return new DefaultStoredEmailContent(new TypedValue<>(textBuilder.toString(), dataType), processedAttachments);
   }
 
-  private String processUnnamedAttachments(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
-                                           LinkedList<MessageAttachment> unnamedAttachments, String text) {
+  private void processUnnamedAttachments(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
+                                         LinkedList<MessageAttachment> unnamedAttachments, StringBuilder textBuilder) {
     Collections.reverse(unnamedAttachments); // This is done to avoid breaking backwards ordering of unnamed emails.
     for (MessageAttachment attachment : unnamedAttachments) {
-      text = addNamedAttachment(processedAttachments, attachment, DEFAULT_NAME, text);
+      addNamedAttachment(processedAttachments, attachment, DEFAULT_NAME, textBuilder);
     }
-    return text;
   }
 
-  private String addNamedAttachment(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
-                                    MessageAttachment attachment, String proposedName, String text) {
+  private void addNamedAttachment(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
+                                  MessageAttachment attachment, String proposedName, StringBuilder textBuilder) {
     TypedValue<InputStream> content = resolveContent(attachment.getContent(), streamingHelper);
     String name = getUniqueFileName(processedAttachments.keySet(), proposedName);
     processedAttachments.put(name, content);
     Optional<String> contentId = extractContentID(attachment);
-    return contentId.map(s -> text.replace(format(CID_MASK, s), format(CID_MASK, name))).orElse(text);
+    contentId.ifPresent(s -> replaceAll(textBuilder, format(CID_MASK, s), format(CID_MASK, name)));
   }
 
+  private void replaceAll(StringBuilder builder, String from, String to) {
+    int index = builder.indexOf(from);
+    while (index != -1) {
+      builder.replace(index, index + from.length(), to);
+      index += to.length(); // Move to the end of the replacement
+      index = builder.indexOf(from, index);
+    }
+  }
 
   private Optional<String> extractContentID(MessageAttachment attachment) {
     try {
