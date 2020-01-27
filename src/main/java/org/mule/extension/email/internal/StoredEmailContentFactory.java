@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Optional;
 import java.util.Set;
 
@@ -69,33 +70,45 @@ public class StoredEmailContentFactory {
    * @param message the {@link Message} to be processed.
    */
   public StoredEmailContent fromMessage(Message message, AttachmentNamingStrategy attachmentNamingStrategy) {
-    String defaultName = DEFAULT_NAME;
     EmailMessage email = new EmailMessage(message);
     String text = email.getText().trim();
 
-    LinkedHashMap<String, TypedValue<InputStream>> namedAttachments = new LinkedHashMap<>();
-    ArrayList<MessageAttachment> attachments = email.getAttachments();
-    Collections.reverse(attachments);
-    for (MessageAttachment attachment : attachments) {
-      if (namedAttachments.containsKey(defaultName)) {
-        defaultName = resolveUniqueFileName(namedAttachments.keySet(), defaultName, 0);
-      }
-      TypedValue<InputStream> content = resolveAttachment(attachment.getContent(), streamingHelper);
-      String attachmentName = attachment.getAttachmentName(defaultName, attachmentNamingStrategy);
-      if (namedAttachments.containsKey(attachmentName)) {
-        attachmentName = resolveUniqueFileName(namedAttachments.keySet(), attachmentName, 0);
-      }
-      namedAttachments.put(attachmentName, content);
+    LinkedHashMap<String, TypedValue<InputStream>> processedAttachments = new LinkedHashMap<>();
+    LinkedList<MessageAttachment> unnamedAttachments = new LinkedList<>();
 
-      Optional<String> contentId = extractContentID(attachment);
-      if (contentId.isPresent()) {
-        text = text.replace(format(CID_MASK, contentId.get()), format(CID_MASK, attachmentName));
+    ArrayList<MessageAttachment> unprocessedAttachments = email.getAttachments();
+    Collections.reverse(unprocessedAttachments); // This is done to avoid breaking backwards compatibility for emails with the same name.
+    for (MessageAttachment attachment : unprocessedAttachments) {
+      Optional<String> attachmentName = attachment.getAttachmentName(attachmentNamingStrategy);
+      if (attachmentName.isPresent()) {
+        text = addNamedAttachment(processedAttachments, attachment, attachmentName.get(), text);
+      } else {
+        unnamedAttachments.add(attachment);
       }
     }
-
+    text = processUnnamedAttachments(processedAttachments, unnamedAttachments, text);
     DataType dataType = builder().type(String.class).mediaType(getMediaType(message)).build();
-    return new DefaultStoredEmailContent(new TypedValue<>(text, dataType), namedAttachments);
+    return new DefaultStoredEmailContent(new TypedValue<>(text, dataType), processedAttachments);
   }
+
+  private String processUnnamedAttachments(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
+                                           LinkedList<MessageAttachment> unnamedAttachments, String text) {
+    Collections.reverse(unnamedAttachments); // This is done to avoid breaking backwards ordering of unnamed emails.
+    for (MessageAttachment attachment : unnamedAttachments) {
+      text = addNamedAttachment(processedAttachments, attachment, DEFAULT_NAME, text);
+    }
+    return text;
+  }
+
+  private String addNamedAttachment(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
+                                    MessageAttachment attachment, String proposedName, String text) {
+    TypedValue<InputStream> content = resolveContent(attachment.getContent(), streamingHelper);
+    String name = getUniqueFileName(processedAttachments.keySet(), proposedName);
+    processedAttachments.put(name, content);
+    Optional<String> contentId = extractContentID(attachment);
+    return contentId.map(s -> text.replace(format(CID_MASK, s), format(CID_MASK, name))).orElse(text);
+  }
+
 
   private Optional<String> extractContentID(MessageAttachment attachment) {
     try {
@@ -117,7 +130,7 @@ public class StoredEmailContentFactory {
    * @param streamingHelper helps resolve the content for attachments.
    * @return the attachment's content as a {@link TypedValue}.
    */
-  private TypedValue<InputStream> resolveAttachment(Part part, StreamingHelper streamingHelper) {
+  private TypedValue<InputStream> resolveContent(Part part, StreamingHelper streamingHelper) {
     try {
       InputStream partContent = contentResolver.resolveInputStream(part);
       Object content = streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
@@ -140,6 +153,13 @@ public class StoredEmailContentFactory {
       LOGGER.error("Could not obtain the message content type", e);
       return MediaType.TEXT;
     }
+  }
+
+  private String getUniqueFileName(Set<String> keys, String fileName) {
+    if (keys.contains(fileName)) {
+      return resolveUniqueFileName(keys, fileName, 0);
+    }
+    return fileName;
   }
 
   private String resolveUniqueFileName(Set<String> keys, String fileName, Integer lastSuffixTried) {

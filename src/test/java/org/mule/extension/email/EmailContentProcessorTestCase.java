@@ -155,8 +155,8 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     javax.mail.Message message = getMixedTestMessageWithUnnamedAttachments();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
-    assertAttachmentContent(attachments, DEFAULT_NAME + "_1", EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
-    assertAttachmentContent(attachments, DEFAULT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+    assertAttachmentContent(attachments, DEFAULT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
+    assertAttachmentContent(attachments, DEFAULT_NAME + "_1", EMAIL_JSON_ATTACHMENT_CONTENT);
   }
 
   @Test
