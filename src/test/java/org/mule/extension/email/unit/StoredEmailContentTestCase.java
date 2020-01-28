@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS_SUBJECT;
+
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -49,14 +50,14 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void inputStreamContent_HeadersStrategy() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart");
+    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_no_filename");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
-    TypedValue<InputStream> csv = attachments.get("input.csv");
+    TypedValue<InputStream> csv = attachments.get("anotherName.csv");
     assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
   }
 

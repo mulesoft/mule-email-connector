@@ -6,8 +6,8 @@
  */
 package org.mule.extension.email.internal.util.message;
 
-import static java.util.Optional.*;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
