@@ -55,7 +55,7 @@ public class MessageAttachment {
 
   /**
    * @param attachmentNamingStrategy  The strategy that must be used when searching for the attachment name.
-   * @return the attachment's name. If it has no name, it will return the given {@code defaultName}.
+   * @return an Optional with the attachment's name, or empty if it no name was found.
    */
   public Optional<String> getAttachmentName(AttachmentNamingStrategy attachmentNamingStrategy) {
     return getNamingStrategy(attachmentNamingStrategy)

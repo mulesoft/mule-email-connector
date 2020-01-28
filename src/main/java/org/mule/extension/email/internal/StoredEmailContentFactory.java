@@ -26,11 +26,11 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -77,8 +77,8 @@ public class StoredEmailContentFactory {
     LinkedHashMap<String, TypedValue<InputStream>> processedAttachments = new LinkedHashMap<>();
     LinkedList<MessageAttachment> unnamedAttachments = new LinkedList<>();
 
-    ArrayList<MessageAttachment> unprocessedAttachments = email.getAttachments();
-    Collections.reverse(unprocessedAttachments); // This is done to avoid breaking backwards compatibility for emails with the same name.
+    List<MessageAttachment> unprocessedAttachments = email.getAttachments();
+    Collections.reverse(unprocessedAttachments); // This is done to avoid breaking backwards compatibility for attachments with the same name.
     for (MessageAttachment attachment : unprocessedAttachments) {
       Optional<String> attachmentName = attachment.getAttachmentName(attachmentNamingStrategy);
       if (attachmentName.isPresent()) {
@@ -103,7 +103,7 @@ public class StoredEmailContentFactory {
   private void addNamedAttachment(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
                                   MessageAttachment attachment, String proposedName, StringBuilder textBuilder) {
     TypedValue<InputStream> content = resolveContent(attachment.getContent(), streamingHelper);
-    String name = getUniqueFileName(processedAttachments.keySet(), proposedName);
+    String name = getUniqueAttachmentName(processedAttachments.keySet(), proposedName);
     processedAttachments.put(name, content);
     Optional<String> contentId = extractContentID(attachment);
     contentId.ifPresent(s -> replaceAll(textBuilder, format(CID_MASK, s), format(CID_MASK, name)));
@@ -163,26 +163,25 @@ public class StoredEmailContentFactory {
     }
   }
 
-  private String getUniqueFileName(Set<String> keys, String fileName) {
-    if (keys.contains(fileName)) {
-      return resolveUniqueFileName(keys, fileName, 0);
+  private String getUniqueAttachmentName(Set<String> keys, String attachmentName) {
+    if (keys.contains(attachmentName)) {
+      String extension = "";
+      String baseName = attachmentName;
+      int extensionDotIndex = attachmentName.lastIndexOf('.');
+      if (extensionDotIndex != -1) {
+        extension = attachmentName.substring(extensionDotIndex);
+        baseName = attachmentName.substring(0, extensionDotIndex);
+      }
+      return resolveUniqueBaseName(keys, baseName, 0) + extension;
     }
-    return fileName;
+    return attachmentName;
   }
 
-  private String resolveUniqueFileName(Set<String> keys, String fileName, Integer lastSuffixTried) {
-    String extension = "";
-    String baseName = fileName;
-    int lastIndexOf = fileName.lastIndexOf('.');
-    if (lastIndexOf != -1) {
-      extension = fileName.substring(fileName.lastIndexOf('.'));
-      baseName = fileName.substring(0, fileName.lastIndexOf('.'));
+  private String resolveUniqueBaseName(Set<String> keys, String baseName, Integer lastSuffixTried) {
+    String candidateBaseName = baseName + "_" + ++lastSuffixTried;
+    if (keys.contains(candidateBaseName)) {
+      return resolveUniqueBaseName(keys, baseName, lastSuffixTried);
     }
-
-    String candidateFileName = baseName + "_" + ++lastSuffixTried + extension;
-    if (keys.contains(candidateFileName)) {
-      return resolveUniqueFileName(keys, fileName, lastSuffixTried);
-    }
-    return candidateFileName;
+    return candidateBaseName;
   }
 }
