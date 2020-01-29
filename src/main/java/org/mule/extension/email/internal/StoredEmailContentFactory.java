@@ -13,8 +13,8 @@ import static java.util.Optional.of;
 import static org.mule.runtime.api.metadata.DataType.builder;
 
 import org.mule.extension.email.api.StoredEmailContent;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
+import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;
 import org.mule.extension.email.internal.util.MailPartContentResolver;
 import org.mule.extension.email.internal.util.message.EmailMessage;
@@ -26,9 +26,13 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.mail.Header;
 import javax.mail.Message;
@@ -66,28 +70,52 @@ public class StoredEmailContentFactory {
    * @param message the {@link Message} to be processed.
    */
   public StoredEmailContent fromMessage(Message message, AttachmentNamingStrategy attachmentNamingStrategy) {
-    String defaultName = DEFAULT_NAME;
-    int i = 0;
     EmailMessage email = new EmailMessage(message);
     String text = email.getText().trim();
+    StringBuilder textBuilder = new StringBuilder(text);
 
-    LinkedHashMap<String, TypedValue<InputStream>> namedAttachments = new LinkedHashMap<>();
-    for (MessageAttachment attachment : email.getAttachments()) {
-      if (namedAttachments.containsKey(defaultName)) {
-        defaultName = DEFAULT_NAME + "_" + ++i;
-      }
-      TypedValue<InputStream> content = resolveAttachment(attachment.getContent(), streamingHelper);
-      String attachmentName = attachment.getAttachmentName(defaultName, attachmentNamingStrategy);
-      namedAttachments.put(attachmentName, content);
+    LinkedHashMap<String, TypedValue<InputStream>> processedAttachments = new LinkedHashMap<>();
+    LinkedList<MessageAttachment> unnamedAttachments = new LinkedList<>();
 
-      Optional<String> contentId = extractContentID(attachment);
-      if (contentId.isPresent()) {
-        text = text.replace(format(CID_MASK, contentId.get()), format(CID_MASK, attachmentName));
+    List<MessageAttachment> unprocessedAttachments = email.getAttachments();
+    Collections.reverse(unprocessedAttachments); // This is done to avoid breaking backwards compatibility for attachments with the same name.
+    for (MessageAttachment attachment : unprocessedAttachments) {
+      Optional<String> attachmentName = attachment.getAttachmentName(attachmentNamingStrategy);
+      if (attachmentName.isPresent()) {
+        addNamedAttachment(processedAttachments, attachment, attachmentName.get(), textBuilder);
+      } else {
+        unnamedAttachments.add(attachment);
       }
     }
-
+    processUnnamedAttachments(processedAttachments, unnamedAttachments, textBuilder);
     DataType dataType = builder().type(String.class).mediaType(getMediaType(message)).build();
-    return new DefaultStoredEmailContent(new TypedValue<>(text, dataType), namedAttachments);
+    return new DefaultStoredEmailContent(new TypedValue<>(textBuilder.toString(), dataType), processedAttachments);
+  }
+
+  private void processUnnamedAttachments(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
+                                         LinkedList<MessageAttachment> unnamedAttachments, StringBuilder textBuilder) {
+    Collections.reverse(unnamedAttachments); // This is done to avoid breaking backwards ordering of unnamed emails.
+    for (MessageAttachment attachment : unnamedAttachments) {
+      addNamedAttachment(processedAttachments, attachment, DEFAULT_NAME, textBuilder);
+    }
+  }
+
+  private void addNamedAttachment(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
+                                  MessageAttachment attachment, String proposedName, StringBuilder textBuilder) {
+    TypedValue<InputStream> content = resolveContent(attachment.getContent(), streamingHelper);
+    String name = getUniqueAttachmentName(processedAttachments.keySet(), proposedName, content.getDataType());
+    processedAttachments.put(name, content);
+    Optional<String> contentId = extractContentID(attachment);
+    contentId.ifPresent(s -> replaceAll(textBuilder, format(CID_MASK, s), format(CID_MASK, name)));
+  }
+
+  private void replaceAll(StringBuilder builder, String from, String to) {
+    int index = builder.indexOf(from);
+    while (index != -1) {
+      builder.replace(index, index + from.length(), to);
+      index += to.length(); // Move to the end of the replacement
+      index = builder.indexOf(from, index);
+    }
   }
 
   private Optional<String> extractContentID(MessageAttachment attachment) {
@@ -110,7 +138,7 @@ public class StoredEmailContentFactory {
    * @param streamingHelper helps resolve the content for attachments.
    * @return the attachment's content as a {@link TypedValue}.
    */
-  private TypedValue<InputStream> resolveAttachment(Part part, StreamingHelper streamingHelper) {
+  private TypedValue<InputStream> resolveContent(Part part, StreamingHelper streamingHelper) {
     try {
       InputStream partContent = contentResolver.resolveInputStream(part);
       Object content = streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
@@ -133,5 +161,29 @@ public class StoredEmailContentFactory {
       LOGGER.error("Could not obtain the message content type", e);
       return MediaType.TEXT;
     }
+  }
+
+  private String getUniqueAttachmentName(Set<String> keys, String attachmentName, DataType dataType) {
+    if (keys.contains(attachmentName)) {
+      String extension = "";
+      String baseName = attachmentName;
+      if (!dataType.getMediaType().toRfcString().contains("message/rfc822")) {
+        int extensionDotIndex = attachmentName.lastIndexOf('.');
+        if (extensionDotIndex != -1) {
+          extension = attachmentName.substring(extensionDotIndex);
+          baseName = attachmentName.substring(0, extensionDotIndex);
+        }
+      }
+      return resolveUniqueBaseName(keys, baseName, 0) + extension;
+    }
+    return attachmentName;
+  }
+
+  private String resolveUniqueBaseName(Set<String> keys, String baseName, Integer lastSuffixTried) {
+    String candidateBaseName = baseName + "_" + ++lastSuffixTried;
+    if (keys.contains(candidateBaseName)) {
+      return resolveUniqueBaseName(keys, baseName, lastSuffixTried);
+    }
+    return candidateBaseName;
   }
 }

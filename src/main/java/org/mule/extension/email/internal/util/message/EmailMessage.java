@@ -7,13 +7,13 @@
 package org.mule.extension.email.internal.util.message;
 
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
-import static org.mule.extension.email.internal.util.EmailUtils.hasBodyAndAttachments;
 import static org.mule.extension.email.internal.util.EmailUtils.hasAlternativeBodies;
+import static org.mule.extension.email.internal.util.EmailUtils.hasBodyAndAttachments;
 
 import org.mule.extension.email.api.exception.EmailException;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
@@ -28,7 +28,7 @@ public class EmailMessage {
 
   private MessageBody body;
 
-  private Collection<MessageAttachment> attachments = new ArrayList<>();
+  private List<MessageAttachment> attachments = new ArrayList<>();
 
   public EmailMessage(Part message) {
     try {
@@ -47,7 +47,7 @@ public class EmailMessage {
     return body.getText();
   }
 
-  public Collection<MessageAttachment> getAttachments() {
+  public List<MessageAttachment> getAttachments() {
     return attachments;
   }
 
