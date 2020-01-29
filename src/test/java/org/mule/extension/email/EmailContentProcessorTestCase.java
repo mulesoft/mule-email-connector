@@ -28,6 +28,7 @@ import static org.mule.extension.email.util.EmailTestUtils.getAlternativeRelated
 import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getBadBodyEmail;
 import static org.mule.extension.email.util.EmailTestUtils.getMessageRFC822TestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMessageRFC822TestMessageWithRepeatedSubjects;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeRelatedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedRelatedAlternativeTestMessage;
@@ -219,6 +220,23 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     }
     assertTrue(attachmentContent.toString().contains(EMAIL_HTML_CONTENT));
     assertTrue(attachmentContent.toString().contains("Subject: " + EMAIL_SUBJECT));
+  }
+
+  @Test
+  public void attachmentFromMixedMessageRFC822WithRepeatedSubjects() throws Exception {
+    javax.mail.Message message = getMessageRFC822TestMessageWithRepeatedSubjects();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME_HEADERS_SUBJECT).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(2));
+    Object attachmentContent = attachments.get(EMAIL_SUBJECT + ".Not an extension_1").getValue();
+    if (attachmentContent instanceof CursorProvider) {
+      attachmentContent = ((CursorProvider) attachmentContent).openCursor();
+    }
+    assertTrue(attachmentContent.toString().contains(EMAIL_HTML_CONTENT));
+    attachmentContent = attachments.get(EMAIL_SUBJECT + ".Not an extension").getValue();
+    if (attachmentContent instanceof CursorProvider) {
+      attachmentContent = ((CursorProvider) attachmentContent).openCursor();
+    }
+    assertTrue(attachmentContent.toString().contains(EMAIL_CONTENT));
   }
 
   @Test

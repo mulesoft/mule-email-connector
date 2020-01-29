@@ -372,6 +372,41 @@ public class EmailTestUtils {
     return message;
   }
 
+  public static MimeMessage getMessageRFC822TestMessageWithRepeatedSubjects() throws MessagingException {
+    MimeMessage messageAsAttachment = new MimeMessage(testSession);
+    messageAsAttachment.setContent(EMAIL_HTML_CONTENT, "text/html");
+    messageAsAttachment.setSubject(EMAIL_SUBJECT + ".Not an extension");
+    messageAsAttachment.setRecipient(TO, new InternetAddress(MG_EMAIL));
+    messageAsAttachment.saveChanges();
+
+    MimeBodyPart emailAttachment = new MimeBodyPart();
+    emailAttachment.setContent(messageAsAttachment, "message/rfc822");
+
+    MimeMessage anotherMessageAsAttachment = new MimeMessage(testSession);
+    anotherMessageAsAttachment.setContent(EMAIL_CONTENT, "text/plain");
+    anotherMessageAsAttachment.setSubject(EMAIL_SUBJECT + ".Not an extension");
+    anotherMessageAsAttachment.setRecipient(TO, new InternetAddress(JUANI_EMAIL));
+    anotherMessageAsAttachment.saveChanges();
+
+    MimeBodyPart anotherEmailAttachment = new MimeBodyPart();
+    anotherEmailAttachment.setContent(anotherMessageAsAttachment, "message/rfc822");
+
+    MimeBodyPart body = new MimeBodyPart();
+    body.setContent(EMAIL_CONTENT, TEXT.toString());
+
+    Multipart multipart = new MimeMultipart("mixed");
+    multipart.addBodyPart(body);
+    multipart.addBodyPart(emailAttachment);
+    multipart.addBodyPart(anotherEmailAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(multipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    message.saveChanges();
+    return message;
+  }
+
   public static MimeMessage getMixedRelatedAlternativeTestMessage() throws MessagingException {
     MimeMultipart mixedMultipart = new MimeMultipart("mixed");
 

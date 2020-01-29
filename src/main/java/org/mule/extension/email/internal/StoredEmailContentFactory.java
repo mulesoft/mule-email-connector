@@ -103,7 +103,7 @@ public class StoredEmailContentFactory {
   private void addNamedAttachment(LinkedHashMap<String, TypedValue<InputStream>> processedAttachments,
                                   MessageAttachment attachment, String proposedName, StringBuilder textBuilder) {
     TypedValue<InputStream> content = resolveContent(attachment.getContent(), streamingHelper);
-    String name = getUniqueAttachmentName(processedAttachments.keySet(), proposedName);
+    String name = getUniqueAttachmentName(processedAttachments.keySet(), proposedName, content.getDataType());
     processedAttachments.put(name, content);
     Optional<String> contentId = extractContentID(attachment);
     contentId.ifPresent(s -> replaceAll(textBuilder, format(CID_MASK, s), format(CID_MASK, name)));
@@ -163,14 +163,16 @@ public class StoredEmailContentFactory {
     }
   }
 
-  private String getUniqueAttachmentName(Set<String> keys, String attachmentName) {
+  private String getUniqueAttachmentName(Set<String> keys, String attachmentName, DataType dataType) {
     if (keys.contains(attachmentName)) {
       String extension = "";
       String baseName = attachmentName;
-      int extensionDotIndex = attachmentName.lastIndexOf('.');
-      if (extensionDotIndex != -1) {
-        extension = attachmentName.substring(extensionDotIndex);
-        baseName = attachmentName.substring(0, extensionDotIndex);
+      if (!dataType.getMediaType().toRfcString().contains("message/rfc822")) {
+        int extensionDotIndex = attachmentName.lastIndexOf('.');
+        if (extensionDotIndex != -1) {
+          extension = attachmentName.substring(extensionDotIndex);
+          baseName = attachmentName.substring(0, extensionDotIndex);
+        }
       }
       return resolveUniqueBaseName(keys, baseName, 0) + extension;
     }
