@@ -6,16 +6,20 @@
  */
 package org.mule.extension.email.internal.util.message;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.slf4j.LoggerFactory.getLogger;
-import org.mule.extension.email.api.exception.EmailException;
+
 import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
+import org.mule.extension.email.api.exception.EmailException;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,13 +54,12 @@ public class MessageAttachment {
   }
 
   /**
-   * @param defaultName               The default name if the attachment does not have one.
    * @param attachmentNamingStrategy  The strategy that must be used when searching for the attachment name.
-   * @return the attachment's name. If it has no name, it will return the given {@code defaultName}.
+   * @return an Optional with the attachment's name, or empty if it no name was found.
    */
-  public String getAttachmentName(String defaultName, AttachmentNamingStrategy attachmentNamingStrategy) {
+  public Optional<String> getAttachmentName(AttachmentNamingStrategy attachmentNamingStrategy) {
     return getNamingStrategy(attachmentNamingStrategy)
-        .getAttachmentNameOrDefault(defaultName);
+        .getAttachmentName();
   }
 
   private NamingStrategy getNamingStrategy(AttachmentNamingStrategy attachmentNamingStrategy) {
@@ -71,22 +74,22 @@ public class MessageAttachment {
 
   private abstract static class NamingStrategy {
 
-    public String getAttachmentNameOrDefault(String defaultName) {
+    public Optional<String> getAttachmentName() {
       try {
-        String attachmentName = getAttachmentName();
-        return isNotBlank(attachmentName) ? attachmentName : defaultName;
+        String attachmentName = doGetAttachmentName();
+        return isNotBlank(attachmentName) ? of(attachmentName) : empty();
       } catch (MessagingException e) {
         throw new EmailException("Error file trying to get the attachment's name", e);
       }
     }
 
-    protected abstract String getAttachmentName() throws MessagingException;
+    protected abstract String doGetAttachmentName() throws MessagingException;
   }
 
   private class FilenameStrategy extends NamingStrategy {
 
     @Override
-    public String getAttachmentName() throws MessagingException {
+    public String doGetAttachmentName() throws MessagingException {
       return content.getFileName();
     }
   }
@@ -94,8 +97,8 @@ public class MessageAttachment {
   private class FilenameHeadersStrategy extends FilenameStrategy {
 
     @Override
-    public String getAttachmentName() throws MessagingException {
-      String name = super.getAttachmentName();
+    public String doGetAttachmentName() throws MessagingException {
+      String name = super.doGetAttachmentName();
 
       return isNotBlank(name) ? name : getNameFromHeaders();
     }
@@ -117,8 +120,8 @@ public class MessageAttachment {
   private class FilenameHeadersSubjectStrategy extends FilenameHeadersStrategy {
 
     @Override
-    public String getAttachmentName() throws MessagingException {
-      String name = super.getAttachmentName();
+    public String doGetAttachmentName() throws MessagingException {
+      String name = super.doGetAttachmentName();
 
       return isNotBlank(name) ? name : getNameFromSubject();
     }
