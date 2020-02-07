@@ -180,10 +180,10 @@ public class StoredEmailContentFactory {
   }
 
   private String resolveUniqueName(Set<String> keys, String baseName, String extension, Integer lastSuffixTried) {
-    String candidateBaseName = baseName + "_" + ++lastSuffixTried + extension;
-    if (keys.contains(candidateBaseName)) {
+    String candidateName = baseName + "_" + ++lastSuffixTried + extension;
+    if (keys.contains(candidateName)) {
       return resolveUniqueName(keys, baseName, extension, lastSuffixTried);
     }
-    return candidateBaseName;
+    return candidateName;
   }
 }
