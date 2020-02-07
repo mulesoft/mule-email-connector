@@ -129,6 +129,17 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="retrieveEmailWithRepeatedAttachments">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <java:invoke-static class="${serverName}" method="sendMixedTestMessageWithRepeatedAttachmentNames()"/>
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="list-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload[0].payload.attachments)]" expected="#[3]"/>
+        </munit:validation>
+    </munit:test>
+
     <munit:test name="retrieveEmailWithAttachments" ignore="true">
         <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
