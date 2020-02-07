@@ -174,16 +174,16 @@ public class StoredEmailContentFactory {
           baseName = attachmentName.substring(0, extensionDotIndex);
         }
       }
-      return resolveUniqueBaseName(keys, baseName, 0) + extension;
+      return resolveUniqueName(keys, baseName, extension, 0);
     }
     return attachmentName;
   }
 
-  private String resolveUniqueBaseName(Set<String> keys, String baseName, Integer lastSuffixTried) {
-    String candidateBaseName = baseName + "_" + ++lastSuffixTried;
-    if (keys.contains(candidateBaseName)) {
-      return resolveUniqueBaseName(keys, baseName, lastSuffixTried);
+  private String resolveUniqueName(Set<String> keys, String baseName, String extension, Integer lastSuffixTried) {
+    String candidateName = baseName + "_" + ++lastSuffixTried + extension;
+    if (keys.contains(candidateName)) {
+      return resolveUniqueName(keys, baseName, extension, lastSuffixTried);
     }
-    return candidateBaseName;
+    return candidateName;
   }
 }

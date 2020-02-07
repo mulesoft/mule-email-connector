@@ -43,6 +43,7 @@ public class EmailTestUtils {
   public static final String EMAIL_RELATED_CONTENT_NORMALIZED = "<H1>Hello</H1><a href=\"cid:text-attachment\">here</a>";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT = "This is the email text attachment";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_NAME = "text-attachment";
+  public static final String EMAIL_TEXT_PLAIN_ANOTHER_ATTACHMENT_CONTENT = "This is another email text attachment";
   public static final String EMAIL_JSON_ATTACHMENT_CONTENT = "{\"key\": \"value\"}";
   public static final String EMAIL_JSON_ATTACHMENT_NAME = "attachment.json";
   public static final String EMAIL_UNNAMED_ATTACHMENT_NAME = DEFAULT_NAME;
@@ -190,10 +191,16 @@ public class EmailTestUtils {
     jsonAttachment.setFileName(EMAIL_JSON_ATTACHMENT_NAME);
     jsonAttachment.setDataHandler(new DataHandler(resource));
 
+    MimeBodyPart anotherTextAttachment = new MimeBodyPart();
+    anotherTextAttachment.setDisposition(ATTACHMENT);
+    anotherTextAttachment.setFileName(EMAIL_JSON_ATTACHMENT_NAME);
+    anotherTextAttachment.setContent(EMAIL_TEXT_PLAIN_ANOTHER_ATTACHMENT_CONTENT, TEXT.toString());
+
     Multipart multipart = new MimeMultipart("mixed");
     multipart.addBodyPart(body);
     multipart.addBodyPart(textAttachment);
     multipart.addBodyPart(jsonAttachment);
+    multipart.addBodyPart(anotherTextAttachment);
 
     MimeMessage message = new MimeMessage(testSession);
     message.setContent(multipart);
@@ -215,10 +222,15 @@ public class EmailTestUtils {
     URL resource = currentThread().getContextClassLoader().getResource(EMAIL_JSON_ATTACHMENT_NAME);
     jsonAttachment.setDataHandler(new DataHandler(resource));
 
+    MimeBodyPart anotherTextAttachment = new MimeBodyPart();
+    anotherTextAttachment.setDisposition(ATTACHMENT);
+    anotherTextAttachment.setContent(EMAIL_TEXT_PLAIN_ANOTHER_ATTACHMENT_CONTENT, TEXT.toString());
+
     Multipart multipart = new MimeMultipart("mixed");
     multipart.addBodyPart(body);
     multipart.addBodyPart(textAttachment);
     multipart.addBodyPart(jsonAttachment);
+    multipart.addBodyPart(anotherTextAttachment);
 
     MimeMessage message = new MimeMessage(testSession);
     message.setContent(multipart);
@@ -382,14 +394,23 @@ public class EmailTestUtils {
     MimeBodyPart emailAttachment = new MimeBodyPart();
     emailAttachment.setContent(messageAsAttachment, "message/rfc822");
 
-    MimeMessage anotherMessageAsAttachment = new MimeMessage(testSession);
-    anotherMessageAsAttachment.setContent(EMAIL_CONTENT, "text/plain");
-    anotherMessageAsAttachment.setSubject(EMAIL_SUBJECT + ".Not an extension");
-    anotherMessageAsAttachment.setRecipient(TO, new InternetAddress(JUANI_EMAIL));
-    anotherMessageAsAttachment.saveChanges();
+    MimeMessage secondMessageAsAttachment = new MimeMessage(testSession);
+    secondMessageAsAttachment.setContent(EMAIL_CONTENT, "text/plain");
+    secondMessageAsAttachment.setSubject(EMAIL_SUBJECT + ".Not an extension");
+    secondMessageAsAttachment.setRecipient(TO, new InternetAddress(JUANI_EMAIL));
+    secondMessageAsAttachment.saveChanges();
 
-    MimeBodyPart anotherEmailAttachment = new MimeBodyPart();
-    anotherEmailAttachment.setContent(anotherMessageAsAttachment, "message/rfc822");
+    MimeBodyPart secondEmailAttachment = new MimeBodyPart();
+    secondEmailAttachment.setContent(secondMessageAsAttachment, "message/rfc822");
+
+    MimeMessage thirdMessageAsAttachment = new MimeMessage(testSession);
+    thirdMessageAsAttachment.setContent(EMAIL_RELATED_CONTENT, "text/plain");
+    thirdMessageAsAttachment.setSubject(EMAIL_SUBJECT + ".Not an extension");
+    thirdMessageAsAttachment.setRecipient(TO, new InternetAddress(PABLON_EMAIL));
+    thirdMessageAsAttachment.saveChanges();
+
+    MimeBodyPart thirdEmailAttachment = new MimeBodyPart();
+    thirdEmailAttachment.setContent(thirdMessageAsAttachment, "message/rfc822");
 
     MimeBodyPart body = new MimeBodyPart();
     body.setContent(EMAIL_CONTENT, TEXT.toString());
@@ -397,7 +418,8 @@ public class EmailTestUtils {
     Multipart multipart = new MimeMultipart("mixed");
     multipart.addBodyPart(body);
     multipart.addBodyPart(emailAttachment);
-    multipart.addBodyPart(anotherEmailAttachment);
+    multipart.addBodyPart(secondEmailAttachment);
+    multipart.addBodyPart(thirdEmailAttachment);
 
     MimeMessage message = new MimeMessage(testSession);
     message.setContent(multipart);
