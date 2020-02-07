@@ -6,11 +6,20 @@
  */
 package org.mule.email.mtf;
 
-import static com.icegreen.greenmail.util.ServerSetup.*;
-import static org.mule.extension.email.util.EmailTestUtils.*;
+import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAP;
+import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAPS;
+import static javax.mail.Flags.Flag.RECENT;
+import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
+import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMessageRFC822TestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessageWithRepeatedAttachmentNames;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
-import static javax.mail.Flags.Flag.RECENT;
 
 import javax.mail.internet.MimeMessage;
 
@@ -65,6 +74,16 @@ public class TestIMAPServer extends AbstractTestServer {
     withContextClassLoader(server.getClass().getClassLoader(), () -> {
       try {
         user.deliver(getMessageRFC822TestMessage());
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
+  }
+
+  public static void sendMixedTestMessageWithRepeatedAttachmentNames() {
+    withContextClassLoader(server.getClass().getClassLoader(), () -> {
+      try {
+        user.deliver(getMixedTestMessageWithRepeatedAttachmentNames());
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
