@@ -19,13 +19,13 @@
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
 
     <properties>
-        <commonsIoVersion>2.6</commonsIoVersion>
+        <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
-        <commonsLangVersion>3.9</commonsLangVersion>
+        <commonsLangVersion>3.11</commonsLangVersion>
         <javaMailVersion>1.6.3</javaMailVersion>
         <javaActivationVersion>1.2.2</javaActivationVersion>
         <greenmailVersion>1.5.0</greenmailVersion>
-        <powermockVersion>2.0.5</powermockVersion>
+        <powermockVersion>2.0.7</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
         <!-- Remove when a new parent version with MTF is available -->
@@ -38,8 +38,8 @@
 
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
-        <javaXmlBindVersion>2.3.2</javaXmlBindVersion>
-        <istackCommonsRuntimeVersion>3.0.10</istackCommonsRuntimeVersion>
+        <javaXmlBindVersion>2.3.3</javaXmlBindVersion>
+        <istackCommonsRuntimeVersion>3.0.11</istackCommonsRuntimeVersion>
 
         <validations.module.version>1.4.0</validations.module.version>
         <java.module.version>1.2.6</java.module.version>
