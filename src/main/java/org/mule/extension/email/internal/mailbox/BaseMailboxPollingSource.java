@@ -55,7 +55,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseMailboxPollingSource.class);
 
   @Config
-  private MailboxAccessConfiguration config;
+  protected MailboxAccessConfiguration config;
 
   @ParameterGroup(name = CONFIG_OVERRIDES_PARAM_GROUP)
   private MailboxAccessConfigOverrides overrides;
@@ -65,7 +65,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   private MailboxConnection connection;
 
-  private Predicate<BaseEmailAttributes> predicate;
+  protected Predicate<BaseEmailAttributes> predicate;
 
   private AtomicInteger usingFolderCounter;
 
@@ -82,11 +82,11 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
    */
   @Parameter
   @Optional(defaultValue = "false")
-  private boolean deleteAfterRetrieve;
+  protected boolean deleteAfterRetrieve;
 
   private StoredEmailContentFactory storedEmailContentFactory;
 
-  private Folder openFolder;
+  protected Folder openFolder;
 
   /**
    * @return an instance of {@link BaseEmailPredicateBuilder} used to filter the retrieved emails.
@@ -174,7 +174,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     }
   }
 
-  private boolean isFolderBeingUsed() {
+  protected boolean isFolderBeingUsed() {
     synchronized (usingFolderCounter) {
       return usingFolderCounter.get() != 0;
     }
@@ -222,7 +222,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   /**
    * Marks an email as deleted looking it by its UID.
    */
-  private void markAsDeleted(String id, Message message) {
+  protected void markAsDeleted(String id, Message message) {
     try {
       message.setFlag(DELETED, true);
     } catch (MessagingException e) {
@@ -230,7 +230,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     }
   }
 
-  private StoredEmailContent getEmailContent(Message message, String id) {
+  protected StoredEmailContent getEmailContent(Message message, String id) {
     try {
       return storedEmailContentFactory.fromMessage(message, overrides.getAttachmentNamingStrategy());
     } catch (Exception e) {
