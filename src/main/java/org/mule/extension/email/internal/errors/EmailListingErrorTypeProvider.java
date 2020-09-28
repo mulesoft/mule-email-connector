@@ -6,6 +6,7 @@
  */
 package org.mule.extension.email.internal.errors;
 
+import static org.mule.extension.email.internal.errors.EmailError.ACCESSING_FOLDER;
 import static org.mule.extension.email.internal.errors.EmailError.CONNECTIVITY;
 import static org.mule.extension.email.internal.errors.EmailError.EMAIL_LIST;
 
@@ -21,6 +22,7 @@ public class EmailListingErrorTypeProvider implements ErrorTypeProvider {
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
-    return Collections.unmodifiableSet(new HashSet<ErrorTypeDefinition>(Arrays.asList(CONNECTIVITY, EMAIL_LIST)));
+    return Collections.unmodifiableSet(new HashSet<ErrorTypeDefinition>(Arrays.asList(ACCESSING_FOLDER,
+                                                                                      CONNECTIVITY, EMAIL_LIST)));
   }
 }
