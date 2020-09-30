@@ -6,7 +6,9 @@
  */
 package org.mule.extension.email.api.predicate;
 
+import static java.util.regex.Pattern.compile;
 import static org.mule.extension.email.api.predicate.EmailFilterPolicy.INCLUDE;
+
 import org.mule.extension.email.api.EmailFlags;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;

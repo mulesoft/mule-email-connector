@@ -61,13 +61,13 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   private MailboxAccessConfigOverrides overrides;
 
   @Connection
-  private ConnectionProvider<MailboxConnection> connectionProvider;
+  protected ConnectionProvider<MailboxConnection> connectionProvider;
 
-  private MailboxConnection connection;
+  protected MailboxConnection connection;
 
   protected Predicate<BaseEmailAttributes> predicate;
 
-  private AtomicInteger usingFolderCounter;
+  protected AtomicInteger usingFolderCounter;
 
   /**
    * The name of the folder to poll emails from. Defaults to "INBOX".
@@ -84,7 +84,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   @Optional(defaultValue = "false")
   protected boolean deleteAfterRetrieve;
 
-  private StoredEmailContentFactory storedEmailContentFactory;
+  protected StoredEmailContentFactory storedEmailContentFactory;
 
   protected Folder openFolder;
 
@@ -211,7 +211,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     result.getAttributes().ifPresent(a -> LOGGER.debug("Email [" + a.getId() + "] was not processed."));
   }
 
-  private Message[] getMessages(Folder openFolder) {
+  protected Message[] getMessages(Folder openFolder) {
     try {
       return openFolder.getMessages();
     } catch (MessagingException e) {

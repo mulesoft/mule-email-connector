@@ -23,6 +23,14 @@
         </munit-tools:store>
     </sub-flow>
 
+    <sub-flow name="cleanMessages">
+        <munit-tools:store key="messages">
+            <munit-tools:value>
+                #[ [] ]
+            </munit-tools:value>
+        </munit-tools:store>
+    </sub-flow>
+
     <sub-flow name="storeAttachments">
         <logger level="INFO" message='#[import * from dw::Runtime
             output application/json
