@@ -15,7 +15,7 @@
       http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
       http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
-    <munit:config name="trigger-test-case.xml">
+    <munit:config name="trigger-test-case-with-matcher.xml">
         <munit:parameterizations>
             <munit:parameterization name="imap">
                 <munit:parameters>
