@@ -121,7 +121,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher deleted="REQUIRE" seen="EXCLUDE" recent="EXCLUDE" answered="EXCLUDE" />
+            <email:imap-matcher deleted="REQUIRE" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -145,7 +145,7 @@
         <munit:validation>
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <validation:validate-size value="#[payload]" min="20" max="20"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -155,7 +155,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher deleted="INCLUDE" seen="EXCLUDE" recent="EXCLUDE" answered="EXCLUDE" />
+            <email:imap-matcher deleted="INCLUDE" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -196,7 +196,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher deleted="EXCLUDE" seen="EXCLUDE" recent="EXCLUDE" answered="EXCLUDE" />
+            <email:imap-matcher deleted="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

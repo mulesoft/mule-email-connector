@@ -113,10 +113,42 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher recent="EXCLUDE" seen="EXCLUDE" answered="EXCLUDE" deleted="EXCLUDE"/>
+            <email:imap-matcher recent="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
+
+    <!-- Test polled emails with exclude RECENT filter returns non-recent emails and answered which are included by default filter setting -->
+    <munit:test name="pollOnlyNonRecentIncludeAnswered">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-only-non-recent-emails-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <set-variable variableName="emailCount" value="5" />
+        </munit:behavior>
+        <munit:execution>
+            <!--Verify emails arrived at mailbox-->
+            <until-successful maxRetries="20" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+
+            <munit-tools:store key="messages">
+                <munit-tools:value>#[[]]</munit-tools:value>
+            </munit-tools:store>
+
+            <flow-ref name="sendEmails"/>
+            <!--Now mark all as answered, they should be included in poll, because that's the default setting-->
+            <java:invoke-static class="${serverName}" method="replyToAll()"/>
+        </munit:execution>
+        <munit:validation>
+            <until-successful maxRetries="20" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="5" max="5"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
 
     <flow name="sendEmails">
         <foreach collection="#[1 to vars.emailCount]">

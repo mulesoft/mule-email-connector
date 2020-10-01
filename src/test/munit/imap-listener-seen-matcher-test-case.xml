@@ -109,7 +109,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher seen="EXCLUDE" deleted="EXCLUDE" answered="EXCLUDE" recent="EXCLUDE"/>
+            <email:imap-matcher seen="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -137,7 +137,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher seen="REQUIRE" deleted="EXCLUDE" answered="EXCLUDE" recent="EXCLUDE"/>
+            <email:imap-matcher seen="REQUIRE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

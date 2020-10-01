@@ -70,6 +70,13 @@
         <flow-ref name="sendEmails" />
 
         <!--mark them as answered-->
+        <java:invoke-static class="${serverName}" method="markAllAsDeleted()"/>
+
+        <!--send 10 emails -->
+        <set-variable variableName="emailCount" value="10" />
+        <flow-ref name="sendEmails" />
+
+        <!--mark them as answered-->
         <java:invoke-static class="${serverName}" method="replyToAll()"/>
 
         <munit-tools:store key="messages">
@@ -117,7 +124,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher answered="EXCLUDE" deleted="EXCLUDE" recent="EXCLUDE" seen="EXCLUDE"/>
+            <email:imap-matcher answered="EXCLUDE" deleted="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -149,7 +156,39 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher answered="REQUIRE" deleted="EXCLUDE" recent="EXCLUDE" seen="EXCLUDE"/>
+            <email:imap-matcher answered="REQUIRE" deleted="EXCLUDE"/>
+        </email:listener-imap>
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+
+    <!-- Test polled emails with ANSWERED=REQUIRED and deleted=INCLUDE filter returns all emails-->
+
+    <munit:test name="pollForAnsweredIncludingDeleted">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-answered-including-deleted-emails-imap"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <set-variable variableName="emailCount" value="5" />
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="sendEmails"/>
+        </munit:execution>
+        <munit:validation>
+            <until-successful maxRetries="20" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="20" max="20"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="trigger-answered-including-deleted-emails-imap" maxConcurrency="1">
+        <email:listener-imap config-ref="${config}" >
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+            <email:imap-matcher answered="REQUIRE" deleted="INCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

@@ -10,6 +10,10 @@ import static java.util.Optional.of;
 import static java.time.ZoneId.systemDefault;
 import static javax.mail.search.ComparisonTerm.GE;
 import static javax.mail.search.ComparisonTerm.LE;
+import static javax.mail.Flags.Flag.ANSWERED;
+import static javax.mail.Flags.Flag.DELETED;
+import static javax.mail.Flags.Flag.SEEN;
+import static javax.mail.Flags.Flag.RECENT;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
@@ -32,17 +36,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.search.SearchTerm;
+import javax.mail.search.OrTerm;
 import javax.mail.search.AndTerm;
-import javax.mail.search.SentDateTerm;
-import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.FlagTerm;
+import javax.mail.search.SubjectTerm;
+import javax.mail.search.SearchTerm;
+import javax.mail.search.ReceivedDateTerm;
+import javax.mail.search.SentDateTerm;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 import java.time.LocalDateTime;
-
+import java.util.function.Supplier;
+import java.util.Map.Entry;
 
 /**
  * Retrieves all the emails from an IMAP mailbox folder, watermark can be enabled for polled items.
@@ -113,36 +124,40 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   protected Message[] getMessages(Folder openFolder) {
     try {
       IMAPEmailPredicateBuilder matcher = getPredicateBuilder().orElseGet(() -> new IMAPEmailPredicateBuilder());
+      HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap = new HashMap();
 
-      SearchTerm answeredTerm = getSearchTerm(Flags.Flag.ANSWERED, matcher.getAnswered(), false);
-      SearchTerm deletedTerm = getSearchTerm(Flags.Flag.DELETED, matcher.getDeleted(), false);
-      SearchTerm recentTerm = getSearchTerm(Flags.Flag.RECENT, matcher.getRecent(), false);
-      SearchTerm seenTerm = getSearchTerm(Flags.Flag.SEEN, matcher.getSeen(), false);
+      flagMatcherMap.put(ANSWERED, () -> matcher.getAnswered());
+      flagMatcherMap.put(DELETED, () -> matcher.getDeleted());
+      flagMatcherMap.put(RECENT, () -> matcher.getRecent());
+      flagMatcherMap.put(SEEN, () -> matcher.getSeen());
 
-      AndTerm searchTerm = new AndTerm(answeredTerm, deletedTerm);
-      searchTerm = new AndTerm(searchTerm, recentTerm);
-      searchTerm = new AndTerm(searchTerm, seenTerm);
+      SearchTerm searchTerm = buildSearchFilter(flagMatcherMap);
+
+      if (matcher.getSubjectRegex() != null) {
+        SubjectTerm subjectTerm = new SubjectTerm(matcher.getSubjectRegex());
+        searchTerm = new AndTerm(searchTerm, subjectTerm);
+      }
 
       if (matcher.getReceivedSince() != null) {
-        Date receivedSinceDate = convertLocalDateTimeToDate(imapMatcher.getReceivedSince());
+        Date receivedSinceDate = convertLocalDateTimeToDate(matcher.getReceivedSince());
         ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(GE, receivedSinceDate);
         searchTerm = new AndTerm(searchTerm, receivedDateTerm);
       }
 
       if (matcher.getReceivedUntil() != null) {
-        Date receivedUntilDate = convertLocalDateTimeToDate(imapMatcher.getReceivedUntil());
+        Date receivedUntilDate = convertLocalDateTimeToDate(matcher.getReceivedUntil());
         ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(LE, receivedUntilDate);
         searchTerm = new AndTerm(searchTerm, receivedDateTerm);
       }
 
       if (matcher.getSentSince() != null) {
-        Date sentSinceDate = convertLocalDateTimeToDate(imapMatcher.getSentSince());
+        Date sentSinceDate = convertLocalDateTimeToDate(matcher.getSentSince());
         SentDateTerm sentDateTerm = new SentDateTerm(GE, sentSinceDate);
         searchTerm = new AndTerm(sentDateTerm, searchTerm);
       }
 
       if (matcher.getSentUntil() != null) {
-        Date sentUntilDate = convertLocalDateTimeToDate(imapMatcher.getSentUntil());
+        Date sentUntilDate = convertLocalDateTimeToDate(matcher.getSentUntil());
         SentDateTerm sentDateTerm = new SentDateTerm(LE, sentUntilDate);
         searchTerm = new AndTerm(searchTerm, sentDateTerm);
       }
@@ -158,11 +173,40 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     return Date.from(date.atZone(systemDefault()).toInstant());
   }
 
-  private SearchTerm getSearchTerm(Flags.Flag flag, EmailFilterPolicy policy, boolean defaultValue) {
-    if (policy == null) {
-      return new FlagTerm(new Flags(flag), defaultValue);
+  private FlagTerm getSearchTerm(Flag flag, boolean setValue) {
+    //if no policy defined, then default to INCLUDE
+    return new FlagTerm(new Flags(flag), setValue);
+  }
+
+  private SearchTerm buildSearchFilter(HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap) {
+    AndTerm searchTerm = null;
+    OrTerm includeTerm = null;
+    List<FlagTerm> andTerms = new ArrayList<>();
+    List<FlagTerm> orTerms = new ArrayList<>();
+
+    for (Entry<Flag, Supplier<EmailFilterPolicy>> flagMatcherEntry : flagMatcherMap.entrySet()) {
+      EmailFilterPolicy policy = flagMatcherEntry.getValue().get();
+      if (policy == null || !policy.asBoolean().isPresent()) {
+        //This is either an INCLUDE or there is no matcher defined.
+        orTerms.add(getSearchTerm(flagMatcherEntry.getKey(), false));
+      } else {
+        andTerms.add(getSearchTerm(flagMatcherEntry.getKey(), policy.asBoolean().get()));
+      }
     }
-    return new FlagTerm(new Flags(flag), policy.asBoolean().orElse(defaultValue));
+
+    FlagTerm[] orTermsArray = new FlagTerm[orTerms.size()];
+    orTerms.toArray(orTermsArray);
+    includeTerm = new OrTerm(orTermsArray);
+
+    if (andTerms.isEmpty()) {
+      return includeTerm;
+    }
+
+    FlagTerm[] andTermsArray = new FlagTerm[andTerms.size()];
+    andTerms.toArray(andTermsArray);
+    searchTerm = new AndTerm(andTermsArray);
+
+    return new AndTerm(searchTerm, includeTerm);
   }
 
 }
