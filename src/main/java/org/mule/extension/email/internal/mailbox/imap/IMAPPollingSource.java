@@ -14,11 +14,14 @@ import static javax.mail.search.ComparisonTerm.LE;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailListException;
+import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.EmailFilterPolicy;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
+import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.execution.OnTerminate;
 import org.mule.runtime.extension.api.annotation.metadata.MetadataScope;
@@ -27,7 +30,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.source.OnBackPressure;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.source.PollContext;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,6 +151,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
 
       return openFolder.search(searchTerm);
     } catch (MessagingException e) {
+      LOGGER.error("Error occurred while retrieving emails: {}", e);
       throw new EmailListException("Error retrieving emails: " + e.getMessage(), e);
     }
   }

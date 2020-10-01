@@ -15,7 +15,7 @@
       http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
       http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
-    <munit:config name="imap-listener-since-until-matcher-test-case.xml">
+    <munit:config name="imap-listener-regex-matcher-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="imap">
                 <munit:parameters>
@@ -39,9 +39,11 @@
     <munit:dynamic-port propertyName="imap.server.port" min="1024" max="64000"/>
 
     <!-- Configs -->
+
     <email:imap-config name="imap-config">
         <email:imap-connection host="127.0.0.1" port="${imap.server.port}" user="juan.desimoni@mulesoft.com" password="password"/>
     </email:imap-config>
+
 
     <email:imap-config name="imaps-config">
         <email:imaps-connection host="127.0.0.1" port="${imap.server.port}" password="password" user="juan.desimoni@mulesoft.com">
@@ -52,6 +54,7 @@
     </email:imap-config>
 
     <!-- Setup/Dispose -->
+
     <munit:before-suite name="setUpServer">
         <java:invoke-static class="${serverName}" method="${startMethod}">
             <java:args>
@@ -63,10 +66,6 @@
     </munit:before-suite>
 
     <munit:before-test name="populate-mailbox">
-        <set-variable variableName="emailCount" value="5" />
-        <set-variable variableName="date" value="2007-12-03T10:15:30" />
-        <flow-ref name="sendEmailsWithSubjectAndDate" />
-
         <munit-tools:store key="messages">
             <munit-tools:value>#[[]]</munit-tools:value>
         </munit-tools:store>
@@ -80,78 +79,87 @@
         <java:invoke-static class="${serverName}" method="stop()"/>
     </munit:after-suite>
 
-
-    <!-- Test emails sent since -->
-    <munit:test name="pollSentSince">
+    <!-- Test polled emails with matching subject regex only -->
+    <munit:test name="pollOnlyMatchingSubjectRegex">
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="trigger-only-emails-sent-since-date-imap"/>
+            <munit:enable-flow-source value="trigger-only-matching-subject-regex-imap"/>
         </munit:enable-flow-sources>
-        <munit:behavior>
-            <set-variable variableName="emailCount" value="5" />
-        </munit:behavior>
+
         <munit:execution>
-            <set-variable variableName="date" value="2019-06-03T10:15:30" />
-            <flow-ref name="sendEmailsWithSubjectAndDate" />
+            <flow-ref name="sendEmailsWithAllFields" />
         </munit:execution>
         <munit:validation>
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="5" max="5"/>
+                <munit-tools:assert-equals actual="#[payload[0].attributes.subject]" expected="#['Email Subject']" />
+                <validation:validate-size value="#[payload]" min="1" max="1"/>
             </until-successful>
         </munit:validation>
     </munit:test>
 
-    <flow name="trigger-only-emails-sent-since-date-imap" maxConcurrency="1">
+    <flow name="trigger-only-matching-subject-regex-imap" maxConcurrency="1">
         <email:listener-imap config-ref="${config}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher sentSince="2018-01-01T10:15:30" />
+            <email:imap-matcher subjectRegex="Email Subject" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
 
-    <!-- Test emails sent until -->
-    <munit:test name="pollSentUntil">
+    <!-- Test polled emails with matching from regex only -->
+    <munit:test name="pollOnlyMatchingFromRegex">
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="trigger-only-emails-sent-until-date-imap"/>
+            <munit:enable-flow-source value="trigger-only-matching-from-regex-imap"/>
         </munit:enable-flow-sources>
-        <munit:behavior>
-            <set-variable variableName="emailCount" value="5" />
-        </munit:behavior>
+
         <munit:execution>
-            <set-variable variableName="date" value="2019-06-03T10:15:30" />
-            <flow-ref name="sendEmailsWithSubjectAndDate" />
+            <flow-ref name="sendEmailsWithAllFields" />
         </munit:execution>
         <munit:validation>
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="5" max="5"/>
+                <validation:validate-size value="#[payload]" min="#1" max="1"/>
+                <munit-tools:assert-equals actual="#[payload[0].attributes.fromAddresses[0]]" expected="#['esteban.wasinger@mulesoft.com']" />
             </until-successful>
         </munit:validation>
     </munit:test>
 
-    <flow name="trigger-only-emails-sent-until-date-imap" maxConcurrency="1">
+    <flow name="trigger-only-matching-from-regex-imap" maxConcurrency="1">
         <email:listener-imap config-ref="${config}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher sentUntil="2018-01-01T10:15:30" />
+            <email:imap-matcher fromRegex="@mulesoft" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
 
-    <flow name="sendEmailsWithSubjectAndDate">
-        <foreach collection="#[1 to vars.emailCount]">
-            <java:invoke-static class="${serverName}" method="sendEmailWithSubjectAndSentDate(String, String, String)">
+    <flow name="sendEmailsWithAllFields">
+            <java:invoke-static class="${serverName}" method="sendEmailWithAllFields(String, String, String, String, String, String)">
                 <java:args>
                     #[{
-                    arg0: 'New Email',
-                    arg1: 'juan.desimoni@mulesoft.com',
-                    arg2: vars.date
+                    arg0: "juan.desimoni@mulesoft.com",
+                    arg1: "ale.g.marra@mulesoft.com",
+                    arg2: "Email content",
+                    arg3: "text/plain",
+                    arg4: "Non Matching Subject",
+                    arg5: "esteban.wasinger@mulesoft.com"
                     }]
                 </java:args>
             </java:invoke-static>
-        </foreach>
+            <java:invoke-static class="${serverName}" method="sendEmailWithAllFields(String, String, String, String, String, String)">
+                <java:args>
+                    #[{
+                    arg0: "juan.desimoni@mulesoft.com",
+                    arg1: "ale.g.marra@mulesoft.com",
+                    arg2: "Email content",
+                    arg3: "text/plain",
+                    arg4: "Email Subject",
+                    arg5: "sebastian.elizalde@salesforce.com"
+                    }]
+                </java:args>
+            </java:invoke-static>
     </flow>
+
 </mule>

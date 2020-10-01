@@ -25,6 +25,14 @@
                     <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
                 </munit:parameters>
             </munit:parameterization>
+            <munit:parameterization name="imaps">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imaps-config"/>
+                    <munit:parameter propertyName="protocol" value="imaps"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 

@@ -72,14 +72,14 @@ public abstract class BaseEmailPredicateBuilder {
    */
   @Parameter
   @Optional
-  protected String subjectRegex;
+  private String subjectRegex;
 
   /**
    * From Email Address Regex to match with the wanted emails
    */
   @Parameter
   @Optional
-  protected String fromRegex;
+  private String fromRegex;
 
   /**
    * Builds a {@link Predicate} from the criterias in {@code this} builder's state.

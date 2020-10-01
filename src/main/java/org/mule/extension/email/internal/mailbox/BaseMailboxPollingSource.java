@@ -55,19 +55,19 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   private static final Logger LOGGER = LoggerFactory.getLogger(BaseMailboxPollingSource.class);
 
   @Config
-  protected MailboxAccessConfiguration config;
+  private MailboxAccessConfiguration config;
 
   @ParameterGroup(name = CONFIG_OVERRIDES_PARAM_GROUP)
   private MailboxAccessConfigOverrides overrides;
 
   @Connection
-  protected ConnectionProvider<MailboxConnection> connectionProvider;
+  private ConnectionProvider<MailboxConnection> connectionProvider;
 
-  protected MailboxConnection connection;
+  private MailboxConnection connection;
 
-  protected Predicate<BaseEmailAttributes> predicate;
+  private Predicate<BaseEmailAttributes> predicate;
 
-  protected AtomicInteger usingFolderCounter;
+  private AtomicInteger usingFolderCounter;
 
   /**
    * The name of the folder to poll emails from. Defaults to "INBOX".
@@ -82,11 +82,11 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
    */
   @Parameter
   @Optional(defaultValue = "false")
-  protected boolean deleteAfterRetrieve;
+  private boolean deleteAfterRetrieve;
 
-  protected StoredEmailContentFactory storedEmailContentFactory;
+  private StoredEmailContentFactory storedEmailContentFactory;
 
-  protected Folder openFolder;
+  private Folder openFolder;
 
   /**
    * @return an instance of {@link BaseEmailPredicateBuilder} used to filter the retrieved emails.
@@ -174,7 +174,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     }
   }
 
-  protected boolean isFolderBeingUsed() {
+  private boolean isFolderBeingUsed() {
     synchronized (usingFolderCounter) {
       return usingFolderCounter.get() != 0;
     }
@@ -222,7 +222,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   /**
    * Marks an email as deleted looking it by its UID.
    */
-  protected void markAsDeleted(String id, Message message) {
+  private void markAsDeleted(String id, Message message) {
     try {
       message.setFlag(DELETED, true);
     } catch (MessagingException e) {
@@ -230,7 +230,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     }
   }
 
-  protected StoredEmailContent getEmailContent(Message message, String id) {
+  private StoredEmailContent getEmailContent(Message message, String id) {
     try {
       return storedEmailContentFactory.fromMessage(message, overrides.getAttachmentNamingStrategy());
     } catch (Exception e) {
