@@ -27,7 +27,6 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLA
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
-
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
@@ -156,6 +155,12 @@ public class TestIMAPServer extends AbstractTestServer {
 
   public static void clean() throws FolderException {
     server.purgeEmailFromAllMailboxes();
+  }
+
+  public static void closeInboxFolder() throws MessagingException {
+    //Store store = testSession.getStore("imap");
+    //Folder folder = store.getFolder("INBOX");
+    server.getImap().interrupt();
   }
 
   public static void setUserWithSpecialPassword() {
