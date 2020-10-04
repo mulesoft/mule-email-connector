@@ -234,4 +234,16 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="pollClosedFolder">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="closeInboxFolder()"/>
+            <email:list-imap config-ref="${imap-config}"/>
+        </munit:execution>
+        <munit:validation>
+            <set-payload value="#[payload[0]]"/>
+            <munit-tools:assert-that expression="#[payload.attributes.flags.seen]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+
 </mule>
