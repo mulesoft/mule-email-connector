@@ -206,7 +206,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     andTerms.toArray(andTermsArray);
     searchTerm = new AndTerm(andTermsArray);
 
-    return new AndTerm(searchTerm, includeTerm);
+    return new OrTerm(includeTerm, searchTerm);
   }
 
 }
