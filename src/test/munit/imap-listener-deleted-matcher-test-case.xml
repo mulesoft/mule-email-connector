@@ -66,6 +66,7 @@
 
     <munit:before-test name="populate-mailbox">
         <!--send 10 emails -->
+        <set-variable variableName="subject" value="Mark as deleted" />
         <set-variable variableName="emailCount" value="10" />
         <flow-ref name="sendEmails" />
 
@@ -86,13 +87,13 @@
     </munit:after-suite>
 
     <!-- Test polled emails with DELETED=REQUIRED filter only returns deleted emails -->
-    <!-- TODO: for now INCLUDE==REQUIRED -->
     <munit:test name="pollOnlyForDeleted">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-only-deleted-emails-imap"/>
         </munit:enable-flow-sources>
 
         <munit:behavior>
+            <set-variable variableName="subject" value="New Email" />
             <set-variable variableName="emailCount" value="5" />
         </munit:behavior>
 
@@ -112,6 +113,7 @@
             <until-successful maxRetries="10" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('deleted'))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -127,8 +129,7 @@
     </flow>
 
 
-    <!-- Test polled emails with DELETED=INCLUDE filter only returns deleted emails -->
-    <!-- TODO: for now INCLUDE==REQUIRED -->
+    <!-- Test polled emails with DELETED=INCLUDE returns all emails including deleted emails -->
     <munit:test name="pollOnlyIncludingDeleted">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-only-include-deleted-emails-imap"/>
@@ -140,6 +141,7 @@
 
         <munit:execution>
             <!--send new emails -->
+            <set-variable variableName="subject" value="New Email" />
             <flow-ref name="sendEmails" />
         </munit:execution>
         <munit:validation>
@@ -160,14 +162,14 @@
         <flow-ref name="storeMessages"/>
     </flow>
 
-    <!-- Test polled emails with exclude DELETED filter includes deleted emails only -->
-
+    <!-- Test polled emails with DELETED=EXCLUDE filter includes non-deleted emails only -->
     <munit:test name="pollExcludingDeleted">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-exclude-deleted-emails-imap"/>
         </munit:enable-flow-sources>
 
         <munit:behavior>
+            <set-variable variableName="subject" value="New Email" />
             <set-variable variableName="emailCount" value="5" />
         </munit:behavior>
 
@@ -187,6 +189,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('New Email'))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -205,8 +208,14 @@
 
     <flow name="sendEmails">
         <foreach collection="#[1 to vars.emailCount]">
-            <java:invoke-static class="${serverName}" method="sendEmail()"/>
+            <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                <java:args>
+                    #[{
+                    arg0: vars.subject,
+                    arg1: 'eugenia.mariotti@mulesoft.com'
+                    }]
+                </java:args>
+            </java:invoke-static>
         </foreach>
     </flow>
-
 </mule>

@@ -66,13 +66,15 @@
 
     <munit:before-test name="populate-mailbox">
         <!--send 10 emails -->
+        <set-variable variableName="subject" value="Mark as deleted" />
         <set-variable variableName="emailCount" value="10" />
         <flow-ref name="sendEmails" />
 
-        <!--mark them as answered-->
+        <!--mark them as deleted-->
         <java:invoke-static class="${serverName}" method="markAllAsDeleted()"/>
 
         <!--send 10 emails -->
+        <set-variable variableName="subject" value="New Email: mark as answered" />
         <set-variable variableName="emailCount" value="10" />
         <flow-ref name="sendEmails" />
 
@@ -100,6 +102,7 @@
         </munit:enable-flow-sources>
 
         <munit:behavior>
+            <set-variable variableName="subject" value="Hello!" />
             <set-variable variableName="emailCount" value="5" />
         </munit:behavior>
 
@@ -115,6 +118,7 @@
             <until-successful maxRetries="10" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[5]"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('Hello!'))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -128,7 +132,6 @@
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
-
 
     <!-- Test polled emails with ANSWERED=REQUIRED filter returns answered emails only-->
 
@@ -147,6 +150,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('answered'))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -179,6 +183,8 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="20" max="20"/>
+                <set-payload value="#[payload[0]]"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::either(MunitTools::containsString('answered'), MunitTools::containsString('deleted'))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -197,7 +203,14 @@
 
     <flow name="sendEmails">
         <foreach collection="#[1 to vars.emailCount]">
-            <java:invoke-static class="${serverName}" method="sendEmail()"/>
+            <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                <java:args>
+                    #[{
+                    arg0: vars.subject,
+                    arg1: 'eugenia.mariotti@mulesoft.com'
+                    }]
+                </java:args>
+            </java:invoke-static>
         </foreach>
     </flow>
 

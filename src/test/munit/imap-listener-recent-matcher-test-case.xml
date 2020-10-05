@@ -84,7 +84,7 @@
         <java:invoke-static class="${serverName}" method="stop()"/>
     </munit:after-suite>
 
-    <!-- Test polled emails with exclude RECENT filter returns non-recent emails only -->
+    <!-- Test polled emails with RECENT=EXCLUDE filter returns non-recent emails only -->
     <munit:test name="pollOnlyNonRecent">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-only-non-recent-emails-imap"/>
@@ -104,6 +104,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <munit-tools:assert-that expression="#[payload.attributes.flags.recent]" is="#[MunitTools::everyItem(MunitTools::equalTo(false))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>

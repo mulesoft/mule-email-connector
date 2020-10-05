@@ -87,7 +87,7 @@
     </munit:after-suite>
 
 
-    <!-- Test polled emails with SEEN filter returns new emails only -->
+    <!-- Test polled emails with SEEN=EXCLUDE filter returns new emails only -->
     <munit:test name="pollOnlyNotRead">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-only-new-emails-imap"/>
@@ -100,6 +100,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="5" max="5"/>
+                <munit-tools:assert-that expression="#[payload.attributes.flags.seen]" is="#[MunitTools::everyItem(MunitTools::equalTo(false))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -128,6 +129,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <munit-tools:assert-that expression="#[payload.attributes.flags.seen]" is="#[MunitTools::everyItem(MunitTools::equalTo(true))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>

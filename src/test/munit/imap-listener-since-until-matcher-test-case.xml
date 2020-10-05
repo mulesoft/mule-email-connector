@@ -97,6 +97,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="5" max="5"/>
+                <munit-tools:assert-that expression="#[payload.attributes.sentDate]" is="#[MunitTools::everyItem(MunitTools::equalTo(|2019-06-03T10:15:30|))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
@@ -127,6 +128,7 @@
             <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="5" max="5"/>
+                <munit-tools:assert-that expression="#[payload.attributes.sentDate]" is="#[MunitTools::everyItem(MunitTools::equalTo(|2007-12-03T10:15:30|))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>

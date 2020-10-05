@@ -162,4 +162,16 @@ public class TestIMAPServer extends AbstractTestServer {
       }
     });
   }
+
+  private static void markEmailAsWhenSubjectContains(String subject, Flags.Flag flag, boolean set) {
+    stream(server.getReceivedMessages()).forEach(email -> {
+      try {
+        if (email.getSubject().contains(subject)) {
+          email.setFlag(flag, set);
+        }
+      } catch (MessagingException e) {
+        LOGGER.error(e.getMessage());
+      }
+    });
+  }
 }
