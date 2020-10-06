@@ -70,7 +70,7 @@
         <set-variable variableName="emailCount" value="10" />
         <flow-ref name="sendEmails" />
 
-        <!--mark them as deleted-->
+        <!--mark them as seen-->
         <java:invoke-static class="${serverName}" method="markAllAsSeen()"/>
 
         <munit-tools:store key="messages">

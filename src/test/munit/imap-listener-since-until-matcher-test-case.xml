@@ -138,7 +138,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher sentUntil="2018-01-01T10:15:30" />
+            <email:imap-matcher sentSince="2007-11-03T10:15:30" sentUntil="2018-01-01T10:15:30" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

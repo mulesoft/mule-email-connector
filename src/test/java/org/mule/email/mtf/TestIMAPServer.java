@@ -12,6 +12,7 @@ import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAPS;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.RECENT;
 import static javax.mail.Flags.Flag.SEEN;
+import static javax.mail.Flags.Flag.ANSWERED;
 import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
@@ -81,8 +82,28 @@ public class TestIMAPServer extends AbstractTestServer {
     markAllEmailAs(SEEN, true);
   }
 
+  public static void markAllAsRecent() {
+    markAllEmailAs(RECENT, true);
+  }
+
   public static void markAllAsNotRecent() {
     markAllEmailAs(RECENT, false);
+  }
+
+  public static void markAllAsDeletedWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, DELETED, true);
+  }
+
+  public static void markAllAsAnsweredWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, ANSWERED, true);
+  }
+
+  public static void markAllAsRecentWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, RECENT, true);
+  }
+
+  public static void markAllAsSeenWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, SEEN, true);
   }
 
   public static void sendEmailWithAllFields(String to, String cc, String body, String contentType, String subject, String from) {

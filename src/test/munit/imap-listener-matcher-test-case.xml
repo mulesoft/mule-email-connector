@@ -8,14 +8,14 @@
       xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
       http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
       http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
       http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
       http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
       http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
-    <munit:config name="imap-listener-deleted-matcher-test-case.xml">
+    <munit:config name="imap-listener-matcher-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="imap">
                 <munit:parameters>
@@ -44,6 +44,7 @@
         <email:imap-connection host="127.0.0.1" port="${imap.server.port}" user="juan.desimoni@mulesoft.com" password="password"/>
     </email:imap-config>
 
+
     <email:imap-config name="imaps-config">
         <email:imaps-connection host="127.0.0.1" port="${imap.server.port}" password="password" user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2,SSLv3">
@@ -65,13 +66,44 @@
     </munit:before-suite>
 
     <munit:before-test name="populate-mailbox">
-        <!--send 10 emails -->
-        <set-variable variableName="subject" value="Mark as deleted" />
         <set-variable variableName="emailCount" value="10" />
+
+        <set-variable variableName="subject" value="Mark as deleted" />
         <flow-ref name="sendEmails" />
 
-        <!--mark them as deleted-->
-        <java:invoke-static class="${serverName}" method="markAllAsDeleted()"/>
+        <set-variable variableName="subject" value="Mark as seen, answered" />
+        <flow-ref name="sendEmails" />
+
+        <set-variable variableName="subject" value="Mark as answered, seen" />
+        <flow-ref name="sendEmails" />
+
+        <set-variable variableName="subject" value="Mark as recent" />
+        <flow-ref name="sendEmails" />
+
+        <!--mark them as seen, recent, answered and deleted-->
+        <java:invoke-static class="${serverName}" method="markAllAsAnsweredWhenSubject(String)">
+            <java:args>#[{
+                arg0: 'answered'
+                }]</java:args>
+        </java:invoke-static>
+
+        <java:invoke-static class="${serverName}" method="markAllAsSeenWhenSubject(String)">
+            <java:args>#[{
+                arg0: 'seen'
+                }]</java:args>
+        </java:invoke-static>
+
+        <java:invoke-static class="${serverName}" method="markAllAsDeletedWhenSubject(String)">
+            <java:args>#[{
+                arg0: 'deleted'
+                }]</java:args>
+        </java:invoke-static>
+
+        <java:invoke-static class="${serverName}" method="markAllAsRecentWhenSubject(String)">
+            <java:args>#[{
+                arg0: 'recent'
+                }]</java:args>
+        </java:invoke-static>
 
         <munit-tools:store key="messages">
             <munit-tools:value>#[[]]</munit-tools:value>
@@ -86,135 +118,99 @@
         <java:invoke-static class="${serverName}" method="stop()"/>
     </munit:after-suite>
 
-    <!-- Test polled emails with DELETED=REQUIRED filter only returns deleted emails -->
-    <munit:test name="pollOnlyForDeleted">
+
+    <!-- Test polled emails with no filter includes all email -->
+    <munit:test name="pollWithoutMatcherIncludesAll">
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="trigger-only-deleted-emails-imap"/>
+            <munit:enable-flow-source value="trigger-on-new-emails-imap"/>
         </munit:enable-flow-sources>
-
-        <munit:behavior>
-            <set-variable variableName="subject" value="New Email" />
-            <set-variable variableName="emailCount" value="5" />
-        </munit:behavior>
-
         <munit:execution>
-            <!--send new emails -->
-            <flow-ref name="sendEmails" />
-
-            <until-successful maxRetries="10" millisBetweenRetries="500">
-                <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="10" max="10"/>
-            </until-successful>
-
-            <!--send new emails -->
-            <flow-ref name="sendEmails" />
+            <set-variable variableName="emailCount" value="5" />
+            <flow-ref name="sendEmails"/>
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="10" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="10" max="10"/>
-                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('deleted'))]"/>
+                <validation:validate-size value="#[payload]" min="45" max="45"/>
             </until-successful>
         </munit:validation>
     </munit:test>
 
-    <flow name="trigger-only-deleted-emails-imap" maxConcurrency="1">
+    <flow name="trigger-on-new-emails-imap" maxConcurrency="1">
         <email:listener-imap config-ref="${config}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher deleted="REQUIRE" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
 
-
-    <!-- Test polled emails with DELETED=INCLUDE returns all emails including deleted emails -->
-    <munit:test name="pollOnlyIncludingDeleted">
+    <!-- Test polled emails with EXCLUDE filter excludes all email -->
+    <munit:test name="pollWithOnlyExcludeMatcherExcludesAllEmail">
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="trigger-only-include-deleted-emails-imap"/>
+            <munit:enable-flow-source value="trigger-on-new-emails-exclude-all-imap"/>
         </munit:enable-flow-sources>
-
-        <munit:behavior>
-            <set-variable variableName="emailCount" value="10" />
-        </munit:behavior>
-
         <munit:execution>
-            <!--send new emails -->
-            <set-variable variableName="subject" value="New Email" />
-            <flow-ref name="sendEmails" />
-            <java:invoke-static class="${serverName}" method="replyToAll()"/>
-
+            <set-variable variableName="emailCount" value="5" />
         </munit:execution>
         <munit:validation>
+            <flow-ref name="sendEmails"/>
+
             <until-successful maxRetries="20" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="0" max="0"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="trigger-on-new-emails-exclude-all-imap" maxConcurrency="1">
+        <email:listener-imap config-ref="${config}">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+            <email:imap-matcher deleted="EXCLUDE" seen="EXCLUDE" recent="EXCLUDE" answered="EXCLUDE"/>
+        </email:listener-imap>
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+    <!-- Test polled emails with DELETED=EXCLUDE, SEEN=REQUIRED, RECENT=EXCLUDE, ANSWERED=REQUIRED -->
+    <munit:test name="pollRequireSeenAnsweredButExcludeDeletedRecentEmail">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-exclude-deleted-recent-require-seen-answered-imap"/>
+        </munit:enable-flow-sources>
+        <munit:execution>
+            <set-variable variableName="emailCount" value="5" />
+        </munit:execution>
+        <munit:validation>
+            <flow-ref name="sendEmails"/>
+
+            <until-successful maxRetries="20" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="20" max="20"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::not(MunitTools::hasValue('Mark as deleted'))]"/>
+                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::not(MunitTools::hasValue('Mark as recent'))]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
 
-    <flow name="trigger-only-include-deleted-emails-imap" maxConcurrency="1">
+    <flow name="trigger-exclude-deleted-recent-require-seen-answered-imap" maxConcurrency="1">
         <email:listener-imap config-ref="${config}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher deleted="INCLUDE" />
+            <email:imap-matcher recent="EXCLUDE" deleted="EXCLUDE" answered="REQUIRE" seen="REQUIRE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
 
-    <!-- Test polled emails with DELETED=EXCLUDE filter includes non-deleted emails only -->
-    <munit:test name="pollExcludingDeleted">
-        <munit:enable-flow-sources>
-            <munit:enable-flow-source value="trigger-exclude-deleted-emails-imap"/>
-        </munit:enable-flow-sources>
-
-        <munit:behavior>
-            <set-variable variableName="subject" value="New Email" />
-            <set-variable variableName="emailCount" value="5" />
-        </munit:behavior>
-
-        <munit:execution>
-            <!--send new emails -->
-            <flow-ref name="sendEmails" />
-
-            <until-successful maxRetries="10" millisBetweenRetries="500">
-                <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="5" max="5"/>
-            </until-successful>
-
-            <!--send new emails -->
-            <flow-ref name="sendEmails" />
-        </munit:execution>
-        <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
-                <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="10" max="10"/>
-                <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('New Email'))]"/>
-            </until-successful>
-        </munit:validation>
-    </munit:test>
-
-    <flow name="trigger-exclude-deleted-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
-            <scheduling-strategy>
-                <fixed-frequency frequency="500"/>
-            </scheduling-strategy>
-            <email:imap-matcher deleted="EXCLUDE"/>
-        </email:listener-imap>
-        <flow-ref name="storeMessages"/>
-    </flow>
-
-    <!--COMMON FLOWS-->
-
+    <!-- SHARED FLOWS -->
     <flow name="sendEmails">
         <foreach collection="#[1 to vars.emailCount]">
             <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
                 <java:args>
                     #[{
                     arg0: vars.subject,
-                    arg1: 'eugenia.mariotti@mulesoft.com'
+                    arg1: 'juan.desimoni@mulesoft.com'
                     }]
                 </java:args>
             </java:invoke-static>
