@@ -126,6 +126,11 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     IMAPEmailPredicateBuilder matcher = getPredicateBuilder().orElseGet(() -> new IMAPEmailPredicateBuilder());
     HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap = new HashMap();
 
+    if (!matcher.getEnableRemoteSearchFilter()) {
+      //Filters will be applied locally.
+      return super.getMessages(openFolder);
+    }
+
     flagMatcherMap.put(ANSWERED, () -> matcher.getAnswered());
     flagMatcherMap.put(DELETED, () -> matcher.getDeleted());
     flagMatcherMap.put(RECENT, () -> matcher.getRecent());

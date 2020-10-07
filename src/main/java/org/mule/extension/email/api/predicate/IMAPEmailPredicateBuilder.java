@@ -14,6 +14,7 @@ import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 
 import java.util.function.Predicate;
 
@@ -60,6 +61,14 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
   @Optional(defaultValue = "INCLUDE")
   private EmailFilterPolicy recent;
 
+  /**
+   * If search filters should be sent to be applied by the email server. Default to false.
+   * */
+  @Parameter
+  @DisplayName("Enable Remote Search")
+  @Optional(defaultValue = "false")
+  private boolean enableRemoteSearchFilter;
+
   @Override
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {
 
@@ -100,6 +109,10 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
     return recent;
   }
 
+  public boolean getEnableRemoteSearchFilter() {
+    return enableRemoteSearchFilter;
+  }
+
   public IMAPEmailPredicateBuilder setAnswered(EmailFilterPolicy answered) {
     this.answered = answered;
     return this;
@@ -117,6 +130,11 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
 
   public IMAPEmailPredicateBuilder setSeen(EmailFilterPolicy seen) {
     this.seen = seen;
+    return this;
+  }
+
+  public IMAPEmailPredicateBuilder setEnableRemoteSearchFilter(boolean enableRemoteSearchFilter) {
+    this.enableRemoteSearchFilter = enableRemoteSearchFilter;
     return this;
   }
 }

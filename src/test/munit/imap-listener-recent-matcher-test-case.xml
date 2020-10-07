@@ -17,12 +17,22 @@
 
     <munit:config name="imap-listener-recent-matcher-test-case.xml">
         <munit:parameterizations>
-            <munit:parameterization name="imap">
+            <munit:parameterization name="imap-local">
                 <munit:parameters>
                     <munit:parameter propertyName="config" value="imap-config"/>
                     <munit:parameter propertyName="protocol" value="imap"/>
                     <munit:parameter propertyName="startMethod" value="start(Integer)"/>
                     <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                    <munit:parameter propertyName="enableRemoteSearchFilter" value="false"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="imap-remote">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imap-config"/>
+                    <munit:parameter propertyName="protocol" value="imap"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                    <munit:parameter propertyName="remoteSearch" value="true"/>
                 </munit:parameters>
             </munit:parameterization>
             <munit:parameterization name="imaps">
@@ -113,7 +123,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher recent="EXCLUDE" answered="EXCLUDE"/>
+            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" recent="EXCLUDE" answered="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -144,7 +154,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher recent="REQUIRE" answered="EXCLUDE"/>
+            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" recent="REQUIRE" answered="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

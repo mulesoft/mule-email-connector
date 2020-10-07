@@ -17,12 +17,22 @@
 
     <munit:config name="imap-listener-since-until-matcher-test-case.xml">
         <munit:parameterizations>
-            <munit:parameterization name="imap">
+            <munit:parameterization name="imap-local">
                 <munit:parameters>
                     <munit:parameter propertyName="config" value="imap-config"/>
                     <munit:parameter propertyName="protocol" value="imap"/>
                     <munit:parameter propertyName="startMethod" value="start(Integer)"/>
                     <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                    <munit:parameter propertyName="enableRemoteSearchFilter" value="false"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="imap-remote">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imap-config"/>
+                    <munit:parameter propertyName="protocol" value="imap"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                    <munit:parameter propertyName="remoteSearch" value="true"/>
                 </munit:parameters>
             </munit:parameterization>
             <munit:parameterization name="imaps">
@@ -107,7 +117,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher sentSince="2018-01-01T10:15:30" />
+            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" sentSince="2018-01-01T10:15:30" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -138,7 +148,7 @@
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher sentSince="2007-11-03T10:15:30" sentUntil="2018-01-01T10:15:30" />
+            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" sentSince="2007-11-03T10:15:30" sentUntil="2018-01-01T10:15:30" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
