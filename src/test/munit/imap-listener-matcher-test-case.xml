@@ -23,7 +23,7 @@
                     <munit:parameter propertyName="protocol" value="imap"/>
                     <munit:parameter propertyName="startMethod" value="start(Integer)"/>
                     <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
-                    <munit:parameter propertyName="enableRemoteSearchFilter" value="false"/>
+                    <munit:parameter propertyName="remoteSearch" value="false"/>
                 </munit:parameters>
             </munit:parameterization>
             <munit:parameterization name="imap-remote">

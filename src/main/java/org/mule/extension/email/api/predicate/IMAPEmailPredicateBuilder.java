@@ -67,7 +67,7 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
   @Parameter
   @DisplayName("Enable Remote Search")
   @Optional(defaultValue = "false")
-  private boolean enableRemoteSearchFilter;
+  private boolean enableRemoteSearchFilter = false;
 
   @Override
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {

@@ -23,7 +23,7 @@
                     <munit:parameter propertyName="protocol" value="imap"/>
                     <munit:parameter propertyName="startMethod" value="start(Integer)"/>
                     <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
-                    <munit:parameter propertyName="enableRemoteSearchFilter" value="false"/>
+                    <munit:parameter propertyName="remoteSearch" value="false"/>
                 </munit:parameters>
             </munit:parameterization>
             <munit:parameterization name="imap-remote">
@@ -96,8 +96,7 @@
     </munit:after-suite>
 
     <!-- Test polled emails with RECENT=EXCLUDE filter returns non-recent emails only -->
-    <!--TODO: flag OLD is set, but not supported by current test server-->
-    <!--munit:test name="pollOnlyNonRecent">
+    <munit:test name="pollOnlyNonRecent">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-only-non-recent-emails-imap"/>
         </munit:enable-flow-sources>
@@ -110,13 +109,13 @@
             <flow-ref name="sendEmails"/>
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="10" max="10"/>
+                <validation:validate-size value="#[payload]" min="15" max="15"/>
                 <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('Not recent email'))]"/>
             </until-successful>
         </munit:validation>
-    </munit:test-->
+    </munit:test>
 
     <flow name="trigger-only-non-recent-emails-imap" maxConcurrency="1">
         <email:listener-imap config-ref="${config}">

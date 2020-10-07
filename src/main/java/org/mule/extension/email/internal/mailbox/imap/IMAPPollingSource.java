@@ -44,6 +44,7 @@ import javax.mail.search.SearchTerm;
 import javax.mail.search.FlagTerm;
 import javax.mail.search.OrTerm;
 import javax.mail.search.AndTerm;
+import javax.mail.search.NotTerm;
 import javax.mail.search.SentDateTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SubjectTerm;
@@ -123,13 +124,13 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
 
   @Override
   protected Message[] getMessages(Folder openFolder) {
-    IMAPEmailPredicateBuilder matcher = getPredicateBuilder().orElseGet(() -> new IMAPEmailPredicateBuilder());
-    HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap = new HashMap();
-
-    if (!matcher.getEnableRemoteSearchFilter()) {
+    if (!getPredicateBuilder().isPresent() || !getPredicateBuilder().get().getEnableRemoteSearchFilter()) {
       //Filters will be applied locally.
       return super.getMessages(openFolder);
     }
+
+    IMAPEmailPredicateBuilder matcher = getPredicateBuilder().orElseGet(() -> new IMAPEmailPredicateBuilder());
+    HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap = new HashMap();
 
     flagMatcherMap.put(ANSWERED, () -> matcher.getAnswered());
     flagMatcherMap.put(DELETED, () -> matcher.getDeleted());
@@ -208,7 +209,9 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   private SearchTerm buildSearchFilter(HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap) {
     AndTerm searchTerm = null;
     OrTerm includeTerm = null;
+    NotTerm excludeTerm = null;
     List<FlagTerm> andTerms = new ArrayList<>();
+    List<FlagTerm> andNegatedTerms = new ArrayList<>();
     List<FlagTerm> orTerms = new ArrayList<>();
 
     for (Entry<Flag, Supplier<EmailFilterPolicy>> flagMatcherEntry : flagMatcherMap.entrySet()) {
@@ -221,7 +224,12 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
         //This is an INCLUDE
         orTerms.add(getSearchTerm(flagMatcherEntry.getKey(), true));
       } else {
-        andTerms.add(getSearchTerm(flagMatcherEntry.getKey(), policy.asBoolean().get()));
+        FlagTerm andTerm = getSearchTerm(flagMatcherEntry.getKey(), policy.asBoolean().get().booleanValue());
+        if (policy.asBoolean().get().booleanValue()) {
+          andTerms.add(andTerm);
+        } else {
+          andNegatedTerms.add(getSearchTerm(flagMatcherEntry.getKey(), true));
+        }
       }
     }
 
@@ -229,12 +237,12 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     orTerms.toArray(orTermsArray);
     includeTerm = new OrTerm(orTermsArray);
 
-    if (andTerms.isEmpty() && orTerms.isEmpty()) {
+    if (andTerms.isEmpty() && andNegatedTerms.isEmpty() && orTerms.isEmpty()) {
       // No matcher
       return null;
     }
 
-    if (andTerms.isEmpty()) {
+    if (andTerms.isEmpty() && andNegatedTerms.isEmpty()) {
       return includeTerm;
     }
 
@@ -242,11 +250,32 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     andTerms.toArray(andTermsArray);
     searchTerm = new AndTerm(andTermsArray);
 
+    FlagTerm[] negatedAndTermsArray = new FlagTerm[andNegatedTerms.size()];
+    andNegatedTerms.toArray(negatedAndTermsArray);
+    excludeTerm = new NotTerm(new OrTerm(negatedAndTermsArray));
+
     if (orTerms.isEmpty()) {
-      return searchTerm;
+      if (!andNegatedTerms.isEmpty() && !andTerms.isEmpty()) {
+        return new AndTerm(searchTerm, excludeTerm);
+      }
+
+      if (andNegatedTerms.isEmpty()) {
+        return searchTerm;
+      }
+
+      return excludeTerm;
     }
 
-    return new OrTerm(includeTerm, searchTerm);
+    if (andNegatedTerms.isEmpty()) {
+      return new OrTerm(includeTerm, searchTerm);
+    }
+
+    if (andTerms.isEmpty()) {
+      return new OrTerm(includeTerm, excludeTerm);
+    }
+
+    return new OrTerm(includeTerm, new AndTerm(excludeTerm, searchTerm));
+
   }
 
 }
