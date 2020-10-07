@@ -201,13 +201,13 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     return Date.from(date.atZone(systemDefault()).toInstant());
   }
 
-  private FlagTerm getSearchTerm(Flag flag, boolean setValue) {
+  private FlagTerm getFlagTerm(Flag flag, boolean setValue) {
     //if no policy defined, then default to INCLUDE
     return new FlagTerm(new Flags(flag), setValue);
   }
 
   private SearchTerm buildSearchFilter(HashMap<Flag, Supplier<EmailFilterPolicy>> flagMatcherMap) {
-    AndTerm searchTerm = null;
+    AndTerm requireTerm = null;
     OrTerm includeTerm = null;
     NotTerm excludeTerm = null;
     List<FlagTerm> andTerms = new ArrayList<>();
@@ -220,27 +220,26 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
         continue;
       }
 
+      FlagTerm flagTerm = getFlagTerm(flagMatcherEntry.getKey(), true);
+
       if (!policy.asBoolean().isPresent()) {
         //This is an INCLUDE
-        orTerms.add(getSearchTerm(flagMatcherEntry.getKey(), true));
+        orTerms.add(flagTerm);
+      } else if (policy.asBoolean().get().booleanValue()) {
+        andTerms.add(flagTerm);
       } else {
-        FlagTerm andTerm = getSearchTerm(flagMatcherEntry.getKey(), policy.asBoolean().get().booleanValue());
-        if (policy.asBoolean().get().booleanValue()) {
-          andTerms.add(andTerm);
-        } else {
-          andNegatedTerms.add(getSearchTerm(flagMatcherEntry.getKey(), true));
-        }
+        andNegatedTerms.add(flagTerm);
       }
     }
-
-    FlagTerm[] orTermsArray = new FlagTerm[orTerms.size()];
-    orTerms.toArray(orTermsArray);
-    includeTerm = new OrTerm(orTermsArray);
 
     if (andTerms.isEmpty() && andNegatedTerms.isEmpty() && orTerms.isEmpty()) {
       // No matcher
       return null;
     }
+
+    FlagTerm[] orTermsArray = new FlagTerm[orTerms.size()];
+    orTerms.toArray(orTermsArray);
+    includeTerm = new OrTerm(orTermsArray);
 
     if (andTerms.isEmpty() && andNegatedTerms.isEmpty()) {
       return includeTerm;
@@ -248,7 +247,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
 
     FlagTerm[] andTermsArray = new FlagTerm[andTerms.size()];
     andTerms.toArray(andTermsArray);
-    searchTerm = new AndTerm(andTermsArray);
+    requireTerm = new AndTerm(andTermsArray);
 
     FlagTerm[] negatedAndTermsArray = new FlagTerm[andNegatedTerms.size()];
     andNegatedTerms.toArray(negatedAndTermsArray);
@@ -256,25 +255,25 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
 
     if (orTerms.isEmpty()) {
       if (!andNegatedTerms.isEmpty() && !andTerms.isEmpty()) {
-        return new AndTerm(searchTerm, excludeTerm);
+        return new AndTerm(requireTerm, excludeTerm);
       }
 
       if (andNegatedTerms.isEmpty()) {
-        return searchTerm;
+        return requireTerm;
       }
 
       return excludeTerm;
     }
 
     if (andNegatedTerms.isEmpty()) {
-      return new OrTerm(includeTerm, searchTerm);
+      return new OrTerm(includeTerm, requireTerm);
     }
 
     if (andTerms.isEmpty()) {
       return new OrTerm(includeTerm, excludeTerm);
     }
 
-    return new OrTerm(includeTerm, new AndTerm(excludeTerm, searchTerm));
+    return new OrTerm(includeTerm, new AndTerm(excludeTerm, requireTerm));
 
   }
 
