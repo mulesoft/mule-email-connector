@@ -108,11 +108,11 @@
     </munit:test>
 
     <flow name="trigger-only-matching-subject-regex-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" subjectRegex="Email Subject" />
+            <email:imap-matcher subjectRegex="Email Subject" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -137,11 +137,11 @@
     </munit:test>
 
     <flow name="trigger-only-matching-from-regex-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" fromRegex="@mulesoft" />
+            <email:imap-matcher fromRegex="@mulesoft" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow-->

@@ -121,11 +121,11 @@
     </munit:test>
 
     <flow name="trigger-only-unanswered-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}" >
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}" >
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" answered="EXCLUDE"/>
+            <email:imap-matcher answered="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -154,11 +154,11 @@
     </munit:test>
 
     <flow name="trigger-only-answered-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}" >
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}" >
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" answered="REQUIRE" deleted="EXCLUDE" seen="EXCLUDE" recent="EXCLUDE"/>
+            <email:imap-matcher answered="REQUIRE" deleted="EXCLUDE" seen="EXCLUDE" recent="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

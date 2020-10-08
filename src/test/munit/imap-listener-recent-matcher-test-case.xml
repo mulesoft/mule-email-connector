@@ -118,11 +118,11 @@
     </munit:test>
 
     <flow name="trigger-only-non-recent-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" recent="EXCLUDE" answered="EXCLUDE"/>
+            <email:imap-matcher recent="EXCLUDE" answered="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -149,11 +149,11 @@
     </munit:test>
 
     <flow name="trigger-only-recent-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" recent="REQUIRE" answered="EXCLUDE"/>
+            <email:imap-matcher recent="REQUIRE" answered="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>

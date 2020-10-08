@@ -129,11 +129,11 @@
     </munit:test>
 
     <flow name="trigger-only-deleted-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" deleted="REQUIRE" />
+            <email:imap-matcher deleted="REQUIRE" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -165,11 +165,11 @@
     </munit:test>
 
     <flow name="trigger-only-include-deleted-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}" >
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" deleted="INCLUDE" />
+            <email:imap-matcher deleted="INCLUDE" />
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
@@ -207,11 +207,11 @@
     </munit:test>
 
     <flow name="trigger-exclude-deleted-emails-imap" maxConcurrency="1">
-        <email:listener-imap config-ref="${config}">
+        <email:listener-imap config-ref="${config}" remoteSearchFilterEnabled="${remoteSearch}">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
-            <email:imap-matcher enableRemoteSearchFilter="${remoteSearch}" deleted="EXCLUDE"/>
+            <email:imap-matcher deleted="EXCLUDE"/>
         </email:listener-imap>
         <flow-ref name="storeMessages"/>
     </flow>
