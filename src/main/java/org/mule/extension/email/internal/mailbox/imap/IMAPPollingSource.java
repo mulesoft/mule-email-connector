@@ -10,8 +10,8 @@ import static java.util.Optional.of;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.extension.email.api.exception.EmailListException;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
+import org.mule.extension.email.api.predicate.IMAPRemoteSearchTermInitializer;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 
@@ -69,6 +69,8 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   @Optional(defaultValue = "false")
   private boolean remoteSearchFilterEnabled = false;
 
+  private IMAPRemoteSearchTermInitializer remoteSearchTerm;
+
   /**
    * {@inheritDoc}
    */
@@ -83,14 +85,6 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   @Override
   protected boolean isWatermarkEnabled() {
     return watermarkEnabled;
-  }
-
-  public boolean isRemoteSearchFilterEnabled() {
-    return remoteSearchFilterEnabled;
-  }
-
-  public void setRemoteSearchFilterEnabled(boolean enableRemoteSearchFilter) {
-    this.remoteSearchFilterEnabled = enableRemoteSearchFilter;
   }
 
   @Override
@@ -119,27 +113,22 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   public void doStart() throws ConnectionException {
     super.doStart();
     if (this.getPredicateBuilder().isPresent()) {
-      this.getPredicateBuilder().get().initializeRemoteSearchTerm();
+      remoteSearchTerm = new IMAPRemoteSearchTermInitializer(this.getPredicateBuilder().get());
     }
   }
 
   @Override
   protected Message[] getMessages(Folder openFolder) {
-    try {
-      if (!(this.isRemoteSearchFilterEnabled() && getPredicateBuilder().isPresent()
-          && getPredicateBuilder().get().getRemoteSearchTerm().isPresent())) {
-        //Filters will be applied locally.
-        return super.getMessages(openFolder);
-      }
+    if (!(this.remoteSearchFilterEnabled && getPredicateBuilder().isPresent()
+        && this.remoteSearchTerm.getRemoteSearchTerm().isPresent())) {
+      //Filters will be applied locally.
+      return super.getMessages(openFolder);
+    }
 
-      try {
-        return openFolder.search(getPredicateBuilder().get().getRemoteSearchTerm().get());
-      } catch (MessagingException e) {
-        return openFolder.getMessages();
-      }
+    try {
+      return openFolder.search(this.remoteSearchTerm.getRemoteSearchTerm().get());
     } catch (MessagingException e) {
-      LOGGER.error("Error occurred while retrieving emails: {}", e);
-      throw new EmailListException("Error retrieving emails: " + e.getMessage(), e);
+      return super.getMessages(openFolder);
     }
   }
 

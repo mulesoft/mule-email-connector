@@ -6,15 +6,6 @@
  */
 package org.mule.extension.email.api.predicate;
 
-import static java.util.Optional.of;
-import static java.util.Optional.empty;
-import static java.time.ZoneId.systemDefault;
-import static javax.mail.Flags.Flag.ANSWERED;
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.RECENT;
-import static javax.mail.Flags.Flag.SEEN;
-import static javax.mail.search.ComparisonTerm.GE;
-import static javax.mail.search.ComparisonTerm.LE;
 import static org.mule.extension.email.api.predicate.EmailFilterPolicy.INCLUDE;
 import org.mule.extension.email.api.EmailFlags;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
@@ -23,26 +14,7 @@ import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.mail.Flags;
-import javax.mail.search.SearchTerm;
-import javax.mail.search.FlagTerm;
-import javax.mail.search.NotTerm;
-import javax.mail.search.AndTerm;
-import javax.mail.search.OrTerm;
-import javax.mail.search.SubjectTerm;
-import javax.mail.search.SentDateTerm;
-import javax.mail.search.ReceivedDateTerm;
-import javax.mail.search.FromStringTerm;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Date;
-import java.util.Map;
-import java.util.function.Supplier;
 import java.util.function.Predicate;
 
 /**
@@ -88,74 +60,9 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
   @Optional(defaultValue = "INCLUDE")
   private EmailFilterPolicy recent;
 
-  private java.util.Optional<SearchTerm> remoteSearchTerm = empty();
-
-  private final static Logger LOGGER = LoggerFactory.getLogger(IMAPEmailPredicateBuilder.class);
-
-  public void initializeRemoteSearchTerm() {
-    HashMap<Flags.Flag, Supplier<EmailFilterPolicy>> flagMatcherMap = new HashMap();
-
-    flagMatcherMap.put(ANSWERED, () -> this.answered);
-    flagMatcherMap.put(DELETED, () -> this.deleted);
-    flagMatcherMap.put(RECENT, () -> this.recent);
-    flagMatcherMap.put(SEEN, () -> this.seen);
-
-    try {
-      this.remoteSearchTerm = buildSearchFilter(flagMatcherMap);
-
-      if (!this.remoteSearchTerm.isPresent()) {
-        return;
-      }
-
-      List<SearchTerm> dateAndRegexFilters = new ArrayList<>();
-
-      if (this.getSubjectRegex() != null) {
-        SubjectTerm subjectTerm = new SubjectTerm(this.getSubjectRegex());
-        dateAndRegexFilters.add(subjectTerm);
-      }
-
-      if (this.getReceivedSince() != null) {
-        Date receivedSinceDate = convertLocalDateTimeToDate(this.getReceivedSince());
-        ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(GE, receivedSinceDate);
-        dateAndRegexFilters.add(receivedDateTerm);
-      }
-
-      if (this.getReceivedUntil() != null) {
-        Date receivedUntilDate = convertLocalDateTimeToDate(this.getReceivedUntil());
-        ReceivedDateTerm receivedDateTerm = new ReceivedDateTerm(LE, receivedUntilDate);
-        dateAndRegexFilters.add(receivedDateTerm);
-      }
-
-      if (this.getSentSince() != null) {
-        Date sentSinceDate = convertLocalDateTimeToDate(this.getSentSince());
-        SentDateTerm sentDateTerm = new SentDateTerm(GE, sentSinceDate);
-        dateAndRegexFilters.add(sentDateTerm);
-      }
-
-      if (this.getSentUntil() != null) {
-        Date sentUntilDate = convertLocalDateTimeToDate(this.getSentUntil());
-        SentDateTerm sentDateTerm = new SentDateTerm(LE, sentUntilDate);
-        dateAndRegexFilters.add(sentDateTerm);
-      }
-
-      if (this.getFromRegex() != null) {
-        FromStringTerm fromTerm = new FromStringTerm(this.getFromRegex());
-        dateAndRegexFilters.add(fromTerm);
-      }
-
-      if (!dateAndRegexFilters.isEmpty()) {
-        SearchTerm[] additionalFiltersArray = new SearchTerm[dateAndRegexFilters.size()];
-        dateAndRegexFilters.toArray(additionalFiltersArray);
-        this.remoteSearchTerm = of(new AndTerm(this.remoteSearchTerm.get(), new AndTerm(additionalFiltersArray)));
-      }
-
-    } catch (Exception e) {
-      LOGGER.error("Error occurred building imap matcher {}", e);
-    }
-  }
-
   @Override
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {
+
     Predicate<IMAPEmailAttributes> predicate = imapEmailAttributes -> true;
 
     if (!INCLUDE.equals(recent)) {
@@ -212,88 +119,4 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
     this.seen = seen;
     return this;
   }
-
-  public java.util.Optional<SearchTerm> getRemoteSearchTerm() {
-    return this.remoteSearchTerm;
-  }
-
-  private Date convertLocalDateTimeToDate(LocalDateTime date) {
-    return Date.from(date.atZone(systemDefault()).toInstant());
-  }
-
-  private FlagTerm getFlagTerm(Flags.Flag flag, boolean setValue) {
-    //if no policy defined, then default to INCLUDE
-    return new FlagTerm(new Flags(flag), setValue);
-  }
-
-  private java.util.Optional<SearchTerm> buildSearchFilter(HashMap<Flags.Flag, Supplier<EmailFilterPolicy>> flagMatcherMap) {
-    AndTerm requireTerm = null;
-    OrTerm includeTerm = null;
-    NotTerm excludeTerm = null;
-    List<FlagTerm> andTerms = new ArrayList<>();
-    List<FlagTerm> andNegatedTerms = new ArrayList<>();
-    List<FlagTerm> orTerms = new ArrayList<>();
-
-    for (Map.Entry<Flags.Flag, Supplier<EmailFilterPolicy>> flagMatcherEntry : flagMatcherMap.entrySet()) {
-      EmailFilterPolicy policy = flagMatcherEntry.getValue().get();
-      if (policy == null) {
-        continue;
-      }
-
-      FlagTerm flagTerm = getFlagTerm(flagMatcherEntry.getKey(), true);
-
-      if (!policy.asBoolean().isPresent()) {
-        //This is an INCLUDE
-        orTerms.add(flagTerm);
-      } else if (policy.asBoolean().get().booleanValue()) {
-        andTerms.add(flagTerm);
-      } else {
-        andNegatedTerms.add(flagTerm);
-      }
-    }
-
-    if (andTerms.isEmpty() && andNegatedTerms.isEmpty() && orTerms.isEmpty()) {
-      // No matcher
-      return empty();
-    }
-
-    FlagTerm[] orTermsArray = new FlagTerm[orTerms.size()];
-    orTerms.toArray(orTermsArray);
-    includeTerm = new OrTerm(orTermsArray);
-
-    if (andTerms.isEmpty() && andNegatedTerms.isEmpty()) {
-      return of(includeTerm);
-    }
-
-    FlagTerm[] andTermsArray = new FlagTerm[andTerms.size()];
-    andTerms.toArray(andTermsArray);
-    requireTerm = new AndTerm(andTermsArray);
-
-    FlagTerm[] negatedAndTermsArray = new FlagTerm[andNegatedTerms.size()];
-    andNegatedTerms.toArray(negatedAndTermsArray);
-    excludeTerm = new NotTerm(new OrTerm(negatedAndTermsArray));
-
-    if (orTerms.isEmpty()) {
-      if (!andNegatedTerms.isEmpty() && !andTerms.isEmpty()) {
-        return of(new AndTerm(requireTerm, excludeTerm));
-      }
-
-      if (andNegatedTerms.isEmpty()) {
-        return of(requireTerm);
-      }
-
-      return of(excludeTerm);
-    }
-
-    if (andNegatedTerms.isEmpty()) {
-      return of(new OrTerm(includeTerm, requireTerm));
-    }
-
-    if (andTerms.isEmpty()) {
-      return of(new OrTerm(includeTerm, excludeTerm));
-    }
-
-    return of(new OrTerm(includeTerm, new AndTerm(excludeTerm, requireTerm)));
-  }
-
 }
