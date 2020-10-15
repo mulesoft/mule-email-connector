@@ -4,8 +4,10 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.email.api.predicate;
+package org.mule.extension.email.internal.mailbox.imap;
 
+import org.mule.extension.email.api.predicate.EmailFilterPolicy;
+import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.slf4j.Logger;
 
 import static java.util.Optional.of;

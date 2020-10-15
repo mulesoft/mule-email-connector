@@ -11,7 +11,6 @@ import static java.util.Optional.of;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
-import org.mule.extension.email.api.predicate.IMAPRemoteSearchTerm;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 
