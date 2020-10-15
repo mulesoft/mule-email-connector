@@ -11,7 +11,7 @@ import static java.util.Optional.of;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
-import org.mule.extension.email.api.predicate.IMAPRemoteSearchTermInitializer;
+import org.mule.extension.email.api.predicate.IMAPRemoteSearchTerm;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
 
@@ -25,8 +25,6 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.source.OnBackPressure;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -41,8 +39,6 @@ import javax.mail.MessagingException;
 @Alias("listener-imap")
 @MetadataScope(outputResolver = StoredEmailContentTypeResolver.class)
 public class IMAPPollingSource extends BaseMailboxPollingSource {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(IMAPPollingSource.class);
 
   /**
    * If watermark should be applied to the polled emails or not. Default to true.
@@ -69,7 +65,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   @Optional(defaultValue = "false")
   private boolean remoteSearchFilterEnabled = false;
 
-  private IMAPRemoteSearchTermInitializer remoteSearchTerm;
+  private IMAPRemoteSearchTerm remoteSearchTerm;
 
   /**
    * {@inheritDoc}
@@ -113,7 +109,7 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   public void doStart() throws ConnectionException {
     super.doStart();
     if (this.getPredicateBuilder().isPresent()) {
-      remoteSearchTerm = new IMAPRemoteSearchTermInitializer(this.getPredicateBuilder().get());
+      remoteSearchTerm = new IMAPRemoteSearchTerm(this.getPredicateBuilder().get());
     }
   }
 

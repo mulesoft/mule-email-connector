@@ -7,11 +7,11 @@
 package org.mule.extension.email.api.predicate;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static java.util.Optional.of;
 import static java.util.Optional.empty;
 import static java.time.ZoneId.systemDefault;
+import static org.slf4j.LoggerFactory.getLogger;
 import static javax.mail.Flags.Flag.ANSWERED;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.RECENT;
@@ -37,14 +37,14 @@ import java.util.Date;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public class IMAPRemoteSearchTermInitializer {
+public class IMAPRemoteSearchTerm {
 
-  private final static Logger LOGGER = LoggerFactory.getLogger(IMAPRemoteSearchTermInitializer.class);
+  private final static Logger LOGGER = getLogger(IMAPRemoteSearchTerm.class);
 
   private IMAPEmailPredicateBuilder imapEmailPredicateBuilder;
   private java.util.Optional<SearchTerm> remoteSearchTerm = empty();
 
-  public IMAPRemoteSearchTermInitializer(IMAPEmailPredicateBuilder predicateBuilder) {
+  public IMAPRemoteSearchTerm(IMAPEmailPredicateBuilder predicateBuilder) {
     this.imapEmailPredicateBuilder = predicateBuilder;
 
     HashMap<Flags.Flag, Supplier<EmailFilterPolicy>> flagMatcherMap = new HashMap();
