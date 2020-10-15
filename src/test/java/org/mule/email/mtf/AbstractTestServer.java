@@ -6,9 +6,14 @@
  */
 package org.mule.email.mtf;
 
+import static java.sql.Date.from;
+import static java.time.LocalDateTime.parse;
+
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.Date;
 
+import static java.time.ZoneId.systemDefault;
 import static javax.mail.Message.RecipientType.CC;
 import static javax.mail.Message.RecipientType.TO;
 import static org.mule.extension.email.util.EmailTestUtils.*;
@@ -29,4 +34,21 @@ public class AbstractTestServer {
       throw new RuntimeException("Cannot create test Email", e);
     }
   }
+
+  protected static MimeMessage getMimeMessage(String to, String cc, String body, String contentType, String subject,
+                                              String from, String sentDate) {
+    try {
+      MimeMessage message = getMimeMessage(to, cc, body, contentType, subject, from);
+      message.setSentDate(convertLocalDateTimeStringToDate(sentDate));
+      return message;
+    } catch (Exception e) {
+      throw new RuntimeException("Cannot create test Email", e);
+    }
+  }
+
+  private static Date convertLocalDateTimeStringToDate(String localDateTime) {
+    return from(parse(localDateTime).atZone(systemDefault()).toInstant());
+  }
+
+
 }

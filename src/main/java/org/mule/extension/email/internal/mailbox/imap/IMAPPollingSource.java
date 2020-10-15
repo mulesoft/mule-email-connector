@@ -10,10 +10,11 @@ import static java.util.Optional.of;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
-import org.mule.extension.email.api.predicate.BaseEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.internal.mailbox.BaseMailboxPollingSource;
 import org.mule.extension.email.internal.resolver.StoredEmailContentTypeResolver;
+
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.execution.OnTerminate;
 import org.mule.runtime.extension.api.annotation.metadata.MetadataScope;
@@ -23,6 +24,10 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.source.OnBackPressure;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
+
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 
 /**
  * Retrieves all the emails from an IMAP mailbox folder, watermark can be enabled for polled items.
@@ -50,10 +55,22 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   private IMAPEmailPredicateBuilder imapMatcher;
 
   /**
+   * If search filters should be resolved on server(true) or client(false) side. Default to false because
+   * some email servers might not be fully compliant with rfc-3501's search terms. Activating this feature
+   * will diminish traffic by reducing the amount of emails brought to client side for processing.
+   * */
+  @Parameter
+  @DisplayName("Enable Remote Search")
+  @Optional(defaultValue = "false")
+  private boolean remoteSearchFilterEnabled = false;
+
+  private IMAPRemoteSearchTerm remoteSearchTerm;
+
+  /**
    * {@inheritDoc}
    */
   @Override
-  protected java.util.Optional<? extends BaseEmailPredicateBuilder> getPredicateBuilder() {
+  protected java.util.Optional<IMAPEmailPredicateBuilder> getPredicateBuilder() {
     return of(imapMatcher == null ? new DefaultPollingSourceMatcher() : imapMatcher);
   }
 
@@ -85,6 +102,29 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   @OnTerminate
   public void onTerminate() {
     endUsingFolder();
+  }
+
+  @Override
+  public void doStart() throws ConnectionException {
+    super.doStart();
+    if (this.getPredicateBuilder().isPresent()) {
+      remoteSearchTerm = new IMAPRemoteSearchTerm(this.getPredicateBuilder().get());
+    }
+  }
+
+  @Override
+  protected Message[] getMessages(Folder openFolder) {
+    if (!(this.remoteSearchFilterEnabled && getPredicateBuilder().isPresent()
+        && this.remoteSearchTerm.getRemoteSearchTerm().isPresent())) {
+      //Filters will be applied locally.
+      return super.getMessages(openFolder);
+    }
+
+    try {
+      return openFolder.search(this.remoteSearchTerm.getRemoteSearchTerm().get());
+    } catch (MessagingException e) {
+      return super.getMessages(openFolder);
+    }
   }
 
 }
