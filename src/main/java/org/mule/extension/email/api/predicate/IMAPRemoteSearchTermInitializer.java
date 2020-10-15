@@ -39,7 +39,7 @@ import java.util.function.Supplier;
 
 public class IMAPRemoteSearchTermInitializer {
 
-  private final static Logger LOGGER = LoggerFactory.getLogger(IMAPEmailPredicateBuilder.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(IMAPRemoteSearchTermInitializer.class);
 
   private IMAPEmailPredicateBuilder imapEmailPredicateBuilder;
   private java.util.Optional<SearchTerm> remoteSearchTerm = empty();
