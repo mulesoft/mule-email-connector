@@ -157,9 +157,9 @@
 
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="20" max="20"/>
+                <validation:validate-size value="#[payload]" min="15" max="20"/>
             </until-successful>
         </munit:validation>
     </munit:test>
