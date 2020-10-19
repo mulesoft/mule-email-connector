@@ -211,7 +211,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
     result.getAttributes().ifPresent(a -> LOGGER.debug("Email [" + a.getId() + "] was not processed."));
   }
 
-  private Message[] getMessages(Folder openFolder) {
+  protected Message[] getMessages(Folder openFolder) {
     try {
       return openFolder.getMessages();
     } catch (MessagingException e) {

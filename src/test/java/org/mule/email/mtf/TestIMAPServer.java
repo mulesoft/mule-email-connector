@@ -6,9 +6,13 @@
  */
 package org.mule.email.mtf;
 
+import static java.util.Arrays.stream;
 import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAP;
 import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAPS;
+import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.RECENT;
+import static javax.mail.Flags.Flag.SEEN;
+import static javax.mail.Flags.Flag.ANSWERED;
 import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
@@ -21,18 +25,22 @@ import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessageWi
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
 
-import javax.mail.internet.MimeMessage;
+import javax.mail.Flags;
+import javax.mail.MessagingException;
 
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 // TODO: Fix my duplicated code me when MTF can run parameterized tests
 public class TestIMAPServer extends AbstractTestServer {
 
   protected static GreenMail server;
   protected static GreenMailUser user;
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestIMAPServer.class);
 
   public static void start(Integer port) {
     doStart(port, PROTOCOL_IMAP);
@@ -54,6 +62,48 @@ public class TestIMAPServer extends AbstractTestServer {
 
   public static void sendEmailWithSubject(String subject, String from) {
     user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, subject, from));
+  }
+
+  public static void replyToAll() {
+    stream(server.getReceivedMessages()).forEach(email -> {
+      try {
+        email.reply(true);
+      } catch (MessagingException e) {
+        LOGGER.error(e.getMessage());
+      }
+    });
+  }
+
+  public static void markAllAsDeleted() {
+    markAllEmailAs(DELETED, true);
+  }
+
+  public static void markAllAsSeen() {
+    markAllEmailAs(SEEN, true);
+  }
+
+  public static void markAllAsRecent() {
+    markAllEmailAs(RECENT, true);
+  }
+
+  public static void markAllAsNotRecent() {
+    markAllEmailAs(RECENT, false);
+  }
+
+  public static void markAllAsDeletedWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, DELETED, true);
+  }
+
+  public static void markAllAsAnsweredWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, ANSWERED, true);
+  }
+
+  public static void markAllAsRecentWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, RECENT, true);
+  }
+
+  public static void markAllAsSeenWhenSubject(String subject) {
+    markEmailAsWhenSubjectContains(subject, SEEN, true);
   }
 
   public static void sendEmailWithAllFields(String to, String cc, String body, String contentType, String subject, String from) {
@@ -117,8 +167,32 @@ public class TestIMAPServer extends AbstractTestServer {
   }
 
   public static void setMailboxRecentFlag(boolean state) throws Exception {
-    for (MimeMessage message : server.getReceivedMessages()) {
-      message.setFlag(RECENT, state);
-    }
+    markAllEmailAs(RECENT, state);
+  }
+
+  public static void sendEmailWithSubjectAndSentDate(String subject, String from, String sinceDate) {
+    user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, subject, from, sinceDate));
+  }
+
+  private static void markAllEmailAs(Flags.Flag flag, boolean set) {
+    stream(server.getReceivedMessages()).forEach(email -> {
+      try {
+        email.setFlag(flag, set);
+      } catch (MessagingException e) {
+        LOGGER.error(e.getMessage());
+      }
+    });
+  }
+
+  private static void markEmailAsWhenSubjectContains(String subject, Flags.Flag flag, boolean set) {
+    stream(server.getReceivedMessages()).forEach(email -> {
+      try {
+        if (email.getSubject().contains(subject)) {
+          email.setFlag(flag, set);
+        }
+      } catch (MessagingException e) {
+        LOGGER.error(e.getMessage());
+      }
+    });
   }
 }

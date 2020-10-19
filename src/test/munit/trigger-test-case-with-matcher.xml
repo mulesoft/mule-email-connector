@@ -15,7 +15,7 @@
       http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
       http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
 
-    <munit:config name="trigger-test-case.xml">
+    <munit:config name="trigger-test-case-with-matcher.xml">
         <munit:parameterizations>
             <munit:parameterization name="imap">
                 <munit:parameters>
@@ -85,8 +85,8 @@
     </email:imap-config>
 
     <!-- Setup/Dispose -->
-
     <munit:before-suite name="setUpServer">
+
         <java:invoke-static class="${serverName}" method="${startMethod}">
             <java:args>
                 #[{
@@ -116,43 +116,131 @@
         <java:invoke-static class="${serverName}" method="stop()"/>
     </munit:after-suite>
 
-    <!-- Test messages being polled and assert its content -->
-    <munit:test name="check-messages-content">
+    <!-- Test polled emails are being filtered with a Matcher -->
+    <!-- ignored by EMAILC-52 and MULE-18766-->
+    <munit:test name="with-matcher" ignore="#[Munit::muleVersionPriorTo('4.3.0')]">
 
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="trigger-simple-${protocol}"/>
+            <munit:enable-flow-source value="trigger-with-matcher-${protocol}"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <foreach collection="#[1 to 2]">
+                <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                    <java:args>
+                        #[{
+                        arg0: 'Find me matcher',
+                        arg1: 'juan.desimoni@mulesoft.com'
+                        }]
+                    </java:args>
+                </java:invoke-static>
+            </foreach>
+        </munit:behavior>
+
+        <munit:execution>
+            <until-successful maxRetries="20" millisBetweenRetries="500">
+                <munit-tools:retrieve key="messages"/>
+                <validation:validate-size value="#[payload]" min="2" max="2"/>
+            </until-successful>
+        </munit:execution>
+
+        <munit:validation>
+            <munit-tools:retrieve key="messages"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(2)]"/>
+            <foreach>
+                <munit-tools:assert-equals actual="#[attributes.subject]" expected="#['Find me matcher']"/>
+            </foreach>
+        </munit:validation>
+
+    </munit:test>
+
+    <flow name="trigger-with-matcher-imap" maxConcurrency="1">
+        <email:listener-imap config-ref="${config}">
+            <scheduling-strategy>
+                <fixed-frequency/>
+            </scheduling-strategy>
+            <email:imap-matcher subjectRegex="matcher"/>
+        </email:listener-imap>
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+    <flow name="trigger-with-matcher-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="${config}" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency/>
+            </scheduling-strategy>
+            <email:pop3-matcher subjectRegex="matcher"/>
+        </email:listener-pop3>
+
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+    <!-- Tests polled emails are deleted after processed -->
+    <munit:test name="deletes-after-retrieves">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-deletes-emails-${protocol}"/>
         </munit:enable-flow-sources>
 
         <munit:execution>
-            <until-successful maxRetries="100" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
         </munit:execution>
 
         <munit:validation>
-            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
-            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::hasSize(10)]"/>
-            <foreach>
-                <munit-tools:assert-equals actual="#[payload.body]" expected="#['Email Content']"/>
-            </foreach>
+            <flow-ref name="listEmails-${protocol}"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]"/>
         </munit:validation>
 
     </munit:test>
 
-    <flow name="trigger-simple-imap" maxConcurrency="1">
+    <!-- Tests polled emails attachments can be read -->
+    <munit:test name="attachments-after-dispatching">
 
-        <email:listener-imap config-ref="${config}">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="trigger-saves-attachments-${protocol}"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <foreach collection="#[1 to 10]">
+                <java:invoke-static class="${serverName}" method="sendMultiPartTestEmail()"/>
+            </foreach>
+        </munit:behavior>
+
+        <munit:validation>
+            <until-successful maxRetries="20" millisBetweenRetries="500">
+                <munit-tools:retrieve key="attachments"/>
+                <validation:validate-size value="#[payload]" min="10" max="10"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="trigger-saves-attachments-imap" maxConcurrency="1">
+
+        <email:listener-imap config-ref="${config}" deleteAfterRetrieve="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
         </email:listener-imap>
-
-        <flow-ref name="storeMessages"/>
+        <flow-ref name="storeAttachments"/>
     </flow>
 
-    <flow name="trigger-simple-pop3" maxConcurrency="1">
-        <email:listener-pop3 config-ref="${config}">
+    <flow name="trigger-saves-attachments-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="${config}" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:listener-pop3>
+        <flow-ref name="storeAttachments"/>
+    </flow>
+
+    <flow name="trigger-deletes-emails-pop3" maxConcurrency="1">
+
+        <email:listener-pop3 config-ref="${config}" deleteAfterRetrieve="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="2000"/>
             </scheduling-strategy>
@@ -160,5 +248,26 @@
 
         <flow-ref name="storeMessages"/>
     </flow>
+
+    <flow name="trigger-deletes-emails-imap" maxConcurrency="1">
+        <email:listener-imap config-ref="${config}" deleteAfterRetrieve="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="2000"/>
+            </scheduling-strategy>
+        </email:listener-imap>
+        <flow-ref name="storeMessages"/>
+    </flow>
+
+    <flow name="trigger-deletes-emails-smtp" maxConcurrency="1">
+        <logger level="INFO"></logger>
+    </flow>
+
+    <sub-flow name="listEmails-pop3">
+        <email:list-pop3 config-ref="${config}"/>
+    </sub-flow>
+
+    <sub-flow name="listEmails-imap">
+        <email:list-imap config-ref="${config}"/>
+    </sub-flow>
 
 </mule>
