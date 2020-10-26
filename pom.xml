@@ -23,7 +23,7 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <javaMailVersion>1.6.3</javaMailVersion>
-        <javaActivationVersion>1.2.2</javaActivationVersion>
+        <javaActivationVersion>2.0.0</javaActivationVersion>
         <greenmailVersion>1.5.10</greenmailVersion>
         <powermockVersion>2.0.7</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
