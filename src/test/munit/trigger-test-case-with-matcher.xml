@@ -118,7 +118,7 @@
 
     <!-- Test polled emails are being filtered with a Matcher -->
     <!-- ignored by EMAILC-52 and MULE-18766-->
-    <munit:test name="with-matcher" ignore="#[Munit::muleVersionPriorTo('4.3.0')]">
+    <munit:test name="with-matcher">
 
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="trigger-with-matcher-${protocol}"/>
