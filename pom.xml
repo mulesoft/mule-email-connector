@@ -19,7 +19,7 @@
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
 
     <properties>
-        <commonsIoVersion>2.8.0</commonsIoVersion>
+        <commonsIoVersion>20030203.000550</commonsIoVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <javaMailVersion>1.6.3</javaMailVersion>
