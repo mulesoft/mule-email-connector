@@ -38,7 +38,7 @@
 
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
-        <javaXmlBindVersion>2.3.3</javaXmlBindVersion>
+        <javaXmlBindVersion>3.0.0</javaXmlBindVersion>
         <istackCommonsRuntimeVersion>3.0.11</istackCommonsRuntimeVersion>
 
         <validations.module.version>1.4.1</validations.module.version>
