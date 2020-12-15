@@ -300,7 +300,7 @@ public final class MessageBuilder {
    * @param address the string to be converted.
    * @return a new {@link InternetAddress} instance.
    */
-  private Address toAddress(String address) {
+  public static Address toAddress(String address) {
     try {
       return new InternetAddress(address);
     } catch (AddressException e) {
@@ -314,7 +314,7 @@ public final class MessageBuilder {
    * @param addresses the list to be converted.
    * @return a new {@link Address}[] instance.
    */
-  private Address[] toAddressArray(List<String> addresses) {
-    return addresses.stream().map(this::toAddress).toArray(Address[]::new);
+  public static Address[] toAddressArray(List<String> addresses) {
+    return addresses.stream().map(MessageBuilder::toAddress).toArray(Address[]::new);
   }
 }

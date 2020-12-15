@@ -13,6 +13,7 @@ import static org.mule.extension.email.internal.util.EmailUtils.getMediaType;
 
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.extension.email.api.exception.EmailSendException;
+import org.mule.extension.email.internal.AbstractEmailConnection;
 import org.mule.extension.email.internal.MessageBuilder;
 import org.mule.extension.email.internal.sender.EmailBody;
 import org.mule.extension.email.internal.sender.EmailSettings;
@@ -64,6 +65,9 @@ public final class SendCommand {
           .withBody(body.getContentAsString(contentType.getCharset().get()), contentType, body.getContentTransferEncoding())
           .withHeaders(settings.getHeaders())
           .build();
+      AbstractEmailConnection.transport.sendMessage(message, MessageBuilder.toAddressArray(settings.getToAddresses()));
+      Transport transport = connection.getSession().getTransport();
+      transport.sendMessage(message, MessageBuilder.toAddressArray(settings.getToAddresses()));
       Transport.send(message);
     } catch (SMTPSendFailedException e) {
       if (isConnectionError(e.getReturnCode())) {

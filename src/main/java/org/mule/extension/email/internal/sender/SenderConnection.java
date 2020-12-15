@@ -46,6 +46,15 @@ public final class SenderConnection extends AbstractEmailConnection {
     super(protocol, username, password, host, port, connectionTimeout, readTimeout, writeTimeout, properties);
   }
 
+  public SenderConnection(EmailProtocol protocol, String username, String token, String host, String port,
+                          long connectionTimeout, long readTimeout, long writeTimeout, Map<String, String> properties,
+                          TlsContextFactory tlsContextFactory,
+                          boolean asd)
+      throws EmailConnectionException {
+    super(protocol, username, token, host, port, connectionTimeout, readTimeout, writeTimeout, properties, tlsContextFactory,
+          false);
+  }
+
   /**
    * Creates a new instance of the connection secured by TLS.
    *

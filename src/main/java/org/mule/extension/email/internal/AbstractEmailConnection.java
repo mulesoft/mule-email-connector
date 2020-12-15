@@ -10,17 +10,26 @@ import static org.apache.commons.lang3.StringUtils.join;
 import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDENTIALS;
 import static org.mule.extension.email.internal.errors.EmailError.SSL_ERROR;
 import org.mule.extension.email.api.exception.EmailConnectionException;
+import org.mule.extension.email.internal.oauth2.OAuth2Authenticator.OAuth2Provider;
+import org.mule.extension.email.internal.oauth2.OAuth2SaslClientFactory;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Authenticator;
+import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
+import javax.mail.Provider;
 import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.URLName;
+
+import com.sun.mail.smtp.SMTPTransport;
 
 /**
  * Generic implementation for an email connection of a connector which operates over the SMTP, IMAP, POP3 and it's secure versions
@@ -42,6 +51,8 @@ public abstract class AbstractEmailConnection {
 
   protected final EmailProtocol protocol;
   protected final Session session;
+
+  public static Transport transport;
 
   /**
    * Base constructor for {@link AbstractEmailConnection} implementations.
@@ -101,6 +112,54 @@ public abstract class AbstractEmailConnection {
     session = Session.getInstance(sessionProperties, authenticator);
   }
 
+  public AbstractEmailConnection(EmailProtocol protocol, String username, String token, String host, String port,
+                                 long connectionTimeout, long readTimeout, long writeTimeout, Map<String, String> properties,
+                                 TlsContextFactory tlsContextFactory, boolean sals)
+      throws EmailConnectionException {
+    this.protocol = protocol;
+    Properties sessionProperties = buildBasicSessionProperties(host, port, connectionTimeout, readTimeout, writeTimeout);
+
+    //    if (protocol.isSecure()) {
+    //      sessionProperties.putAll(buildSecureProperties(tlsContextFactory));
+    //    }
+
+    sessionProperties.put("mail.smtp.starttls.enable", "true");
+    sessionProperties.put("mail.smtp.starttls.required", "true");
+    sessionProperties.put("mail.smtp.sasl.enable", "true");
+    sessionProperties.put("mail.smtp.sasl.mechanisms", "XOAUTH2");
+    sessionProperties.put("mail.debug.auth", "true");
+    sessionProperties.put("mail.smtp.auth", "true");
+    sessionProperties.put("mail.smtp.timeout", "10000");
+    sessionProperties.put("mail.smtp.connectiontimeout", "10000");
+    sessionProperties.put(OAuth2SaslClientFactory.OAUTH_TOKEN_PROP, token);
+
+    Security.addProvider(new OAuth2Provider());
+
+    if (properties != null) {
+      sessionProperties.putAll(properties);
+    }
+
+    session = Session.getInstance(sessionProperties);
+    session.setDebug(true);
+
+    final URLName unusedUrlName = null;
+    transport = new SMTPTransport(session, unusedUrlName);
+
+    // If the password is non-null, SMTP tries to do AUTH LOGIN.
+    final String emptyPassword = "";
+
+    try {
+      //      transport = session.getTransport();
+      if (transport instanceof SMTPTransport) {
+        //        ((SMTPTransport) transport).setSASLMechanisms(new String[] {"XOAUTH2"});
+        transport.connect(host, Integer.parseInt(port), username, "");
+      }
+    } catch (Exception e) {
+      throw new EmailConnectionException(e);
+    }
+  }
+
+
 
   /**
    * Creates a new {@link Properties} instance and set all the basic properties required by the specified {@code protocol}.
@@ -127,6 +186,9 @@ public abstract class AbstractEmailConnection {
     Properties properties = new Properties();
     properties.setProperty(protocol.getStartTlsProperty(), "true");
     properties.setProperty(protocol.getSocketFactoryFallbackProperty(), "false");
+
+    //    Initialize
+    //    tlsContextFactory.ini
 
     // TODO: MULE-13237
     if (tlsContextFactory == null) {
