@@ -42,7 +42,7 @@
         <istackCommonsRuntimeVersion>4.0.0</istackCommonsRuntimeVersion>
 
         <validations.module.version>1.4.2</validations.module.version>
-        <java.module.version>1.2.6</java.module.version>
+        <java.module.version>1.2.7</java.module.version>
     </properties>
 
     <build>
