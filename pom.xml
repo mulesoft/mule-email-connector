@@ -34,7 +34,7 @@
         <munit.extensions.maven.plugin.version>1.0.0</munit.extensions.maven.plugin.version>
         <munit.version>2.3.1</munit.version>
         <mtf.tools.version>1.0.0</mtf.tools.version>
-        <mavenResourcesVersion>3.0.2</mavenResourcesVersion>
+        <mavenResourcesVersion>3.2.0</mavenResourcesVersion>
 
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
