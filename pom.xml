@@ -22,7 +22,7 @@
         <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
-        <javaMailVersion>1.6.3</javaMailVersion>
+        <javaMailVersion>1.6.5</javaMailVersion>
         <javaActivationVersion>2.0.0</javaActivationVersion>
         <greenmailVersion>1.5.10</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
