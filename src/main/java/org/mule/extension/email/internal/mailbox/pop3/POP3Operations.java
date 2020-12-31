@@ -7,7 +7,7 @@
 package org.mule.extension.email.internal.mailbox.pop3;
 
 import static java.lang.String.format;
-import static javax.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Flags.Flag.DELETED;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;

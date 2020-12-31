@@ -23,8 +23,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import com.sun.mail.pop3.POP3Folder;
 
-import javax.mail.Folder;
-import javax.mail.Message;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
 
 /**
  * Configuration for operations that are performed through the POP3 (Post Office Protocol 3) protocol.

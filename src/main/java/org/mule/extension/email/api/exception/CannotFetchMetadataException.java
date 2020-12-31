@@ -10,7 +10,7 @@ import static org.mule.extension.email.internal.errors.EmailError.FETCHING_ATTRI
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
-import javax.mail.Message;
+import jakarta.mail.Message;
 
 /**
  * {@link ModuleException} for the cases in which there is an error constructing a {@link BaseEmailAttributes} from an email

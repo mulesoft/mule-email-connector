@@ -10,8 +10,8 @@ import static java.lang.Integer.max;
 import static java.lang.Integer.min;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.reverse;
-import static javax.mail.Folder.READ_ONLY;
-import static javax.mail.Folder.READ_WRITE;
+import static jakarta.mail.Folder.READ_ONLY;
+import static jakarta.mail.Folder.READ_WRITE;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
@@ -28,9 +28,9 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 
 import java.util.LinkedList;
 import java.util.List;

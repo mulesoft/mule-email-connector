@@ -6,7 +6,7 @@
  */
 package org.mule.extension.email.internal.commands;
 
-import static javax.mail.Folder.READ_WRITE;
+import static jakarta.mail.Folder.READ_WRITE;
 
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 

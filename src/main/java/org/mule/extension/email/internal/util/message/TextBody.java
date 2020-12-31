@@ -11,8 +11,8 @@ import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.slf4j.LoggerFactory;
 
-import javax.mail.MessagingException;
-import javax.mail.Part;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Part;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;

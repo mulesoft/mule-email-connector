@@ -6,8 +6,8 @@
  */
 package org.mule.extension.email.internal.mailbox;
 
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Folder.READ_WRITE;
+import static jakarta.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Folder.READ_WRITE;
 import static org.mule.extension.email.internal.errors.EmailError.READ_EMAIL;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 
@@ -35,9 +35,9 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

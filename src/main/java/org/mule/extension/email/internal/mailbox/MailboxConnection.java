@@ -21,10 +21,10 @@ import org.mule.extension.email.internal.EmailProtocol;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
 
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Folder;
-import javax.mail.MessagingException;
-import javax.mail.Store;
+import jakarta.mail.AuthenticationFailedException;
+import jakarta.mail.Folder;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Store;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;

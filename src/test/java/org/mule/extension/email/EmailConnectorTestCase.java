@@ -29,9 +29,9 @@ import com.icegreen.greenmail.util.ServerSetup;
 
 import java.io.IOException;
 
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;

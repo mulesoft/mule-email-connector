@@ -7,15 +7,15 @@
 package org.mule.extension.email.internal.commands;
 
 import static java.lang.String.format;
-import static javax.mail.Folder.READ_WRITE;
+import static jakarta.mail.Folder.READ_WRITE;
 
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
-import javax.mail.Flags.Flag;
-import javax.mail.Folder;
-import javax.mail.UIDFolder;
+import jakarta.mail.Flags.Flag;
+import jakarta.mail.Folder;
+import jakarta.mail.UIDFolder;
 
 /**
  * Represents an operation that sets flags in email messages.
@@ -43,7 +43,7 @@ public class SetFlagCommand {
   public void setByUID(MailboxConnection connection, String folderName, Flag flag, long emailId) {
     try {
       UIDFolder folder = (UIDFolder) connection.getFolder(folderName, READ_WRITE);
-      javax.mail.Message message = folder.getMessageByUID(emailId);
+      jakarta.mail.Message message = folder.getMessageByUID(emailId);
       if (message == null) {
         throw new EmailNotFoundException(format("No email was found with id: [%s]", emailId));
       }
@@ -68,7 +68,7 @@ public class SetFlagCommand {
   public void setByNumber(MailboxConnection connection, String folderName, Flag flag, int number) {
     try {
       Folder folder = connection.getFolder(folderName, READ_WRITE);
-      javax.mail.Message message = folder.getMessage(number);
+      jakarta.mail.Message message = folder.getMessage(number);
       if (message == null) {
         throw new EmailNotFoundException(format("No email was found in the mailbox of number: [%s]", number));
       }

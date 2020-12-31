@@ -23,11 +23,11 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.BodyPart;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.internet.MimeMultipart;
+import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.internet.MimeMultipart;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
@@ -131,7 +131,7 @@ public class SendTestCase extends SMTPTestCase {
     assertThat(IOUtils.toString(sentMessage.getInputStream()), isEmptyString());
   }
 
-  private void assertSingleMail() throws IOException, javax.mail.MessagingException {
+  private void assertSingleMail() throws IOException, jakarta.mail.MessagingException {
     Message[] messages = getReceivedMessagesAndAssertCount(1);
     Message sentMessage = messages[0];
     assertSubject(sentMessage.getSubject());

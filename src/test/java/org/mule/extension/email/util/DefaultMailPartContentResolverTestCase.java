@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 
 import org.junit.Test;
 import org.mule.extension.email.internal.util.DefaultMailPartContentResolver;

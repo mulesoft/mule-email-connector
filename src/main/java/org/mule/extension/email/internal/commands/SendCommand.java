@@ -21,9 +21,9 @@ import org.mule.extension.email.internal.sender.SenderConnection;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
 import org.mule.runtime.api.metadata.MediaType;
 
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Message;
-import javax.mail.Transport;
+import jakarta.mail.AuthenticationFailedException;
+import jakarta.mail.Message;
+import jakarta.mail.Transport;
 
 import java.util.Calendar;
 

@@ -43,9 +43,9 @@ public abstract class SMTPTestCase extends EmailConnectorTestCase {
     return protocol;
   }
 
-  javax.mail.Message[] getReceivedMessagesAndAssertCount(int receivedNumber) {
+  jakarta.mail.Message[] getReceivedMessagesAndAssertCount(int receivedNumber) {
     assertThat(server.waitForIncomingEmail(5000, receivedNumber), is(true));
-    javax.mail.Message[] messages = server.getReceivedMessages();
+    jakarta.mail.Message[] messages = server.getReceivedMessages();
     assertThat(messages, arrayWithSize(receivedNumber));
     return messages;
   }

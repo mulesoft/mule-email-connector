@@ -12,8 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.mail.MessagingException;
-import javax.mail.Part;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Part;
 
 import com.sun.mail.imap.IMAPMessage;
 

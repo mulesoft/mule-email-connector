@@ -6,16 +6,16 @@
  */
 package org.mule.extension.email.api;
 
-import static javax.mail.Flags.Flag.ANSWERED;
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.DRAFT;
-import static javax.mail.Flags.Flag.RECENT;
-import static javax.mail.Flags.Flag.SEEN;
+import static jakarta.mail.Flags.Flag.ANSWERED;
+import static jakarta.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Flags.Flag.DRAFT;
+import static jakarta.mail.Flags.Flag.RECENT;
+import static jakarta.mail.Flags.Flag.SEEN;
 
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
-import javax.mail.Flags;
+import jakarta.mail.Flags;
 
 /**
  * The {@link EmailFlags} class represents the set of flags on a Message. Flags are composed of predefined system flags that most

@@ -23,7 +23,7 @@ import java.security.Security;
 import java.util.List;
 import java.util.Optional;
 
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMessage;
 
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;

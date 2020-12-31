@@ -8,9 +8,9 @@ package org.mule.extension.email.internal.mailbox.imap;
 
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.SEEN;
-import static javax.mail.Folder.READ_WRITE;
+import static jakarta.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Flags.Flag.SEEN;
+import static jakarta.mail.Folder.READ_WRITE;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;

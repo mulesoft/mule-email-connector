@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.mail.Header;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Part;
+import jakarta.mail.Header;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Part;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

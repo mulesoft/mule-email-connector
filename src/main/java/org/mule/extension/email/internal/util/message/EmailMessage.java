@@ -15,9 +15,9 @@ import org.mule.extension.email.api.exception.EmailException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Part;
 
 /**
  * Abstraction to represent a email message, exposing its body text and attachments.

@@ -11,8 +11,8 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import com.sun.mail.pop3.POP3Folder;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 
 /**
  * Contains all the metadata of a received email from a POP3 mailbox, it carries information such as the subject of the email,

@@ -8,7 +8,7 @@ package org.mule.extension.email.api;
 
 import org.mule.runtime.api.metadata.TypedValue;
 
-import javax.mail.Message;
+import jakarta.mail.Message;
 
 import java.io.InputStream;
 import java.util.Map;

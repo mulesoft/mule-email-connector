@@ -73,7 +73,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromSimpleTextMail() throws Exception {
-    javax.mail.Message message = getSimpleTextTestMessage();
+    jakarta.mail.Message message = getSimpleTextTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT));
     assertThat(body.getDataType().getMediaType().getPrimaryType(), is("text"));
@@ -82,7 +82,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromSimpleHTMLMail() throws Exception {
-    javax.mail.Message message = getSimpleHTMLTestMessage();
+    jakarta.mail.Message message = getSimpleHTMLTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_HTML_CONTENT));
     assertThat(body.getDataType().getMediaType().getPrimaryType(), is("text"));
@@ -91,14 +91,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromRelatedMail() throws Exception {
-    javax.mail.Message message = getRelatedTestMessage();
+    jakarta.mail.Message message = getRelatedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_RELATED_CONTENT_NORMALIZED));
   }
 
   @Test
   public void attachmentFromRelatedMail() throws Exception {
-    javax.mail.Message message = getRelatedTestMessage();
+    jakarta.mail.Message message = getRelatedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(1));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -106,21 +106,21 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromAlternativeMail() throws Exception {
-    javax.mail.Message message = getAlternativeTestMessage();
+    jakarta.mail.Message message = getAlternativeTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_HTML_CONTENT));
   }
 
   @Test
   public void textFromAlternativeRelatedMail() throws Exception {
-    javax.mail.Message message = getAlternativeRelatedTestMessage();
+    jakarta.mail.Message message = getAlternativeRelatedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT_NORMALIZED));
   }
 
   @Test
   public void attachmentFromAlternativeRelatedMail() throws Exception {
-    javax.mail.Message message = getAlternativeRelatedTestMessage();
+    jakarta.mail.Message message = getAlternativeRelatedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(1));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -128,7 +128,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromMixedMail() throws Exception {
-    javax.mail.Message message = getMixedTestMessage();
+    jakarta.mail.Message message = getMixedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT));
     assertThat(body.getDataType().getMediaType().getPrimaryType(), is("text"));
@@ -137,7 +137,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void attachmentsFromMixedMail() throws Exception {
-    javax.mail.Message message = getMixedTestMessage();
+    jakarta.mail.Message message = getMixedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -146,7 +146,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void attachmentsFromMixedMailWithRepeatedAttachmentNames() throws Exception {
-    javax.mail.Message message = getMixedTestMessageWithRepeatedAttachmentNames();
+    jakarta.mail.Message message = getMixedTestMessageWithRepeatedAttachmentNames();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(3));
     assertAttachmentContent(attachments, "attachment_2.json", EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -156,7 +156,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void attachmentsFromMixedMailWithUnnamedAttachments() throws Exception {
-    javax.mail.Message message = getMixedTestMessageWithUnnamedAttachments();
+    jakarta.mail.Message message = getMixedTestMessageWithUnnamedAttachments();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(3));
     assertAttachmentContent(attachments, DEFAULT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -166,14 +166,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromMixedAlternativeMail() throws Exception {
-    javax.mail.Message message = getMixedAlternativeTestMessage();
+    jakarta.mail.Message message = getMixedAlternativeTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_HTML_CONTENT));
   }
 
   @Test
   public void attachmentsFromMixedAlternativeMail() throws Exception {
-    javax.mail.Message message = getMixedAlternativeTestMessage();
+    jakarta.mail.Message message = getMixedAlternativeTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -182,14 +182,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromMixedAlternativeRelatedMail() throws Exception {
-    javax.mail.Message message = getMixedAlternativeRelatedTestMessage();
+    jakarta.mail.Message message = getMixedAlternativeRelatedTestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT + "\n" + EMAIL_RELATED_CONTENT_NORMALIZED));
   }
 
   @Test
   public void attachmentsFromMixedAlternativeRelatedMail() throws Exception {
-    javax.mail.Message message = getMixedAlternativeRelatedTestMessage();
+    jakarta.mail.Message message = getMixedAlternativeRelatedTestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
@@ -198,7 +198,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void skipBadlyFormedParts() throws Exception {
-    javax.mail.Message message = getBadBodyEmail();
+    jakarta.mail.Message message = getBadBodyEmail();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
     assertThat(body.getValue(), is(""));
@@ -208,14 +208,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void textFromMixedMessageRFC822() throws Exception {
-    javax.mail.Message message = getMessageRFC822TestMessage();
+    jakarta.mail.Message message = getMessageRFC822TestMessage();
     TypedValue<String> body = contentFactory.fromMessage(message, NAME).getBody();
     assertThat(body.getValue(), is(EMAIL_CONTENT));
   }
 
   @Test
   public void attachmentFromMixedMessageRFC822() throws Exception {
-    javax.mail.Message message = getMessageRFC822TestMessage();
+    jakarta.mail.Message message = getMessageRFC822TestMessage();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME_HEADERS_SUBJECT).getAttachments();
     assertThat(attachments.entrySet(), hasSize(1));
     Object attachmentContent = attachments.get(EMAIL_SUBJECT).getValue();
@@ -228,7 +228,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void attachmentFromMixedMessageRFC822WithRepeatedSubjects() throws Exception {
-    javax.mail.Message message = getMessageRFC822TestMessageWithRepeatedSubjects();
+    jakarta.mail.Message message = getMessageRFC822TestMessageWithRepeatedSubjects();
     Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME_HEADERS_SUBJECT).getAttachments();
     assertThat(attachments.entrySet(), hasSize(3));
     Object attachmentContent = attachments.get(EMAIL_SUBJECT + ".Not an extension_2").getValue();
@@ -252,7 +252,7 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
 
   @Test
   public void testFromMixedRelatedAlternative() throws Exception {
-    javax.mail.Message message = getMixedRelatedAlternativeTestMessage();
+    jakarta.mail.Message message = getMixedRelatedAlternativeTestMessage();
     StoredEmailContent email = contentFactory.fromMessage(message, NAME);
     TypedValue<String> body = email.getBody();
     Map<String, TypedValue<InputStream>> attachments = email.getAttachments();

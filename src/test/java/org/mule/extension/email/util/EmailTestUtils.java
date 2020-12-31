@@ -7,9 +7,9 @@
 package org.mule.extension.email.util;
 
 import static java.lang.Thread.currentThread;
-import static javax.mail.Message.RecipientType.TO;
-import static javax.mail.Part.ATTACHMENT;
-import static javax.mail.Part.INLINE;
+import static jakarta.mail.Message.RecipientType.TO;
+import static jakarta.mail.Part.ATTACHMENT;
+import static jakarta.mail.Part.INLINE;
 import static org.mule.extension.email.internal.StoredEmailContentFactory.DEFAULT_NAME;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.runtime.api.metadata.MediaType.BINARY;
@@ -19,16 +19,16 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Properties;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.Session;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 
 import com.icegreen.greenmail.util.ServerSetup;
 

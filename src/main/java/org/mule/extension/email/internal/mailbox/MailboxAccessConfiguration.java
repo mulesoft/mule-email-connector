@@ -9,8 +9,8 @@ package org.mule.extension.email.internal.mailbox;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 
-import javax.mail.Folder;
-import javax.mail.Message;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
 
 /**
  * Generic contract for configurations that contains operations for retrieving and managing emails in a mailbox.

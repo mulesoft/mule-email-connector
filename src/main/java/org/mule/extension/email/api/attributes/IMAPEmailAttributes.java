@@ -12,8 +12,8 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import com.sun.mail.imap.IMAPFolder;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
 
 /**
  * Contains all the metadata of a received email from an IMAP mailbox, it carries information such as the subject of the email,

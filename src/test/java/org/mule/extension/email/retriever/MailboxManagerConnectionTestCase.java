@@ -6,8 +6,8 @@
  */
 package org.mule.extension.email.retriever;
 
-import static javax.mail.Folder.READ_ONLY;
-import static javax.mail.Folder.READ_WRITE;
+import static jakarta.mail.Folder.READ_ONLY;
+import static jakarta.mail.Folder.READ_WRITE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -36,12 +36,12 @@ import com.sun.mail.imap.IMAPFolder;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
-import javax.mail.Flags;
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -261,18 +261,18 @@ public class MailboxManagerConnectionTestCase {
     }
 
     @Override
-    public javax.mail.Message getMessage(int msgnum) throws MessagingException {
+    public jakarta.mail.Message getMessage(int msgnum) throws MessagingException {
       return null;
     }
 
     @Override
-    public void appendMessages(javax.mail.Message[] msgs) throws MessagingException {
+    public void appendMessages(jakarta.mail.Message[] msgs) throws MessagingException {
 
     }
 
     @Override
-    public javax.mail.Message[] expunge() throws MessagingException {
-      return new javax.mail.Message[0];
+    public jakarta.mail.Message[] expunge() throws MessagingException {
+      return new jakarta.mail.Message[0];
     }
   }
 

@@ -9,13 +9,13 @@ package org.mule.email.mtf;
 import static java.sql.Date.from;
 import static java.time.LocalDateTime.parse;
 
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeMessage;
 import java.util.Date;
 
 import static java.time.ZoneId.systemDefault;
-import static javax.mail.Message.RecipientType.CC;
-import static javax.mail.Message.RecipientType.TO;
+import static jakarta.mail.Message.RecipientType.CC;
+import static jakarta.mail.Message.RecipientType.TO;
 import static org.mule.extension.email.util.EmailTestUtils.*;
 
 public class AbstractTestServer {

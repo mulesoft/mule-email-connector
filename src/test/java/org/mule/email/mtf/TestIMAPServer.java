@@ -9,10 +9,10 @@ package org.mule.email.mtf;
 import static java.util.Arrays.stream;
 import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAP;
 import static com.icegreen.greenmail.util.ServerSetup.PROTOCOL_IMAPS;
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.RECENT;
-import static javax.mail.Flags.Flag.SEEN;
-import static javax.mail.Flags.Flag.ANSWERED;
+import static jakarta.mail.Flags.Flag.DELETED;
+import static jakarta.mail.Flags.Flag.RECENT;
+import static jakarta.mail.Flags.Flag.SEEN;
+import static jakarta.mail.Flags.Flag.ANSWERED;
 import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
@@ -25,8 +25,8 @@ import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessageWi
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
 
-import javax.mail.Flags;
-import javax.mail.MessagingException;
+import jakarta.mail.Flags;
+import jakarta.mail.MessagingException;
 
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;

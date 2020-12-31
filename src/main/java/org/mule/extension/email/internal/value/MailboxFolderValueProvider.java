@@ -18,8 +18,8 @@ import org.mule.runtime.extension.api.values.ValueResolvingException;
 
 import java.util.Set;
 
-import javax.mail.Folder;
-import javax.mail.MessagingException;
+import jakarta.mail.Folder;
+import jakarta.mail.MessagingException;
 
 /**
  * {@link ValueProvider} implementation which provides the list of {@link Folder} on the user namespace.

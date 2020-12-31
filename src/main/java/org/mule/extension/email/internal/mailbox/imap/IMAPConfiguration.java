@@ -23,8 +23,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import com.sun.mail.imap.IMAPFolder;
 
-import javax.mail.Folder;
-import javax.mail.Message;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
 
 /**
  * Configuration for operations that are performed through the IMAP (Internet Message Access Protocol) protocol.

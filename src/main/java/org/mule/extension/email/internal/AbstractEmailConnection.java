@@ -18,9 +18,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.mail.Authenticator;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
+import jakarta.mail.Authenticator;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
 
 /**
  * Generic implementation for an email connection of a connector which operates over the SMTP, IMAP, POP3 and it's secure versions

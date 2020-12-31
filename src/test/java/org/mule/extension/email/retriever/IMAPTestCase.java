@@ -22,8 +22,8 @@ import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.tck.util.TestConnectivityUtils;
 import org.mule.test.runner.RunnerDelegateTo;
 
-import javax.mail.Flags.Flag;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.Flags.Flag;
+import jakarta.mail.internet.MimeMessage;
 
 import java.util.Collection;
 import java.util.Iterator;
