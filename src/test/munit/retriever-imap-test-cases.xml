@@ -234,16 +234,12 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="pollClosedFolder">
+    <munit:test name="pollClosedFolder"
+                expectedException="org.mule.extension.email.api.exception.EmailAccessingFolderException"
+                expectedErrorType="EMAIL:ACCESSING_FOLDER">
         <munit:execution>
-            <java:invoke-static class="${serverName}" method="closeInboxFolder()"/>
-            <email:list-imap config-ref="${imap-config}"/>
+            <email:list-imap config-ref="${imap-config}" mailboxFolder="NO_FOUND_FOLDER"/>
         </munit:execution>
-        <munit:validation>
-            <set-payload value="#[payload[0]]"/>
-            <munit-tools:assert-that expression="#[payload.attributes.flags.seen]" is="#[MunitTools::equalTo(true)]"/>
-        </munit:validation>
     </munit:test>
-
 
 </mule>
