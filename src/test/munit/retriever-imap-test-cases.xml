@@ -234,7 +234,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="pollClosedFolder"
+    <munit:test name="pollUndefinedFolder"
                 expectedException="org.mule.extension.email.api.exception.EmailAccessingFolderException"
                 expectedErrorType="EMAIL:ACCESSING_FOLDER">
         <munit:execution>
