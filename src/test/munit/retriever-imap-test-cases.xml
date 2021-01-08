@@ -241,5 +241,4 @@
             <email:list-imap config-ref="${imap-config}" mailboxFolder="NO_FOUND_FOLDER"/>
         </munit:execution>
     </munit:test>
-
 </mule>
