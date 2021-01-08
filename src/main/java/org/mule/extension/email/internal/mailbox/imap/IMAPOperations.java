@@ -73,7 +73,7 @@ public class IMAPOperations {
    */
   @Summary("Lists the emails in the given IMAP Mailbox Folder")
   @DisplayName("List - IMAP")
-  @Throws({EmailListingErrorTypeProvider.class})
+  @Throws(EmailListingErrorTypeProvider.class)
   @OutputResolver(output = IMAPArrayStoredEmailContentTypeResolver.class)
   public PagingProvider<MailboxConnection, Result<StoredEmailContent, IMAPEmailAttributes>> listImap(@Config IMAPConfiguration config,
                                                                                                      @Optional(
