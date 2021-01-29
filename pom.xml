@@ -13,7 +13,11 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-email-connector</artifactId>
     <packaging>mule-extension</packaging>
+<<<<<<< HEAD
     <version>1.4.2-SNAPSHOT</version>
+=======
+    <version>1.4.0</version>
+>>>>>>> a5a41e2 (Set version number in 1.4.0)
 
     <name>Email Connector</name>
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
