@@ -20,7 +20,6 @@
 
     <properties>
         <commonsIoVersion>2.8.0</commonsIoVersion>
-<!--        <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>-->
         <commonsLangVersion>3.11</commonsLangVersion>
         <javaMailVersion>1.6.3</javaMailVersion>
         <javaActivationVersion>2.0.0</javaActivationVersion>
@@ -35,12 +34,7 @@
         <munit.version>2.3.2</munit.version>
         <mtf.tools.version>1.0.0</mtf.tools.version>
         <mavenResourcesVersion>3.2.0</mavenResourcesVersion>
-
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-<!--        <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>-->
-<!--        <javaXmlBindVersion>3.0.0</javaXmlBindVersion>-->
-<!--        <istackCommonsRuntimeVersion>4.0.0</istackCommonsRuntimeVersion>-->
-
         <validations.module.version>1.4.3</validations.module.version>
         <java.module.version>1.2.7</java.module.version>
     </properties>
