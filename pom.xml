@@ -20,7 +20,6 @@
 
     <properties>
         <commonsIoVersion>2.8.0</commonsIoVersion>
-        <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <javaMailVersion>1.6.3</javaMailVersion>
         <javaActivationVersion>2.0.0</javaActivationVersion>
@@ -35,12 +34,7 @@
         <munit.version>2.3.2</munit.version>
         <mtf.tools.version>1.0.0</mtf.tools.version>
         <mavenResourcesVersion>3.2.0</mavenResourcesVersion>
-
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-        <javaXmlBindApiVersion>2.3.1</javaXmlBindApiVersion>
-        <javaXmlBindVersion>3.0.0</javaXmlBindVersion>
-        <istackCommonsRuntimeVersion>4.0.0</istackCommonsRuntimeVersion>
-
         <validations.module.version>1.4.3</validations.module.version>
         <java.module.version>1.2.7</java.module.version>
     </properties>
@@ -129,38 +123,18 @@
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
             <version>${javaMailVersion}</version>
+            <exclusions>
+            	<exclusion>
+            		<groupId>com.sun.activation</groupId>
+            		<artifactId>jakarta.activation</artifactId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>jakarta.activation</artifactId>
-            <version>${javaActivationVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>${javaXmlBindApiVersion}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>${javaXmlBindVersion}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml.stream</groupId>
-                    <artifactId>stax-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.istack</groupId>
-            <artifactId>istack-commons-runtime</artifactId>
-            <version>${istackCommonsRuntimeVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>${commonsCollectionsVersion}</version>
+            <version>1.2.1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -173,21 +147,6 @@
             <version>${commonsIoVersion}</version>
         </dependency>
 
-        <!--TODO: MULE-10837-->
-        <dependency>
-            <groupId>org.mule.runtime</groupId>
-            <artifactId>mule-module-service</artifactId>
-            <version>${mule.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.services</groupId>
-            <artifactId>mule-service-scheduler</artifactId>
-            <version>${muleSchedulerServiceVersion}</version>
-            <classifier>mule-service</classifier>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.icegreen</groupId>
@@ -198,6 +157,10 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>javax.activation</groupId>
+                	<artifactId>activation</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
