@@ -26,6 +26,7 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -142,8 +143,12 @@ public class StoredEmailContentFactory {
     try {
       InputStream partContent = contentResolver.resolveInputStream(part);
       Object content = streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
-      DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
-      return new TypedValue(content, dataType);
+      try {
+        DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
+        return new TypedValue(content, dataType);
+      } catch (UnsupportedCharsetException e) {
+        return new TypedValue(content, DataType.OBJECT);
+      }
     } catch (MessagingException | IOException e) {
       throw new EmailException("Could not resolve the attachment", e);
     }
