@@ -140,15 +140,14 @@ public class StoredEmailContentFactory {
    * @return the attachment's content as a {@link TypedValue}.
    */
   private TypedValue<InputStream> resolveContent(Part part, StreamingHelper streamingHelper) {
+    Object content = null;
     try {
       InputStream partContent = contentResolver.resolveInputStream(part);
-      Object content = streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
-      try {
-        DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
-        return new TypedValue(content, dataType);
-      } catch (UnsupportedCharsetException e) {
-        return new TypedValue(content, DataType.OBJECT);
-      }
+      content = streamingHelper != null ? streamingHelper.resolveCursorProvider(partContent) : partContent;
+      DataType dataType = builder().type(content.getClass()).mediaType(part.getContentType()).build();
+      return new TypedValue(content, dataType);
+    } catch (UnsupportedCharsetException e) {
+      return new TypedValue(content, DataType.OBJECT);
     } catch (MessagingException | IOException e) {
       throw new EmailException("Could not resolve the attachment", e);
     }
