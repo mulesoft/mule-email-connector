@@ -16,30 +16,7 @@ import static org.mockito.Mockito.when;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS_SUBJECT;
 import static org.mule.extension.email.internal.StoredEmailContentFactory.DEFAULT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_HTML_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_RELATED_CONTENT_NORMALIZED;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ANOTHER_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_NAME;
-import static org.mule.extension.email.util.EmailTestUtils.getAlternativeRelatedTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getAlternativeTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getBadBodyEmail;
-import static org.mule.extension.email.util.EmailTestUtils.getMessageRFC822TestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getMessageRFC822TestMessageWithRepeatedSubjects;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeRelatedTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedAlternativeTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedRelatedAlternativeTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessageWithRepeatedAttachmentNames;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessageWithUnnamedAttachments;
-import static org.mule.extension.email.util.EmailTestUtils.getRelatedTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getSimpleHTMLTestMessage;
-import static org.mule.extension.email.util.EmailTestUtils.getSimpleTextTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.*;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
@@ -261,6 +238,14 @@ public class EmailContentProcessorTestCase extends AbstractMuleTestCase {
     assertThat(attachments.entrySet(), hasSize(2));
     assertAttachmentContent(attachments, EMAIL_TEXT_PLAIN_ATTACHMENT_NAME, EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT);
     assertAttachmentContent(attachments, EMAIL_JSON_ATTACHMENT_NAME, EMAIL_JSON_ATTACHMENT_CONTENT);
+  }
+
+  @Test
+  public void attachmentsFromMixedMailWithUnsupportedCharset() throws Exception {
+    javax.mail.Message message = getMixedRelatedAlternativeCharsetBinaryTestMessage();
+    Map<String, TypedValue<InputStream>> attachments = contentFactory.fromMessage(message, NAME).getAttachments();
+    assertThat(attachments.entrySet(), hasSize(2));
+    assertAttachmentContent(attachments, EMAIL_BASE_64_ATTACHMENT_NAME, EMAIL_BASE_64_ATTACHMENT_CONTENT);
   }
 
   private void assertAttachmentContent(Map<String, TypedValue<InputStream>> attachments, String name, String expected)
