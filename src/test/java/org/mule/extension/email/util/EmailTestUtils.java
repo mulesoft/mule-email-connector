@@ -43,7 +43,8 @@ public class EmailTestUtils {
   public static final String EMAIL_RELATED_CONTENT_NORMALIZED = "<H1>Hello</H1><a href=\"cid:text-attachment\">here</a>";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT = "This is the email text attachment";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_NAME = "text-attachment";
-  public static final String EMAIL_BASE_64_ATTACHMENT_CONTENT = "R0lGODlhAQABAIAAAP///////yH+EUNyZWF0ZWQgd2l0aCBHSU1QACwAAAAAAQABAAACAkQBADs=";
+  public static final String EMAIL_BASE_64_ATTACHMENT_CONTENT =
+      "R0lGODlhAQABAIAAAP///////yH+EUNyZWF0ZWQgd2l0aCBHSU1QACwAAAAAAQABAAACAkQBADs=";
   public static final String EMAIL_BASE_64_ATTACHMENT_NAME = "pixel.gif";
   public static final String EMAIL_TEXT_PLAIN_ANOTHER_ATTACHMENT_CONTENT = "This is another email text attachment";
   public static final String EMAIL_JSON_ATTACHMENT_CONTENT = "{\"key\": \"value\"}";
@@ -523,7 +524,7 @@ public class EmailTestUtils {
 
   }
 
-    public static ServerSetup setUpServer(int port, String protocol) {
+  public static ServerSetup setUpServer(int port, String protocol) {
     ServerSetup serverSetup = new ServerSetup(port, null, protocol);
     serverSetup.setServerStartupTimeout(SERVER_STARTUP_TIMEOUT);
     return serverSetup;
