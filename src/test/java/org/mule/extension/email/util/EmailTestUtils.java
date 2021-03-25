@@ -12,6 +12,8 @@ import static javax.mail.Part.ATTACHMENT;
 import static javax.mail.Part.INLINE;
 import static org.mule.extension.email.internal.StoredEmailContentFactory.DEFAULT_NAME;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TRANSFER_ENCODING_HEADER;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_CONTENT_TRANSFER_ENCODING;
 import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
@@ -43,6 +45,9 @@ public class EmailTestUtils {
   public static final String EMAIL_RELATED_CONTENT_NORMALIZED = "<H1>Hello</H1><a href=\"cid:text-attachment\">here</a>";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT = "This is the email text attachment";
   public static final String EMAIL_TEXT_PLAIN_ATTACHMENT_NAME = "text-attachment";
+  public static final String EMAIL_BASE_64_ATTACHMENT_CONTENT =
+      "R0lGODlhAQABAIAAAP///////yH+EUNyZWF0ZWQgd2l0aCBHSU1QACwAAAAAAQABAAACAkQBADs=";
+  public static final String EMAIL_BASE_64_ATTACHMENT_NAME = "pixel.gif";
   public static final String EMAIL_TEXT_PLAIN_ANOTHER_ATTACHMENT_CONTENT = "This is another email text attachment";
   public static final String EMAIL_JSON_ATTACHMENT_CONTENT = "{\"key\": \"value\"}";
   public static final String EMAIL_JSON_ATTACHMENT_NAME = "attachment.json";
@@ -474,6 +479,52 @@ public class EmailTestUtils {
     return message;
   }
 
+  public static MimeMessage getMixedRelatedAlternativeCharsetBinaryTestMessage() throws MessagingException {
+    MimeMultipart mixedMultipart = new MimeMultipart("mixed");
+
+    MimeBodyPart relatedPart = new MimeBodyPart();
+    mixedMultipart.addBodyPart(relatedPart);
+    MimeMultipart relatedMultipart = new MimeMultipart("related");
+    relatedPart.setContent(relatedMultipart);
+
+    MimeBodyPart alternativePart = new MimeBodyPart();
+    relatedMultipart.addBodyPart(alternativePart);
+    MimeMultipart alternativeMultipart = new MimeMultipart("alternative");
+    alternativePart.setContent(alternativeMultipart);
+
+    MimeBodyPart textPart = new MimeBodyPart();
+    alternativeMultipart.addBodyPart(textPart);
+    textPart.setContent(EMAIL_CONTENT, "text/plain");
+
+    MimeBodyPart html = new MimeBodyPart();
+    html.setContent(EMAIL_RELATED_CONTENT, "text/html");
+    alternativeMultipart.addBodyPart(html);
+
+    MimeBodyPart binaryInlineAttachment = new MimeBodyPart();
+    DataSource dataSrc = new ByteArrayDataSource(EMAIL_BASE_64_ATTACHMENT_CONTENT.getBytes(), BINARY.toString());
+    binaryInlineAttachment.setDataHandler(new DataHandler(dataSrc));
+    binaryInlineAttachment.setFileName(EMAIL_BASE_64_ATTACHMENT_NAME);
+    binaryInlineAttachment.setDisposition(INLINE);
+    binaryInlineAttachment.setContentID("att1");
+    binaryInlineAttachment.addHeader(CONTENT_TYPE_HEADER, "image/gif; charset=binary;");
+    binaryInlineAttachment.addHeader(CONTENT_TRANSFER_ENCODING_HEADER, DEFAULT_CONTENT_TRANSFER_ENCODING);
+    relatedMultipart.addBodyPart(binaryInlineAttachment);
+
+    MimeBodyPart jsonAttachment = new MimeBodyPart();
+    URL resource = currentThread().getContextClassLoader().getResource(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setFileName(EMAIL_JSON_ATTACHMENT_NAME);
+    jsonAttachment.setDataHandler(new DataHandler(resource));
+
+    mixedMultipart.addBodyPart(jsonAttachment);
+
+    MimeMessage message = new MimeMessage(testSession);
+    message.setContent(mixedMultipart);
+    message.setSubject(EMAIL_SUBJECT);
+    message.setRecipient(TO, new InternetAddress(ESTEBAN_EMAIL));
+    message.saveChanges();
+    return message;
+
+  }
 
   public static ServerSetup setUpServer(int port, String protocol) {
     ServerSetup serverSetup = new ServerSetup(port, null, protocol);
