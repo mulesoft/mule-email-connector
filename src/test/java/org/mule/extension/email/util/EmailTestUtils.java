@@ -11,7 +11,9 @@ import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
 import static javax.mail.Part.INLINE;
 import static org.mule.extension.email.internal.StoredEmailContentFactory.DEFAULT_NAME;
-import static org.mule.extension.email.internal.util.EmailConnectorConstants.*;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TRANSFER_ENCODING_HEADER;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_CONTENT_TRANSFER_ENCODING;
 import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.TEXT;
 
