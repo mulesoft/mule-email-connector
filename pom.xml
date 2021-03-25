@@ -21,8 +21,8 @@
     <properties>
         <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
-        <javaMailVersion>1.6.3</javaMailVersion>
-        <javaActivationVersion>2.0.0</javaActivationVersion>
+        <jakartaMailVersion>1.6.3</jakartaMailVersion>
+        <jakartaActivationVersion>2.0.0</jakartaActivationVersion>
         <greenmailVersion>1.5.10</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -111,7 +111,7 @@
                     <dependency>
                         <groupId>com.sun.mail</groupId>
                         <artifactId>jakarta.mail</artifactId>
-                        <version>${javaMailVersion}</version>
+                        <version>${jakartaMailVersion}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -122,7 +122,7 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
-            <version>${javaMailVersion}</version>
+            <version>${jakartaMailVersion}</version>
             <exclusions>
             	<exclusion>
             		<groupId>com.sun.activation</groupId>
@@ -133,7 +133,7 @@
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>jakarta.activation</artifactId>
-            <version>${javaActivationVersion}</version>
+            <version>${jakartaActivationVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
