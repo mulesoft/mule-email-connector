@@ -13,11 +13,13 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.slf4j.LoggerFactory.getLogger;
+import static javax.mail.internet.MimeUtility.decodeText;
 
 import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
 import org.mule.extension.email.api.exception.EmailException;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -90,7 +92,15 @@ public class MessageAttachment {
 
     @Override
     public String doGetAttachmentName() throws MessagingException {
-      return content.getFileName();
+      String fileName = content.getFileName();
+      try {
+        return fileName != null ? decodeText(content.getFileName()) : null;
+      } catch (UnsupportedEncodingException e) {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("Could not decode the attachment filename, uses the not decoded one", e);
+        }
+      }
+      return fileName;
     }
   }
 
