@@ -11,6 +11,7 @@ import org.mule.extension.email.internal.EmailConnectionSettings;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 
 /**
  * Groups IMAP connection parameters
@@ -25,6 +26,7 @@ public final class IMAPConnectionSettings extends EmailConnectionSettings {
   @Parameter
   @Optional(defaultValue = IMAPS_PORT)
   @Placement(order = 2)
+  @Port
   private String port;
 
   @Override

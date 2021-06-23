@@ -10,6 +10,8 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.sdk.api.annotation.semantics.connectivity.Host;
+import org.mule.sdk.api.annotation.semantics.security.Username;
 
 /**
  * A simple POJO with a basic set of parameters required by every email connection.
@@ -23,6 +25,7 @@ public abstract class EmailConnectionSettings {
    */
   @Parameter
   @Placement(order = 1)
+  @Host
   protected String host;
 
   /**
@@ -31,6 +34,7 @@ public abstract class EmailConnectionSettings {
   @Parameter
   @Optional
   @Placement(order = 3)
+  @Username
   protected String user;
 
   /**
