@@ -14,6 +14,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.connectivity.NoConnectivityTest;
+import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
 
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public abstract class AbstractEmailConnectionProvider<T> implements PoolingConne
   @Parameter
   @Optional
   @Placement(tab = ADVANCED_TAB, order = 5)
+  @ExcludeFromConnectivitySchema
   private Map<String, String> properties;
 
   /**

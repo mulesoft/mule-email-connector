@@ -43,6 +43,7 @@
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <validations.module.version>1.4.5</validations.module.version>
         <java.module.version>1.2.8</java.module.version>
+        <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
     </properties>
 
     <build>
@@ -151,6 +152,11 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commonsIoVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mule.sdk</groupId>
+            <artifactId>mule-sdk-api</artifactId>
+            <version>${muleSdkApiVersion}</version>
         </dependency>
 
         <!-- Test dependencies -->

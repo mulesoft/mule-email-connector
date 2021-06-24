@@ -11,6 +11,7 @@ import org.mule.extension.email.internal.EmailConnectionSettings;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 
 /**
  * Groups SMTP connection parameters
@@ -25,6 +26,7 @@ public final class SMTPConnectionSettings extends EmailConnectionSettings {
   @Parameter
   @Optional(defaultValue = SMTP_PORT)
   @Placement(order = 2)
+  @Port
   private String port;
 
   @Override
