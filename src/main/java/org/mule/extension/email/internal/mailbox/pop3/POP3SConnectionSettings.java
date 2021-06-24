@@ -15,6 +15,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 
 /**
  * Groups POP3S connection parameters
@@ -29,6 +30,7 @@ public final class POP3SConnectionSettings extends EmailConnectionSettings {
   @Parameter
   @Optional(defaultValue = POP3S_PORT)
   @Placement(order = 2)
+  @Port
   private String port;
 
   /**

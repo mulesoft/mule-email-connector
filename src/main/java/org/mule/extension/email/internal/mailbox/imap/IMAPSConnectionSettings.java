@@ -15,6 +15,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 
 /**
  * Groups IMAPS connection parameters
@@ -30,6 +31,7 @@ public final class IMAPSConnectionSettings extends EmailConnectionSettings {
   @Optional(defaultValue = IMAPS_PORT)
   @Placement(order = 2)
   @Summary("The port number of the mail server. '993' by default.")
+  @Port
   private String port;
 
   /**
