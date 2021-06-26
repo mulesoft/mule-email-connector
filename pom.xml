@@ -22,9 +22,7 @@
         <commonsIoVersion>2.10.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <jakartaMailVersion>1.6.3</jakartaMailVersion>
-        <commonsLangVersion>3.11</commonsLangVersion>
-        <jakartaMailVersion>1.6.3</jakartaMailVersion>
-        <jakartaActivationVersion>2.0.0</jakartaActivationVersion>
+        <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
         <greenmailVersion>1.5.10</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -33,7 +31,7 @@
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
         <munit.extensions.maven.plugin.version>1.1.1</munit.extensions.maven.plugin.version>
-        <munit.version>2.3.2</munit.version>
+        <munit.version>2.3.5</munit.version>
         <mtf.tools.version>1.1.0</mtf.tools.version>
         <mavenResourcesVersion>3.2.0</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
