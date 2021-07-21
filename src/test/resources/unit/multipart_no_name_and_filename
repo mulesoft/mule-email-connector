@@ -9,6 +9,15 @@ To: Juan Desimoni <juan.desimoni@mulesoft.com>
 Content-Type: multipart/mixed; boundary="f403045e6d18904495056a4ab7e8"
 
 --f403045e6d18904495056a4ab7e8
+Content-Type: text/csv; charset="US-ASCII"
+Content-Disposition: attachment;
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_jg87j8ha0
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=
+
+--f403045e6d18904495056a4ab7e8
 Content-Type: multipart/alternative; boundary="f403045e6d18904490056a4ab7e6"
 
 --f403045e6d18904490056a4ab7e6
@@ -31,12 +40,4 @@ v></div>
 </div>
 
 --f403045e6d18904490056a4ab7e6--
---f403045e6d18904495056a4ab7e8
-Content-Type: text/csv; charset="US-ASCII"
-Content-Disposition: attachment;
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_jg87j8ha0
-
-b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
-LDU=
 --f403045e6d18904495056a4ab7e8--
