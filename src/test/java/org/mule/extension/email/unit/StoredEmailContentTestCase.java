@@ -62,6 +62,59 @@ public class StoredEmailContentTestCase {
   }
 
   @Test
+  public void multipartMixed_test_Unnamed() throws IOException, MessagingException {
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_no_name_and_filename");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+    assertThat(attachments.get("Unnamed"), not(nullValue()));
+  }
+
+  @Test
+  public void multipartMixed_test() throws IOException, MessagingException {
+    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_basic");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"XXXXboundary text\"");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+    assertThat(content.getBody().getValue(), is("this is the body text"));
+  }
+
+  @Test
+  public void multipartMixed_withAttachmentsAndWithoutBody() throws IOException, MessagingException {
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_without_body");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message =
+        mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(2));
+    assertThat(content.getBody().getValue(), is(""));
+  }
+
+  @Test
+  public void multipartMixed_withAttachmentsAndBody() throws IOException, MessagingException {
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_with_body");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message =
+        mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(2));
+    assertThat(content.getBody().getValue(), is("This is some content!"));
+  }
+
+  @Test
   public void inputStreamContent_SubjectStrategy() throws IOException, MessagingException {
     InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
