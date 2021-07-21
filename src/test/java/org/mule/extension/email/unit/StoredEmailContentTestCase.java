@@ -60,6 +60,7 @@ public class StoredEmailContentTestCase {
     TypedValue<InputStream> csv = attachments.get("anotherName.csv");
     assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
   }
+
   @Test
   public void multipartMixed_test() throws IOException, MessagingException {
     InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_basic");
@@ -74,10 +75,12 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void multipartMixed_withAttachmentsAndWithoutBody() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_without_body");
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_without_body");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
+    Message message =
+        mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
@@ -86,10 +89,12 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void multipartMixed_withAttachmentsAndBody() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_with_body");
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_with_body");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
+    Message message =
+        mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
