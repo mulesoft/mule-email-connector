@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
@@ -57,11 +58,12 @@ public class EmailMessage {
     Multipart mp = getMultipart(message);
     boolean initialized = false;
     for (int i = 0; i < mp.getCount(); i++) {
-      if (!initialized && mp.getBodyPart(i).getFileName() == null) {
-        initBody(mp.getBodyPart(i));
+      BodyPart p = mp.getBodyPart(i);
+      if (!initialized && (p.getDisposition() == null || !p.getDisposition().equalsIgnoreCase(BodyPart.ATTACHMENT))) {
+        initBody(p);
         initialized = true;
       } else {
-        attachments.add(new MessageAttachment(mp.getBodyPart(i)));
+        attachments.add(new MessageAttachment(p));
       }
     }
     if (body == null) {
