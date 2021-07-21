@@ -1,0 +1,43 @@
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_"
+X-OriginatorOrg: awh.com.au
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: ME3PR01MB6370.ausprd01.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 377d65f3-26f8-4a66-ef19-08d94b9e1c78
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Jul 2021 16:47:50.2755 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 7046d25f-a228-47f8-a6f1-35f21ef16a35
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: s3Fi6lkTttr8+XqYdZlUWdZIEh72wqhn9Qp3EcXtO71DWCpHtDl5SKheqGA5Kqbh0sbZQtsigUq3C5ROBV9aMA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: ME3PR01MB6449
+X-BESS-ID: 1626799672-103645-5377-26645-1
+X-BESS-VER: 2019.1_20210719.2036
+X-BESS-Apparent-Source-IP: 104.47.71.234
+X-BESS-Outbound-Spam-Score: 0.50
+X-BESS-Outbound-Spam-Report: Code version 3.2, rules version 3.2.2.233688 [from cloudscan13-1.us-east-2a.ess.aws.cudaops.com] Rule breakdown below
+	 pts rule name
+              description ---- ---------------------- -------------------------------- 0.00 HTML_MESSAGE
+           BODY: HTML included in message 0.00 BSF_BESS_OUTBOUND
+      META: BESS Outbound 0.50 FROM_LOCAL_NOVOWEL
+     META: From: localpart has series of non-vowel letters
+X-BESS-Outbound-Spam-Status: SCORE=0.50 using account:ESS93917 scores of KILL_LEVEL=7.0 tests=HTML_MESSAGE, BSF_BESS_OUTBOUND, FROM_LOCAL_NOVOWEL
+X-BESS-BRTS-Status: 1
+
+--_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_
+Content-Type: application/octet-stream; name="VESSEL_SCHEDULE.DAT"
+Content-Description: VESSEL_SCHEDULE.DAT
+Content-Disposition: attachment; filename="VESSEL_SCHEDULE.DAT"; size=40733; creation-date="Sun, 04 Jul 2021 22:31:43 GMT"; modification-date="Mon, 05 Jul 2021 01:35:24 GMT"
+Content-ID: <5992BCB99ED8CD4B9DE97964ACB3D338@ausprd01.prod.outlook.com>
+Content-Transfer-Encoding: base64
+
+
+--_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_
+Content-Type: application/octet-stream; name="VESSEL_ROUTING_POINTS.DAT"
+Content-Description: VESSEL_ROUTING_POINTS.DAT
+Content-Disposition: attachment; filename="VESSEL_ROUTING_POINTS.DAT"; size=56792; creation-date="Sun, 04 Jul 2021 22:31:43 GMT"; modification-date="Mon, 05 Jul 2021 01:35:24 GMT"
+Content-ID: <7D51C4538C04324C8B91658A628D2003@ausprd01.prod.outlook.com>
+Content-Transfer-Encoding: base64
+
+
+--_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_--
