@@ -12,12 +12,14 @@ import static org.mule.extension.email.internal.util.EmailUtils.hasBodyAndAttach
 
 import org.mule.extension.email.api.exception.EmailException;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.internet.MimeBodyPart;
 
 /**
  * Abstraction to represent a email message, exposing its body text and attachments.
@@ -53,9 +55,17 @@ public class EmailMessage {
 
   private void initMultipartEmail(Part message) throws MessagingException {
     Multipart mp = getMultipart(message);
-    initBody(mp.getBodyPart(0));
-    for (int i = 1; i < mp.getCount(); i++) {
-      attachments.add(new MessageAttachment(mp.getBodyPart(i)));
+    boolean initialized = false;
+    for (int i = 0; i < mp.getCount(); i++) {
+      if (!initialized && mp.getBodyPart(i).getFileName() == null) {
+        initBody(mp.getBodyPart(i));
+        initialized = true;
+      } else {
+        attachments.add(new MessageAttachment(mp.getBodyPart(i)));
+      }
+    }
+    if (body == null) {
+      initBody(new MimeBodyPart(new ByteArrayInputStream(new byte[0])));
     }
   }
 
