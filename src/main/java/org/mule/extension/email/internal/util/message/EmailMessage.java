@@ -59,7 +59,9 @@ public class EmailMessage {
     boolean initialized = false;
     for (int i = 0; i < mp.getCount(); i++) {
       BodyPart p = mp.getBodyPart(i);
-      if (!initialized && (p.getDisposition() == null || !p.getDisposition().equalsIgnoreCase(BodyPart.ATTACHMENT))) {
+      if (!initialized && p.getFileName() == null
+          && (p.getDisposition() == null
+              || !p.getDisposition().equalsIgnoreCase(BodyPart.ATTACHMENT))) {
         initBody(p);
         initialized = true;
       } else {

@@ -63,7 +63,8 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void multipartMixed_test_Unnamed() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_no_name_and_filename");
+    InputStream multipart =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_no_name_and_filename");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
