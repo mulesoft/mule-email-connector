@@ -1,0 +1,7 @@
+MIME-Version: 1.0
+Content-Disposition: attachment;filename=test.csv
+Content-Transfer-Encoding: base64
+Content-Type: text/csv; charset="US-ASCII";
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=
