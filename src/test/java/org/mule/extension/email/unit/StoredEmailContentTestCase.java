@@ -26,6 +26,7 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -98,6 +99,22 @@ public class StoredEmailContentTestCase {
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
     assertThat(content.getBody().getValue(), is(""));
+  }
+
+  @Test
+  public void noMultipart_withAttachmentsAndWithoutBody() throws IOException, MessagingException {
+    System.setProperty("mail.mime.multipart.allowempty", "true");
+    InputStream mail =
+            Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/only_attachment");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message =
+            mockMessageNoMultipart(mail, "text/csv; charset=\"US-ASCII\";");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+    assertThat(content.getBody().getValue(), is(""));
+    System.setProperty("mail.mime.multipart.allowempty", "false");
   }
 
   @Test
@@ -212,6 +229,17 @@ public class StoredEmailContentTestCase {
     when(message.isMimeType("multipart/alternative")).thenReturn(false);
     when(message.isMimeType("multipart/related")).thenReturn(false);
     when(message.isMimeType("multipart/mixed")).thenReturn(true);
+    return message;
+  }
+
+  private Message mockMessageNoMultipart(InputStream data, String contentType) throws IOException, MessagingException {
+    Message message = mock(Message.class);
+    when(message.getContent()).thenReturn(data);
+    when(message.getContentType()).thenReturn(contentType);
+    when(message.isMimeType("multipart/*")).thenReturn(false);
+    when(message.isMimeType("multipart/alternative")).thenReturn(false);
+    when(message.isMimeType("multipart/related")).thenReturn(false);
+    when(message.isMimeType("multipart/mixed")).thenReturn(false);
     return message;
   }
 }
