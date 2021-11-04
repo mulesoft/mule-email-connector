@@ -214,8 +214,30 @@
         <munit:validation>
             <!-- Expected behaviour: all 6 emails are retrieved and deleted but only 3 are shown. -->
             <flow-ref name="list-Limit-${retriever-config}" />
-            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[3]" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[4]" />
             <flow-ref name="list-Limit-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="retrieveWithPageLimit">
+        <munit:execution>
+            <foreach collection="#[1 to 15]">
+                <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                    <java:args>
+                        #[{
+                        arg0: vars.counter,
+                        arg1: 'esteban.wasinger@mulesoft.com'
+                        }]
+                    </java:args>
+                </java:invoke-static>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <!-- Expected behaviour: all 16 emails are retrieved and deleted but only 14 are shown. -->
+            <flow-ref name="list-page-Limit-${retriever-config}" />
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[14]" />
+            <flow-ref name="list-page-Limit-${retriever-config}" />
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[0]" />
         </munit:validation>
     </munit:test>
