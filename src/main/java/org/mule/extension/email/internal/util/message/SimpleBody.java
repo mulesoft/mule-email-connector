@@ -18,9 +18,7 @@ import org.mule.extension.email.internal.StoredEmailContentFactory;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.regex.Pattern;
 
-import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
