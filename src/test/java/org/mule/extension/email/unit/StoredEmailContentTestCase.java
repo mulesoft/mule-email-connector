@@ -23,6 +23,7 @@ import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -30,18 +31,27 @@ import java.util.Properties;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 public class StoredEmailContentTestCase {
 
+
+  private Message getMessageFromEmlFile(String file) throws MessagingException {
+    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);
+    Properties props = System.getProperties();
+    Session mailSession = Session.getDefaultInstance(props, null);
+    return new MimeMessage(mailSession, multipart);
+  }
+
   @Test
   public void inputStreamContent() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart");
+    Message message = getMessageFromEmlFile("unit/multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
@@ -51,10 +61,9 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void inputStreamContent_HeadersStrategy() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_no_filename");
+    Message message = getMessageFromEmlFile("unit/multipart_no_filename");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
@@ -64,11 +73,9 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void multipartMixed_test_Unnamed() throws IOException, MessagingException {
-    InputStream multipart =
-        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_no_name_and_filename");
+    Message message = getMessageFromEmlFile("unit/multipart_no_name_and_filename");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
@@ -77,10 +84,9 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void multipartMixed_test() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_basic");
+    Message message = getMessageFromEmlFile("unit/multipart_basic");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"XXXXboundary text\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
@@ -89,12 +95,9 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void multipartMixed_withAttachmentsAndWithoutBody() throws IOException, MessagingException {
-    InputStream multipart =
-        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_without_body");
+    Message message = getMessageFromEmlFile("unit/mixed_with_attachments_and_without_body");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message =
-        mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
@@ -103,28 +106,51 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void noMultipart_withAttachmentsAndWithoutBody() throws IOException, MessagingException {
-    System.setProperty("mail.mime.multipart.allowempty", "true");
-    InputStream mail =
-            Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/only_attachment");
+    Message message = getMessageFromEmlFile("unit/only_attachment");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message =
-            mockMessageNoMultipart(mail, "text/csv; charset=\"US-ASCII\";");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
+    assertThat(attachments.containsKey("test.csv"), is(true));
+    TypedValue<InputStream> csv = attachments.get("test.csv");
+    assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
     assertThat(content.getBody().getValue(), is(""));
-    System.setProperty("mail.mime.multipart.allowempty", "false");
+  }
+
+  @Test
+  public void noMultipart_withAttachmentsAndWithoutBody02() throws IOException, MessagingException {
+    Message message = getMessageFromEmlFile("unit/only_attachment_02");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+    assertThat(attachments.containsKey("test.xls"), is(true));
+    TypedValue<InputStream> csv = attachments.get("test.xls");
+    assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
+    assertThat(content.getBody().getValue(), is(""));
+  }
+
+  @Test
+  public void noMultipart_withAttachmentsAndWithoutBody03() throws IOException, MessagingException {
+    Message message = getMessageFromEmlFile("unit/only_attachment_03");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+    assertThat(attachments.containsKey("test.xls"), is(true));
+    TypedValue<InputStream> csv = attachments.get("test.xls");
+    assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
+    assertThat(content.getBody().getValue(), is(""));
   }
 
   @Test
   public void multipartMixed_withAttachmentsAndBody() throws IOException, MessagingException {
-    InputStream multipart =
-        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/mixed_with_attachments_and_with_body");
+    Message message = getMessageFromEmlFile("unit/mixed_with_attachments_and_with_body");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message =
-        mockMessage(multipart, "multipart/mixed; boundary=\"_005_ME3PR01MB63705C35A8C8319F8F5541068FE29ME3PR01MB6370ausp_\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(2));
@@ -133,10 +159,9 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void inputStreamContent_SubjectStrategy() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/multipart");
+    Message message = getMessageFromEmlFile("unit/multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
-    Message message = mockMessage(multipart, "multipart/mixed; boundary=\"f403045e6d18904495056a4ab7e8\"");
     StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS_SUBJECT);
     Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
     assertThat(attachments.size(), is(1));
@@ -229,17 +254,6 @@ public class StoredEmailContentTestCase {
     when(message.isMimeType("multipart/alternative")).thenReturn(false);
     when(message.isMimeType("multipart/related")).thenReturn(false);
     when(message.isMimeType("multipart/mixed")).thenReturn(true);
-    return message;
-  }
-
-  private Message mockMessageNoMultipart(InputStream data, String contentType) throws IOException, MessagingException {
-    Message message = mock(Message.class);
-    when(message.getContent()).thenReturn(data);
-    when(message.getContentType()).thenReturn(contentType);
-    when(message.isMimeType("multipart/*")).thenReturn(false);
-    when(message.isMimeType("multipart/alternative")).thenReturn(false);
-    when(message.isMimeType("multipart/related")).thenReturn(false);
-    when(message.isMimeType("multipart/mixed")).thenReturn(false);
     return message;
   }
 }

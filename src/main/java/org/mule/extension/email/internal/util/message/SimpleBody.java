@@ -19,6 +19,7 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
@@ -56,12 +57,25 @@ public class SimpleBody implements MessageBody {
         bodyPart = mp.getBodyPart(0);
         initInlineAttachments(mp);
       } else if (isTextBody(part)) {
-        bodyPart = part;
+        if (part.getDisposition() != null && part.getDisposition().startsWith("attachment")) {
+          inlineAttachments.add(new MessageAttachment(part));
+          bodyPart = new MimeBodyPart();
+          bodyPart.setText("");
+        } else {
+          bodyPart = part;
+        }
       } else {
-        bodyPart = new MimeBodyPart(new ByteArrayInputStream(new byte[0]));
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
-                              part.getContentType()));
+        if (part.getDisposition() != null && part.getDisposition().startsWith("attachment") ||
+                part.getContentType().contains("name=")) {
+          inlineAttachments.add(new MessageAttachment(part));
+          bodyPart = new MimeBodyPart();
+          bodyPart.setText("");
+        } else {
+          bodyPart = new MimeBodyPart(new ByteArrayInputStream(new byte[0]));
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
+                                part.getContentType()));
+          }
         }
       }
       body = hasAlternativeBodies(bodyPart) ? new AlternativeBody(bodyPart) : new TextBody(bodyPart);
