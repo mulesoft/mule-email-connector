@@ -147,6 +147,24 @@ public class StoredEmailContentTestCase {
   }
 
   @Test
+  public void multipartMixed_multipartNoBodyAndTwoAttanchments() throws IOException, MessagingException {
+    Message message = getMessageFromEmlFile("unit/multipart_no_body_two_attanchments");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(3));
+    TypedValue<InputStream> csv = attachments.get("test01.csv");
+    assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
+    csv = attachments.get("test02.xls");
+    assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
+    csv = attachments.get("test03.csv");
+    assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
+    assertThat(content.getBody().getValue().isEmpty(), is(true));
+
+  }
+
+  @Test
   public void multipartMixed_withAttachmentsAndBody() throws IOException, MessagingException {
     Message message = getMessageFromEmlFile("unit/mixed_with_attachments_and_with_body");
     StreamingHelper helper = mock(StreamingHelper.class);

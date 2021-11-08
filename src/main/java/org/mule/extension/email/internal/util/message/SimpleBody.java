@@ -66,7 +66,7 @@ public class SimpleBody implements MessageBody {
         }
       } else {
         if (part.getDisposition() != null && part.getDisposition().startsWith("attachment") ||
-                part.getContentType().contains("name=")) {
+            part.getContentType().contains("name=")) {
           inlineAttachments.add(new MessageAttachment(part));
           bodyPart = new MimeBodyPart();
           bodyPart.setText("");
