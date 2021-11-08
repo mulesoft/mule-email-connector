@@ -18,6 +18,7 @@ import org.mule.extension.email.internal.StoredEmailContentFactory;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
@@ -35,6 +36,9 @@ import org.slf4j.LoggerFactory;
 public class SimpleBody implements MessageBody {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final String NAME_HEADER = "name=";
+  private static final String ATTACHMENT = "attachment";
+
 
   /**
    * The text extracted from the given part.
@@ -57,7 +61,7 @@ public class SimpleBody implements MessageBody {
         bodyPart = mp.getBodyPart(0);
         initInlineAttachments(mp);
       } else if (isTextBody(part)) {
-        if (part.getDisposition() != null && part.getDisposition().startsWith("attachment")) {
+        if (part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
           inlineAttachments.add(new MessageAttachment(part));
           bodyPart = new MimeBodyPart();
           bodyPart.setText("");
@@ -65,8 +69,8 @@ public class SimpleBody implements MessageBody {
           bodyPart = part;
         }
       } else {
-        if (part.getDisposition() != null && part.getDisposition().startsWith("attachment") ||
-            part.getContentType().contains("name=")) {
+        if ((part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) ||
+            part.getContentType().contains(NAME_HEADER)) {
           inlineAttachments.add(new MessageAttachment(part));
           bodyPart = new MimeBodyPart();
           bodyPart.setText("");
