@@ -60,11 +60,20 @@
 
     <!-- Retrieve with limit -->
     <flow name="list-Limit-imap-CommonTests">
-        <email:list-imap config-ref="imap-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+        <email:list-imap config-ref="imap-CommonTests" limit="#[4]" deleteAfterRetrieve="true"/>
     </flow>
 
     <flow name="list-Limit-imaps-CommonTests">
-        <email:list-imap config-ref="imaps-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+        <email:list-imap config-ref="imaps-CommonTests" limit="#[4]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <!-- Retrieve with pageSize and limit-->
+    <flow name="list-page-Limit-imap-CommonTests">
+        <email:list-imap config-ref="imap-CommonTests" limit="#[14]" pageSize="#[6]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="list-page-Limit-imaps-CommonTests">
+        <email:list-imap config-ref="imaps-CommonTests" limit="#[14]" pageSize="#[6]" deleteAfterRetrieve="true"/>
     </flow>
 
     <!-- Retrieve with incorrect user -->
@@ -150,11 +159,20 @@
 
     <!-- Retrieve with limit -->
     <flow name="list-Limit-pop3-CommonTests">
-        <email:list-pop3 config-ref="pop3-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+        <email:list-pop3 config-ref="pop3-CommonTests" limit="#[4]" deleteAfterRetrieve="true"/>
     </flow>
 
     <flow name="list-Limit-pop3s-CommonTests">
-        <email:list-pop3 config-ref="pop3s-CommonTests" limit="#[3]" deleteAfterRetrieve="true"/>
+        <email:list-pop3 config-ref="pop3s-CommonTests" limit="#[4]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <!-- Retrieve with pageSize and limit-->
+    <flow name="list-page-Limit-pop3-CommonTests">
+        <email:list-pop3 config-ref="pop3-CommonTests" limit="#[14]" pageSize="#[6]" deleteAfterRetrieve="true"/>
+    </flow>
+
+    <flow name="list-page-Limit-pop3s-CommonTests">
+        <email:list-pop3 config-ref="pop3s-CommonTests" limit="#[14]" pageSize="#[6]" deleteAfterRetrieve="true"/>
     </flow>
 
     <!-- Retrieve with incorrect user -->
