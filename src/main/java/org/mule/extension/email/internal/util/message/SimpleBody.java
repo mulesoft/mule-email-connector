@@ -53,7 +53,7 @@ public class SimpleBody implements MessageBody {
    */
   public SimpleBody(Part part) {
     try {
-      Part bodyPart;
+      Part bodyPart = null;
       if (hasInlineAttachments(part)) {
         Multipart mp = getMultipart(part);
         bodyPart = mp.getBodyPart(0);
@@ -61,8 +61,6 @@ public class SimpleBody implements MessageBody {
       } else if (isTextBody(part)) {
         if (part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
           inlineAttachments.add(new MessageAttachment(part));
-          bodyPart = new MimeBodyPart();
-          bodyPart.setText("");
         } else {
           bodyPart = part;
         }
@@ -70,15 +68,16 @@ public class SimpleBody implements MessageBody {
         if ((part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) ||
             part.getContentType().contains(NAME_HEADER)) {
           inlineAttachments.add(new MessageAttachment(part));
-          bodyPart = new MimeBodyPart();
-          bodyPart.setText("");
         } else {
-          bodyPart = new MimeBodyPart(new ByteArrayInputStream(new byte[0]));
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
                                 part.getContentType()));
           }
         }
+      }
+      if(bodyPart==null){
+        bodyPart = new MimeBodyPart();
+        bodyPart.setText("");
       }
       body = hasAlternativeBodies(bodyPart) ? new AlternativeBody(bodyPart) : new TextBody(bodyPart);
       inlineAttachments.addAll(body.getInlineAttachments());
