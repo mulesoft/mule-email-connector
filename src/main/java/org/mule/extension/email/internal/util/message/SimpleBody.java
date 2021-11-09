@@ -75,7 +75,7 @@ public class SimpleBody implements MessageBody {
           }
         }
       }
-      if(bodyPart==null){
+      if (bodyPart == null) {
         bodyPart = new MimeBodyPart();
         bodyPart.setText("");
       }
