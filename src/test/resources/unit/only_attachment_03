@@ -1,0 +1,10 @@
+MIME-Version: 1.0
+Subject: TEST
+Message-ID: <ADR46000000252720400000D3A27DBC11EDC86C2378F022411D5@mule.com>
+Content-Type: application/vnd.ms-excel
+Content-Disposition: attachment;filename=test.xls
+Content-Transfer-Encoding: base64
+Content-Description: ONLY_ATTACHMENT
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=

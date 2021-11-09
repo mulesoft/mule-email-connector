@@ -1,0 +1,27 @@
+From: Some One <someone@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="XXXXboundary text"
+
+--XXXXboundary text
+Content-Transfer-Encoding: base64
+Content-Type: text/csv; charset="US-ASCII"; name="test01.csv"
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=
+
+--XXXXboundary text
+Content-Type: application/vnd.ms-excel; name="test02.xls"
+Content-Transfer-Encoding: base64
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=
+
+--XXXXboundary text
+Content-Disposition: attachment;filename=test03.csv
+Content-Type: text/csv; charset="US-ASCII";
+Content-Transfer-Encoding: base64
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=
+
+--XXXXboundary text--

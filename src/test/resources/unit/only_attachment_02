@@ -1,0 +1,11 @@
+Subject: TEST
+Message-ID: <ADR46000000252720400000D3A27DBC11EDC86C2378F022411D5@mule.com>
+Disposition-Notification-To: MULE AR <connectortestmule@outlook.com>
+X-Mailer: EMAIL CONNECTOR TEST
+Content-Type: application/vnd.ms-excel; name="test.xls"
+Content-Transfer-Encoding: base64
+Content-Description: ONLY_ATTACHMENT
+MIME-Version: 1.0
+
+b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1
+LDU=

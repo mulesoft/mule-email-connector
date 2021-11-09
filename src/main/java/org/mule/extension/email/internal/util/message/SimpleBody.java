@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
 public class SimpleBody implements MessageBody {
 
   private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final String NAME_HEADER = "name=";
+  private static final String ATTACHMENT = "attachment";
+
 
   /**
    * The text extracted from the given part.
@@ -50,19 +53,31 @@ public class SimpleBody implements MessageBody {
    */
   public SimpleBody(Part part) {
     try {
-      Part bodyPart;
+      Part bodyPart = null;
       if (hasInlineAttachments(part)) {
         Multipart mp = getMultipart(part);
         bodyPart = mp.getBodyPart(0);
         initInlineAttachments(mp);
       } else if (isTextBody(part)) {
-        bodyPart = part;
-      } else {
-        bodyPart = new MimeBodyPart(new ByteArrayInputStream(new byte[0]));
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
-                              part.getContentType()));
+        if (part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
+          inlineAttachments.add(new MessageAttachment(part));
+        } else {
+          bodyPart = part;
         }
+      } else {
+        if ((part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) ||
+            part.getContentType().contains(NAME_HEADER)) {
+          inlineAttachments.add(new MessageAttachment(part));
+        } else {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(format("Expected MimeType of the part was either 'multipart/related' or 'text/*', but was: '%s'.",
+                                part.getContentType()));
+          }
+        }
+      }
+      if (bodyPart == null) {
+        bodyPart = new MimeBodyPart();
+        bodyPart.setText("");
       }
       body = hasAlternativeBodies(bodyPart) ? new AlternativeBody(bodyPart) : new TextBody(bodyPart);
       inlineAttachments.addAll(body.getInlineAttachments());
