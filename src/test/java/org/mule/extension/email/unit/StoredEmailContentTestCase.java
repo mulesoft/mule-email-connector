@@ -20,6 +20,7 @@ import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.N
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
+import org.mule.extension.email.internal.util.EmailConnectorConstants;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
@@ -105,6 +106,7 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void noMultipart_withAttachmentsAndWithoutBody() throws IOException, MessagingException {
+    System.setProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY, "false");
     Message message = getMessageFromEmlFile("unit/only_attachment");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
@@ -115,6 +117,19 @@ public class StoredEmailContentTestCase {
     TypedValue<InputStream> csv = attachments.get("test.csv");
     assertThat(IOUtils.toString(csv.getValue()), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
     assertThat(content.getBody().getValue(), is(""));
+    System.clearProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY);
+  }
+
+  @Test
+  public void noMultipart_parsingTextAttachmentAsBodyProperty() throws IOException, MessagingException {
+    System.clearProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY);
+    Message message = getMessageFromEmlFile("unit/only_attachment");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(0));
+    assertThat(content.getBody().getValue(), is("orderId,name,units,pricePerUnit\r\n1,aaa,2.0,10\r\n2,bbb,4.15,5"));
   }
 
   @Test

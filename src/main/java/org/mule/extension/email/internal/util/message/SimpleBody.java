@@ -15,7 +15,6 @@ import static org.mule.extension.email.internal.util.EmailUtils.isTextBody;
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -24,6 +23,7 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 
+import org.mule.extension.email.internal.util.EmailConnectorConstants;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -37,6 +37,8 @@ public class SimpleBody implements MessageBody {
   private static final String NAME_HEADER = "name=";
   private static final String ATTACHMENT = "attachment";
 
+  private final boolean parsingTextAttachmentAsBody =
+      Boolean.parseBoolean(System.getProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY, "true"));
 
   /**
    * The text extracted from the given part.
@@ -59,7 +61,8 @@ public class SimpleBody implements MessageBody {
         bodyPart = mp.getBodyPart(0);
         initInlineAttachments(mp);
       } else if (isTextBody(part)) {
-        if (part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
+        if (!parsingTextAttachmentAsBody &&
+            part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
           inlineAttachments.add(new MessageAttachment(part));
         } else {
           bodyPart = part;

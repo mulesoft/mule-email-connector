@@ -101,4 +101,9 @@ public final class EmailConnectorConstants {
    * Hide constructor
    */
   private EmailConnectorConstants() {}
+
+  /**
+   * System property name that allows parsing text attachment as body message
+   */
+  public static final String PARSING_TEXT_ATTACHMENT_AS_BODY = "parsing.text.attachment.as.body";
 }
