@@ -88,6 +88,11 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
   }
 
   @Override
+  protected void emailOnFlowError() {
+    endUsingFolder();
+  }
+
+  @Override
   public void onRejectedItem(Result<StoredEmailContent, BaseEmailAttributes> result,
                              SourceCallbackContext sourceCallbackContext) {
     endUsingFolder();
