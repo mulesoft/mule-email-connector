@@ -168,6 +168,7 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
                 markAsDeleted(id, message);
               }
             } catch (ModuleException e) {
+              LOGGER.error(e.getMessage(), e);
               emailOnFlowError();
             }
           });
