@@ -158,15 +158,20 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
               item.setWatermark(Long.valueOf(id));
             }
             item.setId(id);
-            item.setResult(Result.<StoredEmailContent, BaseEmailAttributes>builder()
-                .output(getEmailContent(message, id))
-                .attributes(attributes)
-                .build());
+            try {
+              item.setResult(Result.<StoredEmailContent, BaseEmailAttributes>builder()
+                  .output(getEmailContent(message, id))
+                  .attributes(attributes)
+                  .build());
 
-            if (deleteAfterRetrieve) {
-              markAsDeleted(id, message);
+              if (deleteAfterRetrieve) {
+                markAsDeleted(id, message);
+              }
+            } catch (ModuleException e) {
+              emailOnFlowError();
             }
           });
+
         }
       }
     } finally {
@@ -181,6 +186,10 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
   }
 
   protected void emailDispatchedToFlow() {
+    // Do nothing.
+  }
+
+  protected void emailOnFlowError() {
     // Do nothing.
   }
 
