@@ -207,7 +207,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     Message next = messageIterator.next();
     TypedValue<String> body = ((StoredEmailContent) next.getPayload().getValue()).getBody();
     assertThat(body.getValue(), is(""));
-    assertThat(((IMAPEmailAttributes) next.getAttributes().getValue()).getHeaders().get("Content-Disposition")
+    assertThat(((BaseEmailAttributes) next.getAttributes().getValue()).getHeaders().get("Content-Disposition")
         .startsWith("attachment"), is(true));
   }
 
