@@ -32,6 +32,7 @@ import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -42,6 +43,7 @@ import org.mule.tck.junit4.rule.SystemProperty;
 
 import javax.mail.Flags.Flag;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
@@ -50,6 +52,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -61,7 +64,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   final static int DEFAULT_TEST_PAGE_SIZE = valueOf(DEFAULT_PAGE_SIZE);
   static final String RETRIEVE_AND_READ = "retrieveAndRead";
-  static final String RETRIEVE_AND_THEN_EXPUNGE_DELETE = "retrieveAndThenExpungeDelete";
+  static final String RETRIEVE_AND_READ_MAX_CONCURRENCY_EQUALS_ONE = "retrieveAndReadMaxConcurrencyEqualsOne";
 
   private static final String RETRIEVE_AND_DELETE = "retrieveAndDelete";
   private static final String RETRIEVE_MATCH_SUBJECT_AND_FROM = "retrieveMatchingSubjectAndFromAddress";
@@ -73,6 +76,8 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   private static final String TEXT_PLAIN = MediaType.TEXT.toRfcString();
   private static final MediaType TEXT_JSON = MediaType.create("text", "json", Charset.forName("UTF-8"));
   private static final String JSON_OBJECT = "{\"this is a\" : \"json object\"}";
+  private static final String BASE64_OBJECT = "b3JkZXJJZCxuYW1lLHVuaXRzLHByaWNlUGVyVW5pdA0KMSxhYWEsMi4wLDEwDQoyLGJiYiw0LjE1LDU=";
+  private static final MediaType TEXT_CSV = MediaType.create("text", "csv", Charset.forName("US-ASCII"));
 
   @ClassRule
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -187,6 +192,25 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(body.getDataType(), is(like(String.class, TEXT_JSON)));
   }
 
+  private MimeMessage getMessageFromEmlFile(String file) throws MessagingException {
+    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);
+    Properties props = System.getProperties();
+    Session mailSession = Session.getDefaultInstance(props, null);
+    return new MimeMessage(mailSession, multipart);
+  }
+
+  @Test
+  public void retrieveEmailsWithoutBody() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    user.deliver(getMessageFromEmlFile("unit/only_attachment"));
+    Iterator<Message> messageIterator = runFlowAndGetMessages(RETRIEVE_AND_READ_MAX_CONCURRENCY_EQUALS_ONE);
+    Message next = messageIterator.next();
+    TypedValue<String> body = ((StoredEmailContent) next.getPayload().getValue()).getBody();
+    assertThat(body.getValue(), is(""));
+    assertThat(((IMAPEmailAttributes) next.getAttributes().getValue()).getHeaders().get("Content-Disposition")
+        .startsWith("attachment"), is(true));
+  }
+
   // TODO MULE-16388 : Review if it makes sense to migrated this test.
   @Test
   public void retrieveMultiplePagesReadAndDeleteAfter() throws Exception {
@@ -196,6 +220,15 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     messages.forEach(msg -> assertBodyContent(((StoredEmailContent) msg.getPayload().getValue()).getBody().getValue()));
     assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE + 100));
     assertThat(server.getReceivedMessages(), arrayWithSize(0));
+  }
+
+  @Test
+  public void retrieveMultiplePagesReadAndDeleteAfterWithMaxConcurrencyEqualsOne() throws Exception {
+    sendEmails(100);
+    List<Message> messages = new ArrayList<>();
+    runFlowAndGetMessages(RETRIEVE_AND_READ_MAX_CONCURRENCY_EQUALS_ONE).forEachRemaining(messages::add);
+    messages.forEach(msg -> assertBodyContent(((StoredEmailContent) msg.getPayload().getValue()).getBody().getValue()));
+    assertThat(messages, hasSize(DEFAULT_TEST_PAGE_SIZE + 100));
   }
 
   private Iterator<Message> runFlowAndGetMessagesWithPageSize(String flowName, int pageSize) throws Exception {
