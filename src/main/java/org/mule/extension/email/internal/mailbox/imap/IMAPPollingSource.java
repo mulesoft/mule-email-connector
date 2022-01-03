@@ -25,11 +25,13 @@ import org.mule.runtime.extension.api.annotation.source.OnBackPressure;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 
 /**
  * Retrieves all the emails from an IMAP mailbox folder, watermark can be enabled for polled items.
@@ -41,7 +43,7 @@ import javax.mail.MessagingException;
 @MetadataScope(outputResolver = StoredEmailContentTypeResolver.class)
 public class IMAPPollingSource extends BaseMailboxPollingSource {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(IMAPPollingSource.class);
+  private static final Logger LOGGER = getLogger(IMAPPollingSource.class);
 
   /**
    * If watermark should be applied to the polled emails or not. Default to true.

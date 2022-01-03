@@ -31,6 +31,7 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.PollContext;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
+import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -38,8 +39,7 @@ import java.util.function.Predicate;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Implementation of an email pooling source, contains all the logic to retrieve and push emails, add watermark and delete
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmailContent, BaseEmailAttributes> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(BaseMailboxPollingSource.class);
+  private static final Logger LOGGER = getLogger(BaseMailboxPollingSource.class);
 
   @Config
   private MailboxAccessConfiguration config;
