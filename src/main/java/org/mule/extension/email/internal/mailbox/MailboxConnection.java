@@ -13,6 +13,7 @@ import static org.mule.extension.email.internal.errors.EmailError.INVALID_CREDEN
 import static org.mule.extension.email.internal.errors.EmailError.UNKNOWN_HOST;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailConnectionException;
@@ -32,7 +33,6 @@ import java.net.UnknownHostException;
 import java.util.Map;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A connection with a mail server for retrieving and managing emails from an specific folder in a mailbox.
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MailboxConnection extends AbstractEmailConnection {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MailboxConnection.class);
+  private static final Logger LOGGER = getLogger(MailboxConnection.class);
   private static final String PORT_OUT_OF_RANGE = "port out of range";
 
   private Store store;

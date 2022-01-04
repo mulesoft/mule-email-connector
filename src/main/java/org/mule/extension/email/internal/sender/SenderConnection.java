@@ -8,13 +8,14 @@ package org.mule.extension.email.internal.sender;
 
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.SMTPS_PORT;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.email.internal.AbstractEmailConnection;
 import org.mule.extension.email.internal.EmailProtocol;
 import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.tls.TlsContextFactory;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -25,7 +26,7 @@ import java.util.Map;
  */
 public final class SenderConnection extends AbstractEmailConnection {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(SenderConnection.class);
+  private static Logger LOGGER = getLogger(SenderConnection.class);
 
   /**
    * Creates a new instance.

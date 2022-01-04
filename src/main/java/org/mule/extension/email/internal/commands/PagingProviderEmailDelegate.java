@@ -13,6 +13,8 @@ import static java.util.Collections.reverse;
 import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
+import static java.lang.Thread.currentThread;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailException;
@@ -39,7 +41,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -50,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     implements PagingProvider<MailboxConnection, Result<StoredEmailContent, T>> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final Logger LOGGER = getLogger(StoredEmailContentFactory.class);
   private final MailboxAccessConfiguration configuration;
   private final int pageSize;
   private final List<BaseEmailAttributes> emailsToBeDeleted;
@@ -147,7 +149,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     That was fixed in MULE-16617, which went live with the 4.2.1 mule runtime version, so once the MinMuleVersion
     is 4.2.1 or higher, this code can be removed. Meanwhile, this code is required to avoid execution with an invalid
     Class Loader for older Mule Runtimes. */
-    ClassLoader currentClassLoader = Thread.currentThread().getContextClassLoader();
+    ClassLoader currentClassLoader = currentThread().getContextClassLoader();
     if (currentClassLoader != getClass().getClassLoader()) {
       LOGGER.debug("Incorrect class loader. Switching to the right one.");
       return withContextClassLoader(getClass().getClassLoader(), () -> doGetPage(connection));

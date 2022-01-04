@@ -53,6 +53,10 @@
         <email:list-imap config-ref="config"/>
     </flow>
 
+    <flow name="retrieveAndReadMaxConcurrencyEqualsOne"  maxConcurrency="1">
+        <email:list-imap config-ref="config"/>
+    </flow>
+
     <flow name="retrieveMatchingSubjectAndFromAddress">
         <email:list-imap config-ref="config" imapMatcher="matcher"/>
     </flow>

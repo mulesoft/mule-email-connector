@@ -6,10 +6,12 @@
  */
 package org.mule.extension.email.internal.util.message;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 import org.mule.runtime.core.api.util.IOUtils;
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.Part;
@@ -28,7 +30,7 @@ import static org.mule.extension.email.internal.util.EmailUtils.*;
  */
 public class TextBody implements MessageBody {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final Logger LOGGER = getLogger(StoredEmailContentFactory.class);
 
   /**
    * The text extracted from the given part.
