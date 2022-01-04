@@ -11,11 +11,11 @@ import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 import static org.mule.extension.email.internal.util.EmailUtils.hasAlternativeBodies;
 import static org.mule.extension.email.internal.util.EmailUtils.hasInlineAttachments;
 import static org.mule.extension.email.internal.util.EmailUtils.isTextBody;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
 
-import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -23,8 +23,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
-
-import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 /**
  * Models a body of MimeType 'multipart/related' or 'text/*'.
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleBody implements MessageBody {
 
-  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final Logger LOGGER = getLogger(StoredEmailContentFactory.class);
   private static final String NAME_HEADER = "name=";
   private static final String ATTACHMENT = "attachment";
 

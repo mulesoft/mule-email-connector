@@ -10,6 +10,7 @@ import static java.lang.Thread.currentThread;
 import static javax.mail.Message.RecipientType.TO;
 import static javax.mail.Part.ATTACHMENT;
 import static javax.mail.Part.INLINE;
+import static javax.mail.Session.getDefaultInstance;
 import static org.mule.extension.email.internal.StoredEmailContentFactory.DEFAULT_NAME;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TYPE_HEADER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONTENT_TRANSFER_ENCODING_HEADER;
@@ -59,7 +60,7 @@ public class EmailTestUtils {
   public static final String ALE_EMAIL = "ale.g.marra@mulesoft.com";
   public static final String MG_EMAIL = "mariano.gonzalez@mulesoft.com";
 
-  public static final Session testSession = Session.getDefaultInstance(new Properties());
+  public static final Session testSession = getDefaultInstance(new Properties());
 
   public static MimeMessage getSimpleTextTestMessage() throws MessagingException {
     MimeMessage message = new MimeMessage(testSession);
