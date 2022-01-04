@@ -17,6 +17,9 @@ import static org.mockito.Mockito.when;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS;
 import static org.mule.extension.email.api.attachment.AttachmentNamingStrategy.NAME_HEADERS_SUBJECT;
+import static java.lang.Thread.currentThread;
+import static java.lang.System.getProperties;
+import static javax.mail.Session.getDefaultInstance;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.StoredEmailContentFactory;
@@ -41,9 +44,9 @@ public class StoredEmailContentTestCase {
 
 
   private Message getMessageFromEmlFile(String file) throws MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream(file);
-    Properties props = System.getProperties();
-    Session mailSession = Session.getDefaultInstance(props, null);
+    InputStream multipart = currentThread().getContextClassLoader().getResourceAsStream(file);
+    Properties props = getProperties();
+    Session mailSession = getDefaultInstance(props, null);
     return new MimeMessage(mailSession, multipart);
   }
 
@@ -203,7 +206,7 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void inputStreamContentFromOutlook_DefaultStrategy() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
+    InputStream multipart = currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed;\n"
@@ -218,7 +221,7 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void inputStreamContentFromOutlook_HeadersStrategy() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
+    InputStream multipart = currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed;\n"
@@ -233,7 +236,7 @@ public class StoredEmailContentTestCase {
 
   @Test
   public void inputStreamContentFromOutlook_SubjectStrategy() throws IOException, MessagingException {
-    InputStream multipart = Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
+    InputStream multipart = currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message = mockMessage(multipart, "multipart/mixed;\n"
@@ -249,7 +252,7 @@ public class StoredEmailContentTestCase {
   @Test
   public void inputStreamContentFromOutlook_NestedEmailAttachment_Default() throws IOException, MessagingException {
     InputStream multipart =
-        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart_nested_email_attachment");
+        currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart_nested_email_attachment");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message =
@@ -265,7 +268,7 @@ public class StoredEmailContentTestCase {
   @Test
   public void inputStreamContentFromOutlook_NestedEmailAttachment_Subject() throws IOException, MessagingException {
     InputStream multipart =
-        Thread.currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart_nested_email_attachment");
+        currentThread().getContextClassLoader().getResourceAsStream("unit/outlook_multipart_nested_email_attachment");
     StreamingHelper helper = mock(StreamingHelper.class);
     when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
     Message message =

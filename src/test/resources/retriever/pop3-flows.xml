@@ -40,4 +40,8 @@
             <email:pop3-matcher subjectRegex="[0-9]+"/>
         </email:list-pop3>
     </flow>
+
+    <flow name="retrieveAndReadMaxConcurrencyEqualsOne"  maxConcurrency="1">
+        <email:list-pop3 config-ref="config"/>
+    </flow>
 </mule>

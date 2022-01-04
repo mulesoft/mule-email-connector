@@ -11,6 +11,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.mule.runtime.api.metadata.DataType.builder;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attachment.AttachmentNamingStrategy;
@@ -41,7 +42,6 @@ import javax.mail.MessagingException;
 import javax.mail.Part;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Factory for {@link StoredEmailContent} instances.
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StoredEmailContentFactory {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StoredEmailContentFactory.class);
+  private static final Logger LOGGER = getLogger(StoredEmailContentFactory.class);
   private static final String CID_MASK = "\"cid:%s\"";
 
   private MailPartContentResolver contentResolver = new DefaultMailPartContentResolver();

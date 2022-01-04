@@ -32,6 +32,8 @@ import static org.mule.extension.email.util.EmailTestUtils.PABLON_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.HTML;
+import static java.lang.Thread.currentThread;
+
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
@@ -77,7 +79,7 @@ public class MessageBuilderTestCase {
   @Test
   public void buildAttachmentMessage() throws Exception {
     String html = "<h1>Mulesoft</h1>";
-    InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("attachment.json");
+    InputStream is = currentThread().getContextClassLoader().getResourceAsStream("attachment.json");
     Map<String, TypedValue<InputStream>> attachments = singletonMap(EMAIL_JSON_ATTACHMENT_NAME,
                                                                     new TypedValue<>(is, DataType.builder().fromObject(is)
                                                                         .mediaType(BINARY).build()));
