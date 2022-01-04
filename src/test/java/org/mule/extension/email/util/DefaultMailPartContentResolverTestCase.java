@@ -12,6 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static java.lang.Thread.currentThread;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -31,7 +32,7 @@ public class DefaultMailPartContentResolverTestCase {
 
   @Test
   public void resolveIMAPPartContentToByteArrayStream() throws Exception {
-    try (InputStream imapInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(CONTENT_FILE)) {
+    try (InputStream imapInputStream = currentThread().getContextClassLoader().getResourceAsStream(CONTENT_FILE)) {
       MailPartContentResolver resolver = new DefaultMailPartContentResolver();
       IMAPMessage message = mock(IMAPMessage.class);
       when(message.getInputStream()).thenReturn(imapInputStream);
@@ -43,7 +44,7 @@ public class DefaultMailPartContentResolverTestCase {
 
   @Test
   public void resolveMessagePartContentToOriginalStreamClass() throws Exception {
-    try (InputStream imapInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(CONTENT_FILE)) {
+    try (InputStream imapInputStream = currentThread().getContextClassLoader().getResourceAsStream(CONTENT_FILE)) {
       MailPartContentResolver resolver = new DefaultMailPartContentResolver();
       MimeMessage message = mock(MimeMessage.class);
       when(message.getInputStream()).thenReturn(imapInputStream);

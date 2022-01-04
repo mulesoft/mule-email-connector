@@ -24,6 +24,7 @@ import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
 import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessageWithRepeatedAttachmentNames;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLAIN;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.mail.Flags;
 import javax.mail.MessagingException;
@@ -40,7 +41,7 @@ public class TestIMAPServer extends AbstractTestServer {
 
   protected static GreenMail server;
   protected static GreenMailUser user;
-  private static final Logger LOGGER = LoggerFactory.getLogger(TestIMAPServer.class);
+  private static final Logger LOGGER = getLogger(TestIMAPServer.class);
 
   public static void start(Integer port) {
     doStart(port, PROTOCOL_IMAP);

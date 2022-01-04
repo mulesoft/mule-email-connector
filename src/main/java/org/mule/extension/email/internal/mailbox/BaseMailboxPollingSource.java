@@ -10,6 +10,7 @@ import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Folder.READ_WRITE;
 import static org.mule.extension.email.internal.errors.EmailError.READ_EMAIL;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
@@ -31,6 +32,7 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.source.PollContext;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
+import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
@@ -38,8 +40,7 @@ import java.util.function.Predicate;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 /**
  * Implementation of an email pooling source, contains all the logic to retrieve and push emails, add watermark and delete
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmailContent, BaseEmailAttributes> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(BaseMailboxPollingSource.class);
+  private static final Logger LOGGER = getLogger(BaseMailboxPollingSource.class);
 
   @Config
   private MailboxAccessConfiguration config;
@@ -167,12 +168,11 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
               if (deleteAfterRetrieve) {
                 markAsDeleted(id, message);
               }
-            } catch (ModuleException e) {
+            } catch (Exception e) {
               LOGGER.error(e.getMessage(), e);
               emailOnFlowError();
             }
           });
-
         }
       }
     } finally {
@@ -196,8 +196,10 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   protected void beginUsingFolder() {
     synchronized (usingFolderCounter) {
+      LOGGER.debug("beginUsingFolder.");
       int currentUsingFolderCounter = usingFolderCounter.incrementAndGet();
       if (currentUsingFolderCounter == 1) {
+        LOGGER.debug("Opening folder.");
         openFolder = connection.getFolder(folder, READ_WRITE);
       }
     }
@@ -205,8 +207,10 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   protected void endUsingFolder() {
     synchronized (usingFolderCounter) {
+      LOGGER.debug("endUsingFolder.");
       int currentUsingFolderCounter = usingFolderCounter.decrementAndGet();
       if (currentUsingFolderCounter == 0) {
+        LOGGER.debug("Closing folder.");
         connection.closeFolder(deleteAfterRetrieve);
       }
     }
