@@ -10,6 +10,7 @@ import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Folder.READ_WRITE;
 import static org.mule.extension.email.internal.errors.EmailError.READ_EMAIL;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
@@ -39,7 +40,7 @@ import java.util.function.Predicate;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import static org.slf4j.LoggerFactory.getLogger;
+
 
 /**
  * Implementation of an email pooling source, contains all the logic to retrieve and push emails, add watermark and delete

@@ -7,6 +7,31 @@
 
 package org.mule.extension.email.retriever;
 
+import static java.lang.Integer.valueOf;
+import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
+import static java.lang.System.getProperties;
+import static javax.mail.Session.getDefaultInstance;
+import static javax.mail.Message.RecipientType.CC;
+import static javax.mail.Message.RecipientType.TO;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
+import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
+import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
+import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
+import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
+import static org.mule.extension.email.util.EmailTestUtils.testSession;
+import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
+
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -35,30 +60,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import static java.lang.Integer.valueOf;
-import static java.lang.String.format;
-import static java.lang.Thread.currentThread;
-import static java.lang.System.getProperties;
-import static javax.mail.Message.RecipientType.CC;
-import static javax.mail.Message.RecipientType.TO;
-import static javax.mail.Session.getDefaultInstance;
-import static org.hamcrest.Matchers.arrayWithSize;
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
-import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_TEXT_PLAIN_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_JSON_ATTACHMENT_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.JUANI_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.ESTEBAN_EMAIL;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_SUBJECT;
-import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
-import static org.mule.extension.email.util.EmailTestUtils.testSession;
-import static org.mule.extension.email.util.EmailTestUtils.getMixedTestMessage;
-import static org.mule.tck.junit4.matcher.DataTypeMatcher.like;
 
 public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestCase {
 

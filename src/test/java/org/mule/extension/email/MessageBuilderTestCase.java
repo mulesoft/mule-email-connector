@@ -33,6 +33,7 @@ import static org.mule.extension.email.util.EmailTestUtils.testSession;
 import static org.mule.runtime.api.metadata.MediaType.BINARY;
 import static org.mule.runtime.api.metadata.MediaType.HTML;
 import static java.lang.Thread.currentThread;
+
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.core.api.util.IOUtils;
