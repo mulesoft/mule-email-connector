@@ -14,6 +14,7 @@ import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
 import static org.mule.runtime.core.api.util.ClassUtils.withContextClassLoader;
 import static java.lang.Thread.currentThread;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
 import org.mule.extension.email.api.exception.EmailException;
@@ -28,7 +29,6 @@ import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.mail.Folder;
 import javax.mail.Message;
