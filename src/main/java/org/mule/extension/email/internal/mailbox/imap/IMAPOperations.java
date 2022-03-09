@@ -11,6 +11,12 @@ import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
 import static javax.mail.Folder.READ_WRITE;
+
+import com.sun.mail.imap.IMAPFolder;
+import org.mule.extension.email.api.exception.EmailAccessingFolderException;
+import org.mule.extension.email.api.exception.EmailException;
+import org.mule.extension.email.api.exception.EmailMoveException;
+import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
@@ -46,6 +52,11 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
+
+import javax.mail.Folder;
+import javax.mail.FolderNotFoundException;
+import javax.mail.Message;
+import javax.mail.UIDFolder;
 
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
@@ -174,4 +185,52 @@ public class IMAPOperations {
                                       e);
     }
   }
+
+  /**
+   * Moves the email with id {@code emailId} from the sourceFolder to the {@code emailId} to the {@code emailId}.
+   * <p>
+   *
+   * @param connection          The corresponding {@link MailboxConnection} instance.
+   * @param sourceFolder        Mailbox folder where the emails to be moved are located.
+   * @param targetFolder        Mailbox folder where the emails will be moved.
+   * @param emailId             Email ID Number of the email to move.
+   * @param createTargetFolder  Create the target folder if it does not exist.
+   */
+  @Summary("Moves an email from the given source mailbox folder to the target mailbox folder")
+  @Throws(EmailMarkingErrorTypeProvider.class)
+  public void moveToFolder(@Connection MailboxConnection connection,
+                           @Optional(defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String sourceFolder,
+                           @OfValues(MailboxFolderValueProvider.class) String targetFolder,
+                           @Summary("Email ID Number of the email to move") @DisplayName("Email ID") long emailId,
+                           @Summary("Create the target folder if it does not exist") @Optional(
+                               defaultValue = "false") boolean createTargetFolder) {
+    try {
+      Folder defaultFolder = connection.getDefaultFolder();
+      IMAPFolder destinationFolder = (IMAPFolder) defaultFolder.getFolder(targetFolder);
+      if (!destinationFolder.exists()) {
+        if (createTargetFolder) {
+          destinationFolder.create(Folder.HOLDS_FOLDERS | Folder.HOLDS_MESSAGES);
+        } else {
+          throw new FolderNotFoundException(destinationFolder);
+        }
+      }
+
+      IMAPFolder sourceMailboxFolder = (IMAPFolder) connection.getFolder(sourceFolder, READ_WRITE);
+      javax.mail.Message message = sourceMailboxFolder.getMessageByUID(emailId);
+      if (message == null) {
+        throw new EmailNotFoundException(format("No email was found with id: [%s]", emailId));
+      }
+
+      sourceMailboxFolder.moveMessages(new Message[] {message}, destinationFolder);
+
+    } catch (FolderNotFoundException e) {
+      throw new EmailAccessingFolderException(format("Error while opening folder %s", targetFolder), e);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailMoveException(format("Error while moving email with id [%s]", emailId), e);
+    }
+  }
+
+
 }

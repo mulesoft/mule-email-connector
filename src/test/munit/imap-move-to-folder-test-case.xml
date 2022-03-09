@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <munit:config name="imap-move-to-folder-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="imap-local">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imap-config"/>
+                    <munit:parameter propertyName="protocol" value="imap"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                    <munit:parameter propertyName="remoteSearch" value="false"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="imap-remote">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imap-config"/>
+                    <munit:parameter propertyName="protocol" value="imap"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                    <munit:parameter propertyName="remoteSearch" value="true"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="imaps">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="imaps-config"/>
+                    <munit:parameter propertyName="protocol" value="imaps"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestIMAPServer"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <munit:dynamic-port propertyName="imap.server.port" min="1024" max="64000"/>
+
+    <!-- Configs -->
+
+    <email:imap-config name="imap-config">
+        <email:imap-connection host="127.0.0.1" port="${imap.server.port}" user="juan.desimoni@mulesoft.com" password="password"/>
+    </email:imap-config>
+
+    <email:imap-config name="imaps-config">
+        <email:imaps-connection host="127.0.0.1" port="${imap.server.port}" password="password" user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.p12" password="changeit"/>
+            </tls:context>
+        </email:imaps-connection>
+    </email:imap-config>
+
+    <!-- Setup/Dispose -->
+
+    <munit:before-suite name="setUpServer">
+        <java:invoke-static class="${serverName}" method="${startMethod}">
+            <java:args>
+                #[{
+                arg0: ${imap.server.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+
+        <java:invoke-static class="${serverName}" method="createFolder(String, String)">
+            <java:args>
+                #[{
+                arg0: "TEST",
+                arg1: "${protocol}"
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:before-test name="populate-mailbox">
+        <!--send 10 emails -->
+        <set-variable variableName="subject" value="Mark as read" />
+        <set-variable variableName="emailCount" value="10" />
+        <flow-ref name="sendEmails" />
+
+        <!--mark them as read-->
+        <java:invoke-static class="${serverName}" method="markAllAsSeen()"/>
+
+        <munit-tools:store key="messages">
+            <munit-tools:value>#[[]]</munit-tools:value>
+        </munit-tools:store>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpServer">
+        <java:invoke-static class="${serverName}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownServer">
+        <java:invoke-static class="${serverName}" method="stop()"/>
+    </munit:after-suite>
+
+    <munit:test name="moveToExistingFolder">
+
+        <munit:execution>
+            <email:list-imap config-ref="${config}"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <foreach>
+                <email:move-to-folder emailId="#[attributes.id]" config-ref="${config}" targetFolder="TEST"/>
+            </foreach>
+
+        </munit:execution>
+        <munit:validation>
+            <email:list-imap config-ref="${config}" mailboxFolder="TEST"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <email:list-imap config-ref="${config}" mailboxFolder="INBOX"/>
+            <validation:validate-size value="#[payload]" min="0" max="0"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="failIfFolderDoesNotExist" expectedException="org.mule.extension.email.api.exception.EmailAccessingFolderException"
+                expectedErrorType="EMAIL:ACCESSING_FOLDER">
+
+        <munit:execution>
+            <email:list-imap config-ref="${config}"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <foreach>
+                <email:move-to-folder emailId="#[attributes.id]" config-ref="${config}" targetFolder="TEST_FAIL"/>
+            </foreach>
+
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="createFolderIfDoesNotExist">
+
+        <munit:execution>
+            <email:list-imap config-ref="${config}"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <foreach>
+                <email:move-to-folder emailId="#[attributes.id]" config-ref="${config}" targetFolder="TEST_NEW" createTargetFolder="true"/>
+            </foreach>
+
+        </munit:execution>
+        <munit:validation>
+            <email:list-imap config-ref="${config}" mailboxFolder="TEST_NEW"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <email:list-imap config-ref="${config}" mailboxFolder="INBOX"/>
+            <validation:validate-size value="#[payload]" min="0" max="0"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="createFolderIfDoesNotExistWithExistingFolder">
+
+        <munit:execution>
+            <email:list-imap config-ref="${config}"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <foreach>
+                <email:move-to-folder emailId="#[attributes.id]" config-ref="${config}" targetFolder="TEST" createTargetFolder="true"/>
+            </foreach>
+
+        </munit:execution>
+        <munit:validation>
+            <email:list-imap config-ref="${config}" mailboxFolder="TEST"/>
+            <validation:validate-size value="#[payload]" min="10" max="10"/>
+            <email:list-imap config-ref="${config}" mailboxFolder="INBOX"/>
+            <validation:validate-size value="#[payload]" min="0" max="0"/>
+        </munit:validation>
+    </munit:test>
+
+    <!--COMMON FLOWS-->
+
+    <flow name="sendEmails">
+        <foreach collection="#[1 to vars.emailCount]">
+            <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                <java:args>
+                    #[{
+                    arg0: vars.subject,
+                    arg1: 'john.doe@mulesoft.com'
+                    }]
+                </java:args>
+            </java:invoke-static>
+        </foreach>
+    </flow>
+</mule>
