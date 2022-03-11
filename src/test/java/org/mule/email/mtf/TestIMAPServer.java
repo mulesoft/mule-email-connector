@@ -53,7 +53,6 @@ public class TestIMAPServer extends AbstractTestServer {
   }
 
   public static void startSecure(Integer port) {
-    Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
     doStart(port, PROTOCOL_IMAPS);
   }
 

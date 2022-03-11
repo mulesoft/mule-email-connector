@@ -14,7 +14,6 @@ import static javax.mail.Folder.READ_WRITE;
 
 import com.sun.mail.imap.IMAPFolder;
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
-import org.mule.extension.email.api.exception.EmailException;
 import org.mule.extension.email.api.exception.EmailMoveException;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
@@ -56,7 +55,6 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import javax.mail.Folder;
 import javax.mail.FolderNotFoundException;
 import javax.mail.Message;
-import javax.mail.UIDFolder;
 
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
@@ -216,6 +214,9 @@ public class IMAPOperations {
       }
 
       IMAPFolder sourceMailboxFolder = (IMAPFolder) connection.getFolder(sourceFolder, READ_WRITE);
+      if (!sourceMailboxFolder.exists()) {
+        throw new FolderNotFoundException(sourceMailboxFolder);
+      }
       javax.mail.Message message = sourceMailboxFolder.getMessageByUID(emailId);
       if (message == null) {
         throw new EmailNotFoundException(format("No email was found with id: [%s]", emailId));
