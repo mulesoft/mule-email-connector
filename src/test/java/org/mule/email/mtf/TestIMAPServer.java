@@ -32,14 +32,11 @@ import javax.mail.MessagingException;
 
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.util.DummySSLSocketFactory;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.IMAPFolder;
 import com.sun.mail.imap.IMAPStore;
 import org.slf4j.Logger;
-
-import java.security.Security;
 
 // TODO: Fix my duplicated code me when MTF can run parameterized tests
 public class TestIMAPServer extends AbstractTestServer {
