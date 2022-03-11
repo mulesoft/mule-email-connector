@@ -187,7 +187,7 @@ public class IMAPOperations {
   }
 
   /**
-   * Moves the email with id {@code emailId} from the sourceFolder to the {@code emailId} to the {@code emailId}.
+   * Moves the email with ID {@code emailId} from the {@code sourceFolder} to the {@code targetFolder}.
    * <p>
    *
    * @param connection          The corresponding {@link MailboxConnection} instance.
