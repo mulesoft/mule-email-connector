@@ -212,4 +212,22 @@ public class MailboxConnection extends AbstractEmailConnection {
     }
     throw new EmailConnectionException(e);
   }
+
+  /**
+   * Opens and return the email {@link Folder} {@code defaultFolder} in write mode.
+   * <p>
+   * A default folder does not exist on the store. It is only used as the root/namespace folder. Folder operations such as rename,
+   * delete, append, expunge, open, close, create are disallowed on the default folder.
+   * <p>
+   * If there was an already opened folder and a different one is requested the opened folder will be closed and the new one will
+   * be opened.
+   *
+   * @return the opened {@link Folder}
+   */
+  public Folder getDefaultFolder() throws MessagingException {
+    if (folder != null) {
+      closeFolder(false);
+    }
+    return store.getDefaultFolder();
+  }
 }

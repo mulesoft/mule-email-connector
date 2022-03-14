@@ -27,13 +27,15 @@ import static org.mule.runtime.extension.api.annotation.param.MediaType.TEXT_PLA
 import static org.slf4j.LoggerFactory.getLogger;
 
 import javax.mail.Flags;
+import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.user.GreenMailUser;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
-import org.slf4j.LoggerFactory;
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.IMAPStore;
 import org.slf4j.Logger;
 
 // TODO: Fix my duplicated code me when MTF can run parameterized tests
@@ -195,5 +197,19 @@ public class TestIMAPServer extends AbstractTestServer {
         LOGGER.error(e.getMessage());
       }
     });
+  }
+
+  public static void createFolder(String folderName, String protocol) throws MessagingException {
+    final IMAPStore store;
+    if (protocol.equals("imaps")) {
+      store = server.getImaps().createStore();
+    } else {
+      store = server.getImap().createStore();
+    }
+    store.connect(JUANI_EMAIL, "password");
+    IMAPFolder folder = (IMAPFolder) store.getDefaultFolder();
+    IMAPFolder newFolder = (IMAPFolder) folder.getFolder(folderName);
+    newFolder.create(Folder.HOLDS_FOLDERS | Folder.HOLDS_MESSAGES);
+    store.close();
   }
 }
