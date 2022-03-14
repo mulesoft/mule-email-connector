@@ -21,18 +21,18 @@
     <properties>
         <commonsIoVersion>2.11.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
-        <jakartaMailVersion>1.6.3</jakartaMailVersion>
+        <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
-        <greenmailVersion>1.5.10</greenmailVersion>
+        <greenmailVersion>1.6.7</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.1.1</munit.extensions.maven.plugin.version>
-        <munit.version>2.3.7</munit.version>
-        <mtf.tools.version>1.1.1</mtf.tools.version>
+        <munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
+        <munit.version>2.3.9</munit.version>
+        <mtf.tools.version>1.1.2</mtf.tools.version>
         <mavenResourcesVersion>3.2.0</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <validations.module.version>1.4.5</validations.module.version>

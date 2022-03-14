@@ -78,7 +78,9 @@ public enum EmailError implements ErrorTypeDefinition<EmailError> {
 
   DISCONNECTED(CONNECTIVITY),
 
-  SSL_ERROR(CONNECTIVITY);
+  SSL_ERROR(CONNECTIVITY),
+
+  EMAIL_MOVE;
 
   private ErrorTypeDefinition<? extends Enum<?>> error;
 
