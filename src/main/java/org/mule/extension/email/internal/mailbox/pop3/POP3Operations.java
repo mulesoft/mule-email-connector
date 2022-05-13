@@ -8,6 +8,12 @@ package org.mule.extension.email.internal.mailbox.pop3;
 
 import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
+
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.pop3.POP3Folder;
+import org.mule.extension.email.api.exception.EmailAccessingFolderException;
+import org.mule.extension.email.api.exception.EmailCountMessagesException;
+import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
@@ -27,16 +33,23 @@ import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.resolver.POP3ArrayStoredEmailContentTypeResolver;
 
+import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.runtime.extension.api.annotation.values.OfValues;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
+
+import javax.mail.Folder;
+import javax.mail.FolderNotFoundException;
 
 /**
  * A set of operations which perform on top the POP3 email protocol.
@@ -87,5 +100,40 @@ public class POP3Operations {
                                                                                                     DELETED,
                                                                                                     attributes.getNumber()),
                                              streamingHelper, overrides);
+  }
+
+  /**
+   * Counts the emails in the {@code mailboxFolder}.
+   * <p>
+   *
+   * @param connection          The corresponding {@link MailboxConnection} instance.
+   * @param mailboxFolder        Mailbox folder where the emails will be moved.
+   */
+  @Summary("Moves an email from the given source mailbox folder to the target mailbox folder")
+  @DisplayName("Count messages in folder - POP3")
+  @Throws(EmailMarkingErrorTypeProvider.class)
+  public int countMessagesInFolderPop3(@Connection MailboxConnection connection,
+                                       @Optional(
+                                           defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
+    try {
+      Folder defaultFolder = connection.getDefaultFolder();
+      POP3Folder destinationFolder = (POP3Folder) defaultFolder.getFolder(mailboxFolder);
+      if (!destinationFolder.exists()) {
+        throw new FolderNotFoundException(destinationFolder);
+      }
+
+      destinationFolder.open(Folder.READ_ONLY);
+      int count = destinationFolder.getMessageCount();
+      destinationFolder.close();
+      return count;
+
+    } catch (FolderNotFoundException e) {
+      throw new EmailAccessingFolderException(format("Error while opening folder %s", mailboxFolder), e);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailCountMessagesException(format("Error while counting messages in the specified folder [%s]", mailboxFolder),
+                                            e);
+    }
   }
 }

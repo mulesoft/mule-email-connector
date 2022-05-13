@@ -80,7 +80,9 @@ public enum EmailError implements ErrorTypeDefinition<EmailError> {
 
   SSL_ERROR(CONNECTIVITY),
 
-  EMAIL_MOVE;
+  EMAIL_MOVE,
+
+  EMAIL_COUNT_MESSAGES;
 
   private ErrorTypeDefinition<? extends Enum<?>> error;
 

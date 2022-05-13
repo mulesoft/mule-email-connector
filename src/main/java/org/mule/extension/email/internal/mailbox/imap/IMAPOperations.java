@@ -14,6 +14,7 @@ import static javax.mail.Folder.READ_WRITE;
 
 import com.sun.mail.imap.IMAPFolder;
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
+import org.mule.extension.email.api.exception.EmailCountMessagesException;
 import org.mule.extension.email.api.exception.EmailMoveException;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
@@ -233,5 +234,37 @@ public class IMAPOperations {
     }
   }
 
+  /**
+   * Counts the emails in the {@code mailboxFolder}.
+   * <p>
+   *
+   * @param connection          The corresponding {@link MailboxConnection} instance.
+   * @param mailboxFolder        Mailbox folder where the emails will be moved.
+   */
+  @Summary("Moves an email from the given source mailbox folder to the target mailbox folder")
+  @DisplayName("Count messages in folder - IMAP")
+  @Throws(EmailMarkingErrorTypeProvider.class)
+  public int countMessagesInFolderImap(@Connection MailboxConnection connection,
+                                       @Optional(
+                                           defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
+    try {
+      Folder defaultFolder = connection.getDefaultFolder();
+      IMAPFolder destinationFolder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
+      if (!destinationFolder.exists()) {
+        throw new FolderNotFoundException(destinationFolder);
+      }
+
+      destinationFolder.getMessageCount();
+      return destinationFolder.getMessageCount();
+
+    } catch (FolderNotFoundException e) {
+      throw new EmailAccessingFolderException(format("Error while opening folder %s", mailboxFolder), e);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new EmailCountMessagesException(format("Error while counting messages in the specified folder [%s]", mailboxFolder),
+                                            e);
+    }
+  }
 
 }
