@@ -107,33 +107,24 @@ public class POP3Operations {
    * <p>
    *
    * @param connection          The corresponding {@link MailboxConnection} instance.
-   * @param mailboxFolder        Mailbox folder where the emails will be moved.
    */
   @Summary("Moves an email from the given source mailbox folder to the target mailbox folder")
   @DisplayName("Count messages in folder - POP3")
   @Throws(EmailMarkingErrorTypeProvider.class)
-  public int countMessagesInFolderPop3(@Connection MailboxConnection connection,
-                                       @Optional(
-                                           defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
+  public int countMessagesInFolderPop3(@Connection MailboxConnection connection) {
     try {
       Folder defaultFolder = connection.getDefaultFolder();
-      POP3Folder destinationFolder = (POP3Folder) defaultFolder.getFolder(mailboxFolder);
-      if (!destinationFolder.exists()) {
-        throw new FolderNotFoundException(destinationFolder);
-      }
+      POP3Folder destinationFolder = (POP3Folder) defaultFolder.getFolder(INBOX_FOLDER);
 
       destinationFolder.open(Folder.READ_ONLY);
       int count = destinationFolder.getMessageCount();
       destinationFolder.close();
       return count;
 
-    } catch (FolderNotFoundException e) {
-      throw new EmailAccessingFolderException(format("Error while opening folder %s", mailboxFolder), e);
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw new EmailCountMessagesException(format("Error while counting messages in the specified folder [%s]", mailboxFolder),
-                                            e);
+      throw new EmailCountMessagesException(format("Error while counting messages in the INBOX folder"), e);
     }
   }
 }
