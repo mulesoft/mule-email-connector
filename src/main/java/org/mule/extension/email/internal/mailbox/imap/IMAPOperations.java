@@ -254,7 +254,6 @@ public class IMAPOperations {
         throw new FolderNotFoundException(destinationFolder);
       }
 
-      destinationFolder.getMessageCount();
       return destinationFolder.getMessageCount();
 
     } catch (FolderNotFoundException e) {
