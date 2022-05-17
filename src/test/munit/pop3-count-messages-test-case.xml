@@ -88,7 +88,7 @@
     <munit:test name="zeroMessages">
         <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
-            <email:count-messages-in-folder-pop3 config-ref="${config}"/>
+            <email:count-messages-pop3 config-ref="${config}"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that is="#[MunitTools::equalTo(0)]" expression="#[payload]"/>
@@ -97,13 +97,13 @@
 
     <munit:test name="countMessages">
         <munit:execution>
-            <email:count-messages-in-folder-pop3 config-ref="${config}"/>
+            <email:count-messages-pop3 config-ref="${config}"/>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
 
             <set-variable variableName="subject" value="Message to count" />
             <set-variable variableName="emailCount" value="10" />
             <flow-ref name="sendEmails" />
-            <email:count-messages-in-folder-pop3 config-ref="${config}"/>
+            <email:count-messages-pop3 config-ref="${config}"/>
 
         </munit:execution>
         <munit:validation>

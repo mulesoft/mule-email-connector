@@ -108,7 +108,7 @@
     <munit:test name="zeroMessages">
         <munit:execution>
             <java:invoke-static class="${serverName}" method="clean()"/>
-            <email:count-messages-in-folder-imap config-ref="${config}"/>
+            <email:count-messages-imap config-ref="${config}"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that is="#[MunitTools::equalTo(0)]" expression="#[payload]"/>
@@ -117,13 +117,13 @@
 
     <munit:test name="countMessages">
         <munit:execution>
-            <email:count-messages-in-folder-imap config-ref="${config}"/>
+            <email:count-messages-imap config-ref="${config}"/>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
 
             <set-variable variableName="subject" value="Mark as read" />
             <set-variable variableName="emailCount" value="10" />
             <flow-ref name="sendEmails" />
-            <email:count-messages-in-folder-imap config-ref="${config}"/>
+            <email:count-messages-imap config-ref="${config}"/>
 
         </munit:execution>
         <munit:validation>
@@ -133,7 +133,7 @@
 
     <munit:test name="countMessagesInFolder">
         <munit:execution>
-            <email:count-messages-in-folder-imap config-ref="${config}"/>
+            <email:count-messages-imap config-ref="${config}"/>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
 
             <flow-ref name="moveToFolder" />
@@ -141,10 +141,10 @@
             <set-variable variableName="subject" value="Messages in INBOX" />
             <set-variable variableName="emailCount" value="5" />
             <flow-ref name="sendEmails" />
-            <email:count-messages-in-folder-imap config-ref="${config}"/>
+            <email:count-messages-imap config-ref="${config}"/>
             <set-variable variableName="inboxCount" value="#[payload]" />
 
-            <email:count-messages-in-folder-imap config-ref="${config}" mailboxFolder="TEST"/>
+            <email:count-messages-imap config-ref="${config}" mailboxFolder="TEST"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
@@ -154,13 +154,13 @@
 
     <munit:test name="countMessagesNonexistentFolder" expectedException="org.mule.extension.email.api.exception.EmailAccessingFolderException">
         <munit:execution>
-            <email:count-messages-in-folder-imap config-ref="${config}" mailboxFolder="TEST_FAIL"/>
+            <email:count-messages-imap config-ref="${config}" mailboxFolder="TEST_FAIL"/>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
 
             <set-variable variableName="subject" value="Mark as read" />
             <set-variable variableName="emailCount" value="10" />
             <flow-ref name="sendEmails" />
-            <email:count-messages-in-folder-imap config-ref="${config}"/>
+            <email:count-messages-imap config-ref="${config}"/>
 
         </munit:execution>
         <munit:validation>

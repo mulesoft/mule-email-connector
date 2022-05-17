@@ -239,14 +239,14 @@ public class IMAPOperations {
    * <p>
    *
    * @param connection          The corresponding {@link MailboxConnection} instance.
-   * @param mailboxFolder        Mailbox folder where the emails will be moved.
+   * @param mailboxFolder       Mailbox folder where the emails are.
    */
-  @Summary("Moves an email from the given source mailbox folder to the target mailbox folder")
-  @DisplayName("Count messages in folder - IMAP")
+  @Summary("Get the total amount of messages in a specified mailbox folder")
+  @DisplayName("Count messages - IMAP")
   @Throws(EmailMarkingErrorTypeProvider.class)
-  public int countMessagesInFolderImap(@Connection MailboxConnection connection,
-                                       @Optional(
-                                           defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
+  public int countMessagesImap(@Connection MailboxConnection connection,
+                               @Optional(
+                                   defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
     try {
       Folder defaultFolder = connection.getDefaultFolder();
       IMAPFolder destinationFolder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
