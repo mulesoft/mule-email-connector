@@ -85,12 +85,9 @@
 
     <munit:before-test name="populate-mailbox">
         <!--send 10 emails -->
-        <set-variable variableName="subject" value="Mark as read" />
+        <set-variable variableName="subject" value="Message to count" />
         <set-variable variableName="emailCount" value="10" />
         <flow-ref name="sendEmails" />
-
-        <!--mark them as read-->
-        <java:invoke-static class="${serverName}" method="markAllAsSeen()"/>
 
         <munit-tools:store key="messages">
             <munit-tools:value>#[[]]</munit-tools:value>
@@ -168,6 +165,64 @@
         </munit:validation>
     </munit:test>
 
+
+    <munit:test name="countDeleted">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="markAllAsDeleted()"/>
+
+            <set-variable variableName="subject" value="New emails" />
+            <set-variable variableName="emailCount" value="5" />
+            <flow-ref name="sendEmails" />
+
+            <flow-ref name="countWithAllFilters"/>
+
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.allInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[vars.deletedInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.newInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.unreadInboxCount]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="countUnread">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="markAllAsSeen()"/>
+
+            <set-variable variableName="subject" value="New emails" />
+            <set-variable variableName="emailCount" value="5" />
+            <flow-ref name="sendEmails" />
+
+            <flow-ref name="countWithAllFilters"/>
+
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.allInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(0)]" expression="#[vars.deletedInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.newInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(5)]" expression="#[vars.unreadInboxCount]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="countNew">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="markAllAsNotRecent()"/>
+
+            <set-variable variableName="subject" value="New emails" />
+            <set-variable variableName="emailCount" value="5" />
+            <flow-ref name="sendEmails" />
+
+            <flow-ref name="countWithAllFilters"/>
+
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.allInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(0)]" expression="#[vars.deletedInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(5)]" expression="#[vars.newInboxCount]"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(15)]" expression="#[vars.unreadInboxCount]"/>
+        </munit:validation>
+    </munit:test>
+
     <!--COMMON FLOWS-->
 
     <flow name="sendEmails">
@@ -188,6 +243,16 @@
         <foreach>
             <email:move-to-folder emailId="#[attributes.id]" config-ref="${config}" targetFolder="TEST"/>
         </foreach>
+    </flow>
 
+    <flow name="countWithAllFilters">
+        <email:count-messages-imap config-ref="${config}"/>
+        <set-variable variableName="allInboxCount" value="#[payload]"/>
+        <email:count-messages-imap config-ref="${config}" countFilter="DELETED"/>
+        <set-variable variableName="deletedInboxCount" value="#[payload]"/>
+        <email:count-messages-imap config-ref="${config}" countFilter="NEW"/>
+        <set-variable variableName="newInboxCount" value="#[payload]"/>
+        <email:count-messages-imap config-ref="${config}" countFilter="UNREAD"/>
+        <set-variable variableName="unreadInboxCount" value="#[payload]"/>
     </flow>
 </mule>

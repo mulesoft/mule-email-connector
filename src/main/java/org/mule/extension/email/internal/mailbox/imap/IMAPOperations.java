@@ -10,15 +10,18 @@ import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
 import static javax.mail.Flags.Flag.SEEN;
+import static javax.mail.Folder.READ_ONLY;
 import static javax.mail.Folder.READ_WRITE;
 
 import com.sun.mail.imap.IMAPFolder;
+import org.mule.extension.email.api.attributes.IMAPCountFilter;
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
 import org.mule.extension.email.api.exception.EmailMoveException;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.COUNT_ALL;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
@@ -246,7 +249,9 @@ public class IMAPOperations {
   @Throws(EmailMarkingErrorTypeProvider.class)
   public int countMessagesImap(@Connection MailboxConnection connection,
                                @Optional(
-                                   defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder) {
+                                   defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
+                               @Optional(
+                                   defaultValue = COUNT_ALL) @Summary("IMAP messages counting filter option") IMAPCountFilter countFilter) {
     try {
       Folder defaultFolder = connection.getDefaultFolder();
       IMAPFolder destinationFolder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
@@ -254,7 +259,28 @@ public class IMAPOperations {
         throw new FolderNotFoundException(destinationFolder);
       }
 
-      return destinationFolder.getMessageCount();
+      destinationFolder.open(READ_ONLY);
+      int count;
+      switch (countFilter) {
+        case UNREAD:
+          count = destinationFolder.getUnreadMessageCount();
+          break;
+        case NEW:
+          count = destinationFolder.getNewMessageCount();
+          break;
+        case DELETED:
+          count = destinationFolder.getDeletedMessageCount();
+          break;
+        case ALL:
+          count = destinationFolder.getMessageCount();
+          break;
+        default:
+          destinationFolder.close();
+          throw new IllegalArgumentException(format("Illegal count filter option [%s]", countFilter));
+      }
+      destinationFolder.close();
+
+      return count;
 
     } catch (FolderNotFoundException e) {
       throw new EmailAccessingFolderException(format("Error while opening folder %s", mailboxFolder), e);
