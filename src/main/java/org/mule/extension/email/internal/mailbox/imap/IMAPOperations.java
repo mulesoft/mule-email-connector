@@ -255,31 +255,31 @@ public class IMAPOperations {
                                    defaultValue = COUNT_ALL) @Summary("IMAP messages counting filter option") IMAPCountFilter countFilter) {
     try {
       Folder defaultFolder = connection.getDefaultFolder();
-      IMAPFolder destinationFolder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
-      if (!destinationFolder.exists()) {
-        throw new FolderNotFoundException(destinationFolder);
+      IMAPFolder folder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
+      if (!folder.exists()) {
+        throw new FolderNotFoundException(folder);
       }
 
-      destinationFolder.open(READ_ONLY);
+      folder.open(READ_ONLY);
       int count;
       switch (countFilter) {
         case UNREAD:
-          count = destinationFolder.getUnreadMessageCount();
+          count = folder.getUnreadMessageCount();
           break;
         case NEW:
-          count = destinationFolder.getNewMessageCount();
+          count = folder.getNewMessageCount();
           break;
         case DELETED:
-          count = destinationFolder.getDeletedMessageCount();
+          count = folder.getDeletedMessageCount();
           break;
         case ALL:
-          count = destinationFolder.getMessageCount();
+          count = folder.getMessageCount();
           break;
         default:
-          destinationFolder.close();
+          folder.close();
           throw new IllegalArgumentException(format("Illegal count filter option [%s]", countFilter));
       }
-      destinationFolder.close();
+      folder.close();
 
       return count;
 

@@ -108,11 +108,11 @@ public class POP3Operations {
   public int countMessagesPop3(@Connection MailboxConnection connection) {
     try {
       Folder defaultFolder = connection.getDefaultFolder();
-      POP3Folder destinationFolder = (POP3Folder) defaultFolder.getFolder(INBOX_FOLDER);
+      POP3Folder folder = (POP3Folder) defaultFolder.getFolder(INBOX_FOLDER);
 
-      destinationFolder.open(Folder.READ_ONLY);
-      int count = destinationFolder.getMessageCount();
-      destinationFolder.close();
+      folder.open(Folder.READ_ONLY);
+      int count = folder.getMessageCount();
+      folder.close();
       return count;
 
     } catch (ModuleException e) {
