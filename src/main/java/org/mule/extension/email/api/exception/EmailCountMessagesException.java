@@ -6,9 +6,9 @@
  */
 package org.mule.extension.email.api.exception;
 
-import org.mule.runtime.extension.api.exception.ModuleException;
-
 import static org.mule.extension.email.internal.errors.EmailError.EMAIL_COUNT_MESSAGES;
+
+import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
  * {@link ModuleException} for the cases in which there was a problem counting messages in the specified folder

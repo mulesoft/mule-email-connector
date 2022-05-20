@@ -6,31 +6,28 @@
  */
 package org.mule.extension.email.internal.mailbox.pop3;
 
-import static java.lang.String.format;
-import static javax.mail.Flags.Flag.DELETED;
-
-import com.sun.mail.pop3.POP3Folder;
-import org.mule.extension.email.api.exception.EmailCountMessagesException;
-import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
-import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static javax.mail.Flags.Flag.DELETED;
 
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
+import org.mule.extension.email.api.exception.EmailCountMessagesException;
+import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.POP3EmailPredicateBuilder;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.extension.email.internal.commands.SetFlagCommand;
 import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
+import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.resolver.POP3ArrayStoredEmailContentTypeResolver;
-
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -45,6 +42,8 @@ import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import javax.mail.Folder;
+
+import com.sun.mail.pop3.POP3Folder;
 
 /**
  * A set of operations which perform on top the POP3 email protocol.
