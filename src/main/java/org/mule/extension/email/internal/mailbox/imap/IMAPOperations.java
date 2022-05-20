@@ -243,6 +243,7 @@ public class IMAPOperations {
    *
    * @param connection          The corresponding {@link MailboxConnection} instance.
    * @param mailboxFolder       Mailbox folder where the emails are.
+   * @param countFilter         Count only messages specified with this option.
    */
   @Summary("Get the total amount of messages in a specified mailbox folder")
   @DisplayName("Count messages - IMAP")
