@@ -2,14 +2,12 @@
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:email="http://www.mulesoft.org/schema/mule/email"
       xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
-      xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-      http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
       http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
       http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
       http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
@@ -117,7 +115,7 @@
             <email:count-messages-imap config-ref="${config}"/>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
 
-            <set-variable variableName="subject" value="Mark as read" />
+            <set-variable variableName="subject" value="Message to count" />
             <set-variable variableName="emailCount" value="10" />
             <flow-ref name="sendEmails" />
             <email:count-messages-imap config-ref="${config}"/>
@@ -154,7 +152,7 @@
             <email:count-messages-imap config-ref="${config}" mailboxFolder="TEST_FAIL"/>
             <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
 
-            <set-variable variableName="subject" value="Mark as read" />
+            <set-variable variableName="subject" value="Message to count" />
             <set-variable variableName="emailCount" value="10" />
             <flow-ref name="sendEmails" />
             <email:count-messages-imap config-ref="${config}"/>

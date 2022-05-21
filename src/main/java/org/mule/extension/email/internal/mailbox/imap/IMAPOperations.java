@@ -26,6 +26,7 @@ import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailAccessingFolderErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
+import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailMoveException;
 import org.mule.extension.email.api.exception.EmailNotFoundException;
@@ -247,7 +248,7 @@ public class IMAPOperations {
    */
   @Summary("Get the total amount of messages in a specified mailbox folder")
   @DisplayName("Count messages - IMAP")
-  @Throws(EmailMarkingErrorTypeProvider.class)
+  @Throws(EmailCountingErrorTypeProvider.class)
   public int countMessagesImap(@Connection MailboxConnection connection,
                                @Optional(
                                    defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,

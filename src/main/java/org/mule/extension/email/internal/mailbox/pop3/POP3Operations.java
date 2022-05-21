@@ -18,6 +18,7 @@ import static javax.mail.Flags.Flag.DELETED;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
+import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.POP3EmailPredicateBuilder;
@@ -104,7 +105,7 @@ public class POP3Operations {
    */
   @Summary("Get the total amount of messages")
   @DisplayName("Count messages - POP3")
-  @Throws(EmailMarkingErrorTypeProvider.class)
+  @Throws(EmailCountingErrorTypeProvider.class)
   public int countMessagesPop3(@Connection MailboxConnection connection) {
     try {
       Folder defaultFolder = connection.getDefaultFolder();
@@ -118,7 +119,7 @@ public class POP3Operations {
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw new EmailCountMessagesException(format("Error while counting messages in the INBOX folder"), e);
+      throw new EmailCountMessagesException("Error while counting messages in the INBOX folder", e);
     }
   }
 }
