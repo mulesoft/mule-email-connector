@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.tck.junit4.AbstractMuleTestCase;
 
 import javax.mail.FolderNotFoundException;
 import javax.mail.MessagingException;
