@@ -19,7 +19,6 @@ import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
 import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
-import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.POP3EmailPredicateBuilder;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
