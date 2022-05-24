@@ -147,15 +147,15 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="countMessagesNonexistentFolder" expectedException="org.mule.extension.email.api.exception.EmailAccessingFolderException">
+    <munit:test name="countMessagesNonexistentFolder">
         <munit:execution>
             <try>
                 <email:count-messages-imap config-ref="${config}" mailboxFolder="TEST_FAIL"/>
                 <munit-tools:fail message="The test shouldn’t reach here. "/>
                 <error-handler>
-                    <on-error-propagate type="EMAIL:ACCESSING_FOLDER">
+                    <on-error-continue type="EMAIL:ACCESSING_FOLDER">
                         <logger message="#['This is an expected error.']"/>
-                    </on-error-propagate>
+                    </on-error-continue>
                 </error-handler>
             </try>
         </munit:execution>
