@@ -149,18 +149,16 @@
 
     <munit:test name="countMessagesNonexistentFolder" expectedException="org.mule.extension.email.api.exception.EmailAccessingFolderException">
         <munit:execution>
-            <email:count-messages-imap config-ref="${config}" mailboxFolder="TEST_FAIL"/>
-            <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
-
-            <set-variable variableName="subject" value="Message to count" />
-            <set-variable variableName="emailCount" value="10" />
-            <flow-ref name="sendEmails" />
-            <email:count-messages-imap config-ref="${config}"/>
-
+            <try>
+                <email:count-messages-imap config-ref="${config}" mailboxFolder="TEST_FAIL"/>
+                <munit-tools:fail message="The test shouldn’t reach here. "/>
+                <error-handler>
+                    <on-error-propagate type="EMAIL:ACCESSING_FOLDER">
+                        <logger message="#['This is an expected error.']"/>
+                    </on-error-propagate>
+                </error-handler>
+            </try>
         </munit:execution>
-        <munit:validation>
-            <munit-tools:assert-that is="#[MunitTools::equalTo(20)]" expression="#[payload]"/>
-        </munit:validation>
     </munit:test>
 
 
