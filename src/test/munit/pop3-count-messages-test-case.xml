@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:email="http://www.mulesoft.org/schema/mule/email"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+      http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
+      http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+      http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
+
+    <munit:config name="pop3-count-messages-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="pop3">
+                <munit:parameters>
+                    <munit:parameter propertyName="protocol" value="pop3"/>
+                    <munit:parameter propertyName="config" value="pop3-config"/>
+                    <munit:parameter propertyName="startMethod" value="start(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestPop3Server"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="pop3s">
+                <munit:parameters>
+                    <munit:parameter propertyName="protocol" value="pop3s"/>
+                    <munit:parameter propertyName="config" value="pop3s-config"/>
+                    <munit:parameter propertyName="startMethod" value="startSecure(Integer)"/>
+                    <munit:parameter propertyName="serverName" value="org.mule.email.mtf.TestPop3Server"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <munit:dynamic-port propertyName="pop3.server.port" min="1024" max="64000"/>
+
+    <!-- Pop3 Configs -->
+    <email:pop3-config name="pop3-config">
+        <email:pop3-connection host="127.0.0.1" port="${pop3.server.port}" password="password"
+                               user="juan.desimoni@mulesoft.com"/>
+    </email:pop3-config>
+
+    <email:pop3-config name="pop3s-config">
+        <email:pop3s-connection host="127.0.0.1" port="${pop3.server.port}" password="password"
+                                user="juan.desimoni@mulesoft.com">
+            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+                <tls:trust-store path="greenmail.p12" password="changeit"/>
+            </tls:context>
+        </email:pop3s-connection>
+    </email:pop3-config>
+
+    <!-- Setup/Dispose -->
+
+    <munit:before-suite name="setUpServer">
+        <java:invoke-static class="${serverName}" method="${startMethod}">
+            <java:args>
+                #[{
+                arg0: ${pop3.server.port}
+                }]
+            </java:args>
+        </java:invoke-static>
+
+    </munit:before-suite>
+
+    <munit:before-test name="populate-mailbox">
+        <!--send 10 emails -->
+        <set-variable variableName="subject" value="Message to count" />
+        <set-variable variableName="emailCount" value="10" />
+        <flow-ref name="sendEmails" />
+
+        <munit-tools:store key="messages">
+            <munit-tools:value>#[[]]</munit-tools:value>
+        </munit-tools:store>
+    </munit:before-test>
+
+    <munit:after-test name="cleanUpServer">
+        <java:invoke-static class="${serverName}" method="clean()"/>
+    </munit:after-test>
+
+    <munit:after-suite name="shutDownServer">
+        <java:invoke-static class="${serverName}" method="stop()"/>
+    </munit:after-suite>
+
+    <munit:test name="zeroMessages">
+        <munit:execution>
+            <java:invoke-static class="${serverName}" method="clean()"/>
+            <email:count-messages-pop3 config-ref="${config}"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(0)]" expression="#[payload]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="countMessages">
+        <munit:execution>
+            <email:count-messages-pop3 config-ref="${config}"/>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(10)]" expression="#[payload]"/>
+
+            <set-variable variableName="subject" value="Message to count" />
+            <set-variable variableName="emailCount" value="10" />
+            <flow-ref name="sendEmails" />
+            <email:count-messages-pop3 config-ref="${config}"/>
+
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that is="#[MunitTools::equalTo(20)]" expression="#[payload]"/>
+        </munit:validation>
+    </munit:test>
+
+    <!--COMMON FLOWS-->
+
+    <flow name="sendEmails">
+        <foreach collection="#[1 to vars.emailCount]">
+            <java:invoke-static class="${serverName}" method="sendEmailWithSubject(String, String)">
+                <java:args>
+                    #[{
+                    arg0: vars.subject,
+                    arg1: 'john.doe@mulesoft.com'
+                    }]
+                </java:args>
+            </java:invoke-static>
+        </foreach>
+    </flow>
+</mule>

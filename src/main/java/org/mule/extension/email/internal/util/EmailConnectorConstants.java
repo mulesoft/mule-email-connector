@@ -98,6 +98,11 @@ public final class EmailConnectorConstants {
   public static final String CONFIG_OVERRIDES_PARAM_GROUP = "Configuration Overrides";
 
   /**
+   * Default messages counting filter option
+   */
+  public static final String COUNT_ALL = "ALL";
+
+  /**
    * Hide constructor
    */
   private EmailConnectorConstants() {}

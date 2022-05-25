@@ -64,6 +64,16 @@ public enum EmailError implements ErrorTypeDefinition<EmailError> {
    */
   READ_EMAIL,
 
+  /**
+   * Error moving an email from one folder to another
+   */
+  EMAIL_MOVE,
+
+  /**
+   * Error getting the count of emails
+   */
+  EMAIL_COUNT_MESSAGES,
+
   // Connection related errors
 
   CONNECTIVITY(MuleErrors.CONNECTIVITY),
@@ -78,9 +88,7 @@ public enum EmailError implements ErrorTypeDefinition<EmailError> {
 
   DISCONNECTED(CONNECTIVITY),
 
-  SSL_ERROR(CONNECTIVITY),
-
-  EMAIL_MOVE;
+  SSL_ERROR(CONNECTIVITY);
 
   private ErrorTypeDefinition<? extends Enum<?>> error;
 
