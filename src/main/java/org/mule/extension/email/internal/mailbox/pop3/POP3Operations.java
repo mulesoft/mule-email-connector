@@ -6,30 +6,32 @@
  */
 package org.mule.extension.email.internal.mailbox.pop3;
 
-import static java.lang.String.format;
-import static javax.mail.Flags.Flag.DELETED;
-import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static javax.mail.Flags.Flag.DELETED;
 
+import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
+import org.mule.extension.email.api.exception.EmailCountMessagesException;
+import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.api.predicate.POP3EmailPredicateBuilder;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.extension.email.internal.commands.SetFlagCommand;
 import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
+import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.resolver.POP3ArrayStoredEmailContentTypeResolver;
-
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
@@ -37,6 +39,11 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
+
+import javax.mail.Folder;
+import javax.mail.MessagingException;
+
+import com.sun.mail.pop3.POP3Folder;
 
 /**
  * A set of operations which perform on top the POP3 email protocol.
@@ -87,5 +94,29 @@ public class POP3Operations {
                                                                                                     DELETED,
                                                                                                     attributes.getNumber()),
                                              streamingHelper, overrides);
+  }
+
+  /**
+   * Counts the emails in the {@code INBOX_FOLDER}.
+   * <p>
+   *
+   * @param connection          The corresponding {@link MailboxConnection} instance.
+   */
+  @Summary("Get the total amount of messages")
+  @DisplayName("Count messages - POP3")
+  @Throws(EmailCountingErrorTypeProvider.class)
+  public int countMessagesPop3(@Connection MailboxConnection connection) {
+    try {
+      Folder defaultFolder = connection.getDefaultFolder();
+      POP3Folder folder = (POP3Folder) defaultFolder.getFolder(INBOX_FOLDER);
+
+      folder.open(Folder.READ_ONLY);
+      int count = folder.getMessageCount();
+      folder.close();
+      return count;
+
+    } catch (MessagingException e) {
+      throw new EmailCountMessagesException("Error while counting messages in the INBOX folder", e);
+    }
   }
 }

@@ -6,36 +6,39 @@
  */
 package org.mule.extension.email.internal.mailbox.imap;
 
-import static java.lang.Long.parseLong;
-import static java.lang.String.format;
-import static javax.mail.Flags.Flag.DELETED;
-import static javax.mail.Flags.Flag.SEEN;
-import static javax.mail.Folder.READ_WRITE;
-
-import com.sun.mail.imap.IMAPFolder;
-import org.mule.extension.email.api.exception.EmailAccessingFolderException;
-import org.mule.extension.email.api.exception.EmailMoveException;
-import org.mule.extension.email.api.exception.EmailNotFoundException;
-import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.COUNT_ALL;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
+import static java.lang.Long.parseLong;
+import static java.lang.String.format;
+import static javax.mail.Flags.Flag.DELETED;
+import static javax.mail.Flags.Flag.SEEN;
+import static javax.mail.Folder.READ_ONLY;
+import static javax.mail.Folder.READ_WRITE;
 
+import org.mule.extension.email.api.StoredEmailContent;
+import org.mule.extension.email.api.attributes.IMAPCountFilter;
 import org.mule.extension.email.api.attributes.IMAPEmailAttributes;
 import org.mule.extension.email.api.exception.EmailAccessingFolderErrorTypeProvider;
+import org.mule.extension.email.api.exception.EmailAccessingFolderException;
+import org.mule.extension.email.api.exception.EmailCountMessagesException;
+import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
 import org.mule.extension.email.api.exception.EmailMarkingErrorTypeProvider;
+import org.mule.extension.email.api.exception.EmailMoveException;
+import org.mule.extension.email.api.exception.EmailNotFoundException;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
 import org.mule.extension.email.internal.commands.EmailSetFlagException;
 import org.mule.extension.email.internal.commands.ExpungeCommand;
 import org.mule.extension.email.internal.commands.PagingProviderEmailDelegate;
 import org.mule.extension.email.internal.commands.SetFlagCommand;
 import org.mule.extension.email.internal.errors.EmailListingErrorTypeProvider;
+import org.mule.extension.email.internal.mailbox.MailboxAccessConfigOverrides;
 import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
-import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.internal.resolver.IMAPArrayStoredEmailContentTypeResolver;
 import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
@@ -55,6 +58,9 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import javax.mail.Folder;
 import javax.mail.FolderNotFoundException;
 import javax.mail.Message;
+import javax.mail.MessagingException;
+
+import com.sun.mail.imap.IMAPFolder;
 
 /**
  * Basic set of operations which perform on top the IMAP email protocol.
@@ -233,5 +239,61 @@ public class IMAPOperations {
     }
   }
 
+  /**
+   * Counts the emails in the {@code mailboxFolder}.
+   * <p>
+   *
+   * @param connection          The corresponding {@link MailboxConnection} instance.
+   * @param mailboxFolder       Mailbox folder where the emails are.
+   * @param countFilter         Count only messages specified with this option.
+   */
+  @Summary("Get the total amount of messages in a specified mailbox folder")
+  @DisplayName("Count messages - IMAP")
+  @Throws(EmailCountingErrorTypeProvider.class)
+  public int countMessagesImap(@Connection MailboxConnection connection,
+                               @Optional(
+                                   defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
+                               @Optional(
+                                   defaultValue = COUNT_ALL) @Summary("IMAP messages counting filter option") IMAPCountFilter countFilter) {
+    try {
+      Folder defaultFolder = connection.getDefaultFolder();
+      IMAPFolder folder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
+      if (!folder.exists()) {
+        throw new FolderNotFoundException(folder);
+      }
+
+      folder.open(READ_ONLY);
+      int count;
+      switch (countFilter) {
+        case UNREAD:
+          count = folder.getUnreadMessageCount();
+          break;
+        case NEW:
+          count = folder.getNewMessageCount();
+          break;
+        case DELETED:
+          count = folder.getDeletedMessageCount();
+          break;
+        case ALL:
+          count = folder.getMessageCount();
+          break;
+        default:
+          folder.close();
+          Exception e = new IllegalArgumentException(format("Illegal count filter option [%s]", countFilter));
+          throw new EmailCountMessagesException(format("Invalid filter [%s] while counting messages in the specified folder [%s]",
+                                                       countFilter, mailboxFolder),
+                                                e);
+      }
+      folder.close();
+
+      return count;
+
+    } catch (FolderNotFoundException e) {
+      throw new EmailAccessingFolderException(format("Error while opening folder %s", mailboxFolder), e);
+    } catch (MessagingException e) {
+      throw new EmailCountMessagesException(format("Error while counting messages in the specified folder [%s]", mailboxFolder),
+                                            e);
+    }
+  }
 
 }
