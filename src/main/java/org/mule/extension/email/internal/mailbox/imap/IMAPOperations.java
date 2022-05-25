@@ -279,7 +279,10 @@ public class IMAPOperations {
           break;
         default:
           folder.close();
-          throw new IllegalArgumentException(format("Illegal count filter option [%s]", countFilter));
+          Exception e = new IllegalArgumentException(format("Illegal count filter option [%s]", countFilter));
+          throw new EmailCountMessagesException(format("Error while counting messages in the specified folder [%s]",
+                                                       mailboxFolder),
+                                                e);
       }
       folder.close();
 
