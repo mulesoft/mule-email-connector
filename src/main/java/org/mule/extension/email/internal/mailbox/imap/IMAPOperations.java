@@ -58,6 +58,7 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import javax.mail.Folder;
 import javax.mail.FolderNotFoundException;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 
 import com.sun.mail.imap.IMAPFolder;
 
@@ -286,9 +287,7 @@ public class IMAPOperations {
 
     } catch (FolderNotFoundException e) {
       throw new EmailAccessingFolderException(format("Error while opening folder %s", mailboxFolder), e);
-    } catch (ModuleException e) {
-      throw e;
-    } catch (Exception e) {
+    } catch (MessagingException e) {
       throw new EmailCountMessagesException(format("Error while counting messages in the specified folder [%s]", mailboxFolder),
                                             e);
     }

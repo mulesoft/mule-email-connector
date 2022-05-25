@@ -36,12 +36,12 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
-import org.mule.runtime.extension.api.exception.ModuleException;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import javax.mail.Folder;
+import javax.mail.MessagingException;
 
 import com.sun.mail.pop3.POP3Folder;
 
@@ -115,9 +115,7 @@ public class POP3Operations {
       folder.close();
       return count;
 
-    } catch (ModuleException e) {
-      throw e;
-    } catch (Exception e) {
+    } catch (MessagingException e) {
       throw new EmailCountMessagesException("Error while counting messages in the INBOX folder", e);
     }
   }
