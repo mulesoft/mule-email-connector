@@ -6,6 +6,7 @@
  */
 package org.mule.extension.email.internal.mailbox.pop3;
 
+import static javax.mail.Folder.READ_ONLY;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
@@ -107,10 +108,8 @@ public class POP3Operations {
   @Throws(EmailCountingErrorTypeProvider.class)
   public int countMessagesPop3(@Connection MailboxConnection connection) {
     try {
-      Folder defaultFolder = connection.getDefaultFolder();
-      POP3Folder folder = (POP3Folder) defaultFolder.getFolder(INBOX_FOLDER);
+      POP3Folder folder = (POP3Folder) connection.getFolder(INBOX_FOLDER, READ_ONLY);
 
-      folder.open(Folder.READ_ONLY);
       int count = folder.getMessageCount();
       folder.close();
       return count;
