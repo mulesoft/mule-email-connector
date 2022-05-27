@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * Errors that can be thrown when counting emails
  * 
- * @since 1.0
+ * @since 1.7
  */
 public class EmailCountingErrorTypeProvider implements ErrorTypeProvider {
 
