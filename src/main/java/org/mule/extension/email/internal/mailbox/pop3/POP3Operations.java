@@ -18,6 +18,7 @@ import static javax.mail.Flags.Flag.DELETED;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
+import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
 import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
@@ -114,7 +115,7 @@ public class POP3Operations {
       folder.close();
       return count;
 
-    } catch (MessagingException e) {
+    } catch (EmailAccessingFolderException | MessagingException e) {
       throw new EmailCountMessagesException("Error while counting messages in the INBOX folder", e);
     }
   }
