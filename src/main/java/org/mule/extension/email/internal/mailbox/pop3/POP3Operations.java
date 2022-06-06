@@ -6,7 +6,6 @@
  */
 package org.mule.extension.email.internal.mailbox.pop3;
 
-import static javax.mail.Folder.READ_ONLY;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
@@ -15,6 +14,7 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNL
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
+import static javax.mail.Folder.READ_ONLY;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
@@ -42,7 +42,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 import com.sun.mail.pop3.POP3Folder;
