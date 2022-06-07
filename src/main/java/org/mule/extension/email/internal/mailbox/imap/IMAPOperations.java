@@ -12,6 +12,7 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEF
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
+import static org.mule.runtime.api.meta.ExpressionSupport.NOT_SUPPORTED;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
@@ -41,6 +42,7 @@ import org.mule.extension.email.internal.mailbox.MailboxAccessConfiguration;
 import org.mule.extension.email.internal.mailbox.MailboxConnection;
 import org.mule.extension.email.internal.resolver.IMAPArrayStoredEmailContentTypeResolver;
 import org.mule.extension.email.internal.value.MailboxFolderValueProvider;
+import org.mule.runtime.extension.api.annotation.Expression;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.metadata.OutputResolver;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -254,15 +256,13 @@ public class IMAPOperations {
                                @Optional(
                                    defaultValue = INBOX_FOLDER) @OfValues(MailboxFolderValueProvider.class) String mailboxFolder,
                                @Optional(
-                                   defaultValue = COUNT_ALL) @Summary("IMAP messages counting filter option") IMAPCountFilter countFilter) {
+                                   defaultValue = COUNT_ALL) @Summary("IMAP messages counting filter option") @Expression(NOT_SUPPORTED) IMAPCountFilter countFilter) {
     try {
-      Folder defaultFolder = connection.getDefaultFolder();
-      IMAPFolder folder = (IMAPFolder) defaultFolder.getFolder(mailboxFolder);
+      IMAPFolder folder = (IMAPFolder) connection.getFolder(mailboxFolder, READ_ONLY);
       if (!folder.exists()) {
         throw new FolderNotFoundException(folder);
       }
 
-      folder.open(READ_ONLY);
       int count;
       switch (countFilter) {
         case UNREAD:

@@ -8,6 +8,8 @@ package org.mule.extension.email.api.attributes;
 
 /**
  * IMAP messages counting filter option.
+ *
+ *  @since 1.7
  */
 public enum IMAPCountFilter {
   ALL, DELETED, NEW, UNREAD
