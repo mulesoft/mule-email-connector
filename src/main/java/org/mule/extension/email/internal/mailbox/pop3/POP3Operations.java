@@ -14,9 +14,11 @@ import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNL
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static javax.mail.Flags.Flag.DELETED;
+import static javax.mail.Folder.READ_ONLY;
 
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.POP3EmailAttributes;
+import org.mule.extension.email.api.exception.EmailAccessingFolderException;
 import org.mule.extension.email.api.exception.EmailCountMessagesException;
 import org.mule.extension.email.api.exception.EmailCountingErrorTypeProvider;
 import org.mule.extension.email.api.predicate.IMAPEmailPredicateBuilder;
@@ -40,7 +42,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 import com.sun.mail.pop3.POP3Folder;
@@ -107,15 +108,13 @@ public class POP3Operations {
   @Throws(EmailCountingErrorTypeProvider.class)
   public int countMessagesPop3(@Connection MailboxConnection connection) {
     try {
-      Folder defaultFolder = connection.getDefaultFolder();
-      POP3Folder folder = (POP3Folder) defaultFolder.getFolder(INBOX_FOLDER);
+      POP3Folder folder = (POP3Folder) connection.getFolder(INBOX_FOLDER, READ_ONLY);
 
-      folder.open(Folder.READ_ONLY);
       int count = folder.getMessageCount();
       folder.close();
       return count;
 
-    } catch (MessagingException e) {
+    } catch (EmailAccessingFolderException | MessagingException e) {
       throw new EmailCountMessagesException("Error while counting messages in the INBOX folder", e);
     }
   }

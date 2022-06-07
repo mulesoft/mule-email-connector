@@ -13,7 +13,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 /**
  * {@link ModuleException} for the cases in which there was a problem counting messages in the specified folder
  *
- * @since 1.0
+ * @since 1.7
  */
 public class EmailCountMessagesException extends ModuleException {
 
