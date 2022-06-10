@@ -266,6 +266,19 @@ public class StoredEmailContentTestCase {
     assertThat(attachedEmail.getValue(), not(nullValue()));
   }
 
+  @Test
+  public void inputStreamContentWithSignature() throws IOException, MessagingException {
+    InputStream multipart =
+            currentThread().getContextClassLoader().getResourceAsStream("unit/multipart_with_signature");
+    StreamingHelper helper = mock(StreamingHelper.class);
+    when(helper.resolveCursorProvider(any())).thenAnswer(a -> a.getArgument(0));
+    Message message = mockMessage(multipart, "multipart/signed; boundary=\"179\";\n" +
+            " protocol=\"application/pkcs7-signature\"; micalg=\"sha-256\"");
+    StoredEmailContent content = new StoredEmailContentFactory(helper).fromMessage(message, NAME_HEADERS_SUBJECT);
+    Map<String, TypedValue<InputStream>> attachments = content.getAttachments();
+    assertThat(attachments.size(), is(1));
+  }
+
   private Message mockMessage(InputStream multipart, String contentType) throws IOException, MessagingException {
     Message message = mock(Message.class);
     when(message.getContent()).thenReturn(multipart);
