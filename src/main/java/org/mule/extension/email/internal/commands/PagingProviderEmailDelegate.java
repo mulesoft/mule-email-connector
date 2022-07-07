@@ -173,19 +173,18 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
       // initialize mailbox indexes
       boolean offsetReached = false;
       if (!initialized) {
-        initialized = true;
-        top = folder.getMessageCount();
         bottom = max(1, top - pageSize + 1);
-
         if (bottom <= paginationOffset) {
           bottom = paginationOffset + 1;
         }
+        initialized = true;
+        top = folder.getMessageCount();
 
         if (top == 0)
           return emptyList();
       }
 
-      while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom >= 1 && !offsetReached) {
+      while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom > 0 && !offsetReached) {
 
         List<Result<StoredEmailContent, T>> emails = list(bottom, top);
 
