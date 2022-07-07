@@ -8,8 +8,10 @@ package org.mule.extension.email.internal.mailbox.pop3;
 
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.CONFIG_OVERRIDES_PARAM_GROUP;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGINATION_OFFSET;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.INBOX_FOLDER;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGE_SIZE_ERROR_MESSAGE;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.PAGINATION_OFFSET_ERROR_MESSAGE;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.runtime.api.util.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -67,6 +69,7 @@ public class POP3Operations {
    * @param pop3Matcher         Email Matcher which gives the capability of filter the retrieved emails
    * @param deleteAfterRetrieve Specifies if the returned emails must be deleted after being retrieved or not.
    * @param pageSize            Size of the page used by the {@link PagingProvider} implementation for fetching the emails from the POP3 server
+   * @param paginationOffset    Size of the pagination offset used by the {@link PagingProvider} implementation for fetching the emails from the POP3 server
    * @param limit               Maximum amount of emails retrieved by the operation. Take into account that this limit only applies to the emails effectively
    *                            retrieved by the operation (the ones which matched the {@link IMAPEmailPredicateBuilder} criteria) and doesn't
    *                            imply any restriction over the amount of emails being retrieved from the mailbox server.
@@ -85,12 +88,16 @@ public class POP3Operations {
                                                                                                      @Optional(
                                                                                                          defaultValue = DEFAULT_PAGE_SIZE) int pageSize,
                                                                                                      @Optional(
+                                                                                                         defaultValue = DEFAULT_PAGINATION_OFFSET) int paginationOffset,
+                                                                                                     @Optional(
                                                                                                          defaultValue = UNLIMITED) int limit,
                                                                                                      StreamingHelper streamingHelper,
                                                                                                      @ParameterGroup(
                                                                                                          name = CONFIG_OVERRIDES_PARAM_GROUP) MailboxAccessConfigOverrides overrides) {
     checkArgument(pageSize > 0, format(PAGE_SIZE_ERROR_MESSAGE, pageSize));
-    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, limit, deleteAfterRetrieve,
+    checkArgument(paginationOffset >= 0, format(PAGINATION_OFFSET_ERROR_MESSAGE, pageSize));
+    return new PagingProviderEmailDelegate<>(config, mailboxFolder, pop3Matcher, pageSize, paginationOffset, limit,
+                                             deleteAfterRetrieve,
                                              (connection, attributes) -> setFlagCommand.setByNumber(connection, mailboxFolder,
                                                                                                     DELETED,
                                                                                                     attributes.getNumber()),

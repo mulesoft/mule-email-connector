@@ -85,7 +85,15 @@ public final class EmailConnectorConstants {
    */
   public static final String DEFAULT_PAGE_SIZE = "10";
 
+  /**
+   * Default pagination offset to be fetched by the {@link PagingProviderEmailDelegate}
+   */
+  public static final String DEFAULT_PAGINATION_OFFSET = "0";
+
   public static final String PAGE_SIZE_ERROR_MESSAGE = "Page size attribute must be greater than zero but '%d' was received";
+
+  public static final String PAGINATION_OFFSET_ERROR_MESSAGE =
+      "Pagination offset attribute must be greater than zero but '%d' was received";
 
   /**
    * Display name for parameters that describe the Content-Transfer-Encoding of a Email part
