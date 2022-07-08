@@ -58,11 +58,6 @@
         <email:list-imap config-ref="imaps-CommonTests" pageSize="#[3]"/>
     </flow>
 
-    <!-- Retrieve with paginationOffset -->
-    <flow name="list-PageSize-imap-CommonTests">
-        <email:list-imap config-ref="imap-CommonTests" pageSize="#[2]" paginationOffset="#[1]"/>
-    </flow>
-
     <!-- Retrieve with limit -->
     <flow name="list-Limit-imap-CommonTests">
         <email:list-imap config-ref="imap-CommonTests" limit="#[4]" deleteAfterRetrieve="true"/>
