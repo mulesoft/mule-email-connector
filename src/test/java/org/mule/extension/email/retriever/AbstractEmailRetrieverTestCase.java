@@ -20,6 +20,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGE_SIZE;
+import static org.mule.extension.email.internal.util.EmailConnectorConstants.DEFAULT_PAGINATION_OFFSET;
 import static org.mule.extension.email.internal.util.EmailConnectorConstants.UNLIMITED;
 import static org.mule.extension.email.util.EmailTestUtils.ALE_EMAIL;
 import static org.mule.extension.email.util.EmailTestUtils.EMAIL_CONTENT;
@@ -73,6 +74,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   private static final String RETRIEVE_WITH_ATTACHMENTS = "retrieveWithAttachments";
   private static final String RETRIEVE_WITH_LIMIT = "retrieveWithLimit";
   private static final String RETRIEVE_WITH_PAGE_SIZE_AND_MATCHER = "retrieveWithPageSize";
+  private static final String RETRIEVE_WITH_PAGE_SIZE_AND_OFFSET = "retrieveWithPageSizeAndOffset";
   private static final String RETRIEVE_NUMBERED_WITH_PAGE_SIZE = "retrieveNumberedWithPageSize";
 
   private static final String TEXT_PLAIN = MediaType.TEXT.toRfcString();
@@ -125,6 +127,36 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     Iterator<Message> messages = runFlowAndGetMessages(RETRIEVE_MATCH_SUBJECT_AND_FROM);
     assertThat(server.getReceivedMessages(), arrayWithSize(DEFAULT_TEST_PAGE_SIZE * 3));
     assertThat(paginationSize(messages), is(DEFAULT_TEST_PAGE_SIZE * 2));
+  }
+
+  @Test
+  public void retrievePagesWithPaginationOffset() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    sendEmailsWithCounter(10);
+
+    Iterator<Message> messages = runFlowAndGetMessagesWithPageSizeAndOffset(RETRIEVE_WITH_PAGE_SIZE_AND_OFFSET, 5, 7);
+    assertThat(server.getReceivedMessages(), arrayWithSize(10));
+    assertThat(paginationSize(messages), is(3));
+  }
+
+  @Test
+  public void retrievePagesWithSizeOneAndPaginationOffset() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    sendEmailsWithCounter(10);
+
+    Iterator<Message> messages = runFlowAndGetMessagesWithPageSizeAndOffset(RETRIEVE_WITH_PAGE_SIZE_AND_OFFSET, 1, 7);
+    assertThat(server.getReceivedMessages(), arrayWithSize(10));
+    assertThat(paginationSize(messages), is(3));
+  }
+
+  @Test
+  public void retrievePagesWithFullSizeAndPaginationOffset() throws Exception {
+    server.purgeEmailFromAllMailboxes();
+    sendEmailsWithCounter(10);
+
+    Iterator<Message> messages = runFlowAndGetMessagesWithPageSizeAndOffset(RETRIEVE_WITH_PAGE_SIZE_AND_OFFSET, 20, 7);
+    assertThat(server.getReceivedMessages(), arrayWithSize(10));
+    assertThat(paginationSize(messages), is(3));
   }
 
   // TODO MULE-16388 : Review if it makes sense to migrated this test.
@@ -239,13 +271,24 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     return runFlowAndGetMessages(flowName, valueOf(UNLIMITED), pageSize);
   }
 
+  private Iterator<Message> runFlowAndGetMessagesWithPageSizeAndOffset(String flowName, int pageSize, int paginationOffset)
+      throws Exception {
+    return runFlowAndGetMessages(flowName, valueOf(UNLIMITED), pageSize, paginationOffset);
+  }
+
   private Iterator<Message> runFlowAndGetMessagesWithLimit(String flowName, int limit) throws Exception {
     return runFlowAndGetMessages(flowName, limit, valueOf(DEFAULT_PAGE_SIZE));
   }
 
   private Iterator<Message> runFlowAndGetMessages(String flowName, int limit, int pageSize) throws Exception {
+    return runFlowAndGetMessages(flowName, limit, pageSize, Integer.valueOf(DEFAULT_PAGINATION_OFFSET));
+  }
+
+  private Iterator<Message> runFlowAndGetMessages(String flowName, int limit, int pageSize, int paginationOffset)
+      throws Exception {
     CursorIteratorProvider provider =
         (CursorIteratorProvider) flowRunner(flowName).withVariable("limit", limit).withVariable("pageSize", pageSize)
+            .withVariable("paginationOffset", paginationOffset)
             .keepStreamsOpen().run().getMessage().getPayload().getValue();
     return (Iterator<Message>) provider.openCursor();
   }
@@ -274,6 +317,13 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
   private void sendEmails(int amount) throws MessagingException {
     for (int i = 0; i < amount; i++) {
       user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, EMAIL_SUBJECT, ESTEBAN_EMAIL));
+    }
+  }
+
+  private void sendEmailsWithCounter(int amount) throws MessagingException {
+    for (int i = 0; i < amount; i++) {
+      user.deliver(getMimeMessage(JUANI_EMAIL, ALE_EMAIL, EMAIL_CONTENT, TEXT_PLAIN, EMAIL_SUBJECT + " counter:" + i,
+                                  ESTEBAN_EMAIL));
     }
   }
 
