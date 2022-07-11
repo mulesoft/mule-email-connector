@@ -212,4 +212,8 @@ public class TestIMAPServer extends AbstractTestServer {
     newFolder.create(Folder.HOLDS_FOLDERS | Folder.HOLDS_MESSAGES);
     store.close();
   }
+
+  public static int countReceivedMessages() {
+    return server.getReceivedMessages().length;
+  }
 }

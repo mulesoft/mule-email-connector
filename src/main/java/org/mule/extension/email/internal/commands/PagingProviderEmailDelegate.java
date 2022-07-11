@@ -61,6 +61,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   private final String folderName;
   private int bottom;
   private int top;
+  private int paginationOffset;
   private int limit;
   private final StreamingHelper streamingHelper;
   private int retrievedEmailCount;
@@ -77,6 +78,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
    * @param pageSize                Size of the block that would be retrieved from the email server. This page doesn't represent the page size to
    *                                be returned by the {@link PagingProvider} because emails must be tested against the {@link BaseEmailPredicateBuilder}
    *                                matcher after retrieval to see if they fulfill matcher's condition.
+   * @param paginationOffset        Size of the pagination offset. The first {@code paginationOffset} emails will be skipped.
    * @param limit                   The maximum amount of emails that will be retrieved by htis {@link PagingProvider}
    * @param deleteAfterRetrieve     Whether the emails should be deleted after retrieval
    * @param deleteAfterReadCallback Callback for deleting each email
@@ -85,6 +87,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
   public PagingProviderEmailDelegate(MailboxAccessConfiguration configuration, String folderName,
                                      BaseEmailPredicateBuilder matcherBuilder,
                                      int pageSize,
+                                     int paginationOffset,
                                      int limit,
                                      boolean deleteAfterRetrieve,
                                      BiConsumer<MailboxConnection, BaseEmailAttributes> deleteAfterReadCallback,
@@ -95,6 +98,7 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
     this.matcher = matcherBuilder != null ? matcherBuilder.build() : e -> true;
     this.pageSize = pageSize;
     this.top = pageSize;
+    this.paginationOffset = paginationOffset;
     this.limit = limit;
     this.streamingHelper = streamingHelper;
     this.retrievedEmailCount = 0;
@@ -167,20 +171,30 @@ public final class PagingProviderEmailDelegate<T extends BaseEmailAttributes>
       folder = connection.getFolder(folderName, deleteAfterRetrieve ? READ_WRITE : READ_ONLY);
 
       // initialize mailbox indexes
+      boolean offsetReached = false;
       if (!initialized) {
         initialized = true;
         top = folder.getMessageCount();
         bottom = max(1, top - pageSize + 1);
+        if (bottom <= paginationOffset) {
+          bottom = paginationOffset + 1;
+        }
 
         if (top == 0)
           return emptyList();
       }
 
-      while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom >= 1) {
+      while (bottom <= top && (limit < 0 || retrievedEmailCount < limit) && bottom > 0 && !offsetReached) {
+
         List<Result<StoredEmailContent, T>> emails = list(bottom, top);
 
         top -= pageSize;
         bottom = max(1, top - pageSize + 1);
+
+        if (bottom <= paginationOffset) {
+          bottom = paginationOffset + 1;
+          offsetReached = true;
+        }
 
         int retrievedPageSize = emails.size();
         retrievedEmailCount += retrievedPageSize;
