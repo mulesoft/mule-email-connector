@@ -23,7 +23,7 @@
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
-        <greenmailVersion>1.6.10</greenmailVersion>
+        <greenmailVersion>1.6.11</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
