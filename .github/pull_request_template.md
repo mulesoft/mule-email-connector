@@ -1,5 +1,6 @@
 *Hi, thank you for your work. We understand that you want to merge your changes and move on from this issue, but we also want to maintain the safety, readability, and testability of our code. Because of this, we kindly ask that you confirm that you have fulfilled the prerequisites for each category of activity before merging your changes.*
 
+
 ### If the Pull Request has a dependency update:
 - [ ] I have read the Release Notes for the new version (and intermediate versions if the jump would include more than one). Don't blindly trust that the dependency will honor SEMVER, always read carefully the release notes
 - [ ] Java 8+ support is maintained
