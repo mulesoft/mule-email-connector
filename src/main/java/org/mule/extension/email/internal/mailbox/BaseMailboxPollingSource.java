@@ -197,9 +197,13 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   protected void beginUsingFolder() {
     synchronized (usingFolderCounter) {
-      LOGGER.debug("beginUsingFolder = " + usingFolderCounter.get());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("beginUsingFolder = " + usingFolderCounter.get());
+      }
       int currentUsingFolderCounter = usingFolderCounter.incrementAndGet();
-      LOGGER.debug("Current folder count (beginUsingFolder) " + usingFolderCounter.get());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Current folder count (beginUsingFolder) " + usingFolderCounter.get());
+      }
       if (currentUsingFolderCounter == 1) {
         LOGGER.debug("Opening folder. ");
         openFolder = connection.getFolder(folder, READ_WRITE);
@@ -209,9 +213,13 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   protected void endUsingFolder() {
     synchronized (usingFolderCounter) {
-      LOGGER.debug("endUsingFolder = " + usingFolderCounter.get());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("endUsingFolder = " + usingFolderCounter.get());
+      }
       int currentUsingFolderCounter = usingFolderCounter.decrementAndGet();
-      LOGGER.debug("Current folder count (endUsingFolder) " + usingFolderCounter.get());
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Current folder count (endUsingFolder) " + usingFolderCounter.get());
+      }
       if (currentUsingFolderCounter == 0) {
         LOGGER.debug("Closing folder. ");
         connection.closeFolder(deleteAfterRetrieve);
