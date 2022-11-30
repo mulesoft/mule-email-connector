@@ -15,7 +15,7 @@
 - [ ] If you are using reflection, create a test to call the methods you are invoking, this way, if there is a change in the API, the test will be able to detect it.
 - [ ] If the project has a parent pom and modules, the release pipeline only uploads the modules, so, please, make sure that the parent was deployed in the repositories before considering this release finished.
 - [ ] Notify in the Slack Channel that the release is complete, so the Docs team can merge the Documentation and Release Notes PR. The docs team always checks in Anypoint Exchange that the connector is released before merging the release notes.
-- [ ] Check the pending Pull Requests in the project coming from Renovate to see if it is possible to update some dependencies. (For those that you cannot merge, follow the same procedure as for the periodic renovate review process).
+- [ ] Check the pending Pull Requests in the project coming from Renovate to see if it is possible to update some dependencies. (For those that you cannot merge, follow the same procedure as for the [periodic renovate review process](https://confluence.internal.salesforce.com/display/CONNECTORS/MuleSoft+Connectivity+Infrastructure+Documentation#MuleSoftConnectivityInfrastructureDocumentation-RenovatePullRequests)).
  
 **NOTE**: *The release process ends when you merge the pull request that updates the support branch to the new snapshot, please don't forget to do this.*
 
