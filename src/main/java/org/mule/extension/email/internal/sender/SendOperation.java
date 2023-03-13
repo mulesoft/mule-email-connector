@@ -29,7 +29,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import javax.inject.Inject;
 
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -76,7 +76,7 @@ public class SendOperation {
    */
   private Map<String, TypedValue<InputStream>> transformAttachments(AttachmentsGroup attachments)
       throws MessageTransformerException, TransformerException {
-    Map<String, TypedValue<InputStream>> newAttachments = new HashMap<>();
+    Map<String, TypedValue<InputStream>> newAttachments = new LinkedHashMap<>();
     for (Map.Entry<String, TypedValue<InputStream>> attachment : attachments.getAttachments().entrySet()) {
       newAttachments.put(attachment.getKey(), getTransformTypedValue(attachment.getValue()));
     }
