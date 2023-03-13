@@ -24,7 +24,7 @@ import org.mule.runtime.core.api.util.StringUtils;
 
 import java.io.InputStream;
 import java.util.Date;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,7 +51,7 @@ public final class MessageBuilder {
 
   private final MimeMessage message;
 
-  private Map<String, TypedValue> attachments = new LinkedHashMap<>();
+  private Map<String, TypedValue> attachments = new HashMap<>();
   private String content = "";
   private MediaType bodyContentType;
   private String attachmentContentTransferEncoding;
