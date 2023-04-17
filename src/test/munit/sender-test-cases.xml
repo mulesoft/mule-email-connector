@@ -323,4 +323,37 @@
         </munit:validation>
     </munit:test>
 
+    <!-- TODO: complete tests once the Attachment bugs are fixed.-->
+    <!-- Send Email with Attachments to verify order is respected -->
+    <munit:test name="sendWithAttachments" ignore="true">
+        <munit:execution>
+            <set-variable value="#[output application/json --- {address: '221B Baker Street'}]" variableName="json" mimeType="application/json"/>
+            <set-variable value="This is the email text attachment for John Watson" variableName="textPlain" mimeType="text/plain"/>
+            <set-variable value="#[vars.textPlain]" variableName="octetStream" mimeType="application/octet-stream"/>
+            <email:send config-ref="${sender-config}" fromAddress="juan.desimoni@mulesoft.com"
+                        subject="Email Subject">
+                <email:to-addresses>
+                    <email:to-address value="sebastian.elizalde@mulesoft.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/plain">
+                    <email:content>Email Content</email:content>
+                </email:body>
+                <email:attachments>#[{
+                    'text-attachment' : vars.textPlain,
+                    'json-attachment' : vars.json,
+                    'stream-attachment' : vars.octetStream
+                    }]</email:attachments>
+            </email:send>
+        </munit:execution>
+        <munit:validation>
+            <java:invoke-static class="org.mule.email.mtf.TestSMTPandIMAPServer" method="passEmailsToIMAPServer()"/>
+            <email:list-imap config-ref="imap-SenderTests"/>
+            <munit-tools:assert-equals actual="#[payload.attachments]" expected="#[{
+                    'text-attachment' : vars.textPlain,
+                    'json-attachment' : vars.json,
+                    'stream-attachment' : vars.octetStream
+                    }]"/>
+        </munit:validation>
+    </munit:test>
+
 </mule>
