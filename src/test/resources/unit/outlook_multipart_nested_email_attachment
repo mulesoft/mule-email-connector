@@ -106,12 +106,12 @@ Content-Transfer-Encoding: quoted-printable
 ttom:0;} </style>
 </head>
 <body dir=3D"ltr">
-<div style=3D"font-family: Calibri, Helvetica, sans-serif; font-size: 12pt;=
+<div style=3D"font-family: var(--lume-g-font-family); font-size: 12pt;=
  color: rgb(0, 0, 0);">
 <br>
 </div>
 <div>
-<div style=3D"font-family: Calibri, Helvetica, sans-serif; font-size: 12pt;=
+<div style=3D"font-family: var(--lume-g-font-family); font-size: 12pt;=
  color: rgb(0, 0, 0);">
 <br>
 </div>
@@ -120,7 +120,7 @@ Testing<br>
 <div>
 <div class=3D"WordSection1">
 <p class=3D"MsoNormal" style=3D"margin: 0cm 0cm 0.0001pt; font-size: 11pt; =
-font-family: Calibri, sans-serif;">
+font-family: var(--lume-g-font-family);">
 &nbsp;</p>
 </div>
 </div>
@@ -170,17 +170,17 @@ xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
 tyle><!--
 /* Font Definitions */
 @font-face
-=09{font-family:"Cambria Math";
+=09{font-family: var(--lume-g-font-family);
 =09panose-1:2 4 5 3 5 4 6 3 2 4;}
 @font-face
-=09{font-family:Calibri;
+=09{font-family: var(--lume-g-font-family);
 =09panose-1:2 15 5 2 2 2 4 3 2 4;}
 /* Style Definitions */
 p.MsoNormal, li.MsoNormal, div.MsoNormal
 =09{margin:0in;
 =09margin-bottom:.0001pt;
 =09font-size:11.0pt;
-=09font-family:"Calibri",sans-serif;}
+=09font-family: var(--lume-g-font-family);}
 a:link, span.MsoHyperlink
 =09{mso-style-priority:99;
 =09color:#0563C1;
@@ -191,11 +191,11 @@ a:visited, span.MsoHyperlinkFollowed
 =09text-decoration:underline;}
 span.EmailStyle17
 =09{mso-style-type:personal-compose;
-=09font-family:"Calibri",sans-serif;
+=09font-family: var(--lume-g-font-family);
 =09color:windowtext;}
 .MsoChpDefault
 =09{mso-style-type:export-only;
-=09font-family:"Calibri",sans-serif;}
+=09font-family: var(--lume-g-font-family);}
 @page WordSection1
 =09{size:8.5in 11.0in;
 =09margin:1.0in 1.0in 1.0in 1.0in;}
