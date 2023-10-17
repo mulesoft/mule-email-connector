@@ -138,9 +138,15 @@
             <set-variable variableName="emailCount" value="5" />
             <flow-ref name="sendEmails"/>
         </munit:execution>
+
+
         <munit:validation>
             <until-successful maxRetries="20" millisBetweenRetries="500">
+                <logger level="INFO" message='PAYLOAD_A01: #[payload]'/>
+                <logger level="INFO" message='MESSAGE_A01: #[message]'/>
                 <munit-tools:retrieve key="messages"/>
+                <logger level="INFO" message='PAYLOAD_A02: #[payload]'/>
+                <logger level="INFO" message='MESSAGE_A02: #[message]'/>
                 <validation:validate-size value="#[payload]" min="45" max="45"/>
             </until-successful>
         </munit:validation>
