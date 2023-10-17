@@ -142,11 +142,9 @@
 
         <munit:validation>
             <until-successful maxRetries="20" millisBetweenRetries="500">
-                <logger level="INFO" message='PAYLOAD_A01: #[payload]'/>
-                <logger level="INFO" message='MESSAGE_A01: #[message]'/>
                 <munit-tools:retrieve key="messages"/>
-                <logger level="INFO" message='PAYLOAD_Size: #[sizeOf(payload)]'/>
-                <logger level="INFO" message='MESSAGE_Size: #[sizeOf(message)]'/>
+             <!--   <logger level="INFO" message='PAYLOAD_Size: #[sizeOf(payload)]'/> -->
+                <!-- <logger level="INFO" message='MESSAGE_Size: #[sizeOf(message)]'/> -->
                 <validation:validate-size value="#[payload]" min="25" max="45"/>
             </until-successful>
         </munit:validation>
