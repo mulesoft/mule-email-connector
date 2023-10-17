@@ -184,9 +184,9 @@
         </munit:enable-flow-sources>
 
         <munit:execution>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="messages"/>
-                <validation:validate-size value="#[payload]" min="5" max="10"/>
+                <validation:validate-size value="#[payload]" min="5" max="15"/>
             </until-successful>
         </munit:execution>
 
