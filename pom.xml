@@ -37,7 +37,7 @@
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <validations.module.version>1.4.6</validations.module.version>
         <java.module.version>1.2.10</java.module.version>
-        <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
+        <muleSdkApiVersion>0.6.0</muleSdkApiVersion>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
         <license.maven.plugin.version>4.2</license.maven.plugin.version>
@@ -152,6 +152,22 @@
                         <version>${jakartaMailVersion}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jdeps-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jdkinternals</goal> <!-- verify main classes -->
+                            <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                </configuration>
             </plugin>
         </plugins>
     </build>
