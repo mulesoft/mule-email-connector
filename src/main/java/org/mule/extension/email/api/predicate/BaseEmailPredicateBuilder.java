@@ -164,7 +164,7 @@ public abstract class BaseEmailPredicateBuilder {
   }
 
   public void setSubjectregex(String subjectRegex) {
-    this.subjectRegex= subjectRegex;
+    this.subjectRegex = subjectRegex;
   }
 
   public String getFromRegex() {
@@ -172,7 +172,7 @@ public abstract class BaseEmailPredicateBuilder {
   }
 
   public void setFromregex(String fromRegex) {
-    this.fromRegex= fromRegex;
+    this.fromRegex = fromRegex;
   }
 
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {
