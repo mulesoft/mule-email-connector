@@ -61,8 +61,7 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
   private EmailFilterPolicy recent;
 
 
-  public IMAPEmailPredicateBuilder() {
-  }
+  public IMAPEmailPredicateBuilder() {}
 
   @Override
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {
@@ -118,7 +117,7 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
   }
 
   public void setrecent(EmailFilterPolicy recent) {
-    this.recent= recent;
+    this.recent = recent;
   }
 
   public IMAPEmailPredicateBuilder setAnswered(EmailFilterPolicy answered) {

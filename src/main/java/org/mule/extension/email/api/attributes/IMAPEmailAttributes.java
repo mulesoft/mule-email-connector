@@ -49,12 +49,13 @@ public class IMAPEmailAttributes extends BaseEmailAttributes {
   }
 
 
-  public IMAPEmailAttributes(){
+  public IMAPEmailAttributes() {
     super(null);
-    this.id= null;
-    this.flags=null;
+    this.id = null;
+    this.flags = null;
 
   }
+
   /**
    * @return an {@link EmailFlags} object containing the flags set in the email.
    */
