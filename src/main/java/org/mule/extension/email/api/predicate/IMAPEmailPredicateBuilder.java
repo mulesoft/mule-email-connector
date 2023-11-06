@@ -60,6 +60,10 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
   @Optional(defaultValue = "INCLUDE")
   private EmailFilterPolicy recent;
 
+
+  public IMAPEmailPredicateBuilder() {
+  }
+
   @Override
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {
 
@@ -88,16 +92,33 @@ public class IMAPEmailPredicateBuilder extends BaseEmailPredicateBuilder {
     return seen;
   }
 
+  public void setseen(EmailFilterPolicy seen) {
+    this.seen = seen;
+  }
+
+
   public EmailFilterPolicy getAnswered() {
     return answered;
+  }
+
+  public void setanswered(EmailFilterPolicy answered) {
+    this.answered = answered;
   }
 
   public EmailFilterPolicy getDeleted() {
     return deleted;
   }
 
+  public void setdeleted(EmailFilterPolicy deleted) {
+    this.deleted = deleted;
+  }
+
   public EmailFilterPolicy getRecent() {
     return recent;
+  }
+
+  public void setrecent(EmailFilterPolicy recent) {
+    this.recent= recent;
   }
 
   public IMAPEmailPredicateBuilder setAnswered(EmailFilterPolicy answered) {

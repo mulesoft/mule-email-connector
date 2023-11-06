@@ -122,6 +122,9 @@ public abstract class BaseEmailPredicateBuilder {
     return (Predicate<BaseEmailAttributes>) predicate;
   }
 
+  public BaseEmailPredicateBuilder() {
+  }
+
   public LocalDateTime getReceivedSince() {
     return receivedSince;
   }
