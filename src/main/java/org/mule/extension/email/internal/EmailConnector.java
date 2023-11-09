@@ -16,6 +16,12 @@ import org.mule.runtime.extension.api.annotation.Configurations;
 import org.mule.runtime.extension.api.annotation.Export;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
+import org.mule.sdk.api.annotation.JavaVersionSupport;
+import org.mule.sdk.api.meta.JavaVersion;
+
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_11;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_17;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
 
 /**
  * Email connector used to list and send emails and perform operations in different mailboxes, such as delete and mark as read.
@@ -28,6 +34,7 @@ import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 @Extension(name = "Email")
 @ErrorTypes(EmailError.class)
 @Export(classes = {EmailException.class})
+@JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
 public class EmailConnector {
 
   public static final String TLS_CONFIGURATION = "TLS Configuration";
