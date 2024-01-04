@@ -211,7 +211,7 @@
         </munit:behavior>
 
         <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="20" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="attachments"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
