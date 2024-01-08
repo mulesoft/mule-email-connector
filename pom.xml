@@ -151,6 +151,18 @@
                         <artifactId>jakarta.mail</artifactId>
                         <version>${jakartaMailVersion}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.mule.module</groupId>
+                        <artifactId>mule-java-module</artifactId>
+                        <version>${java.module.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.mule.modules</groupId>
+                        <artifactId>mule-validation-module</artifactId>
+                        <version>${validations.module.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
                 </dependencies>
             </plugin>
             <plugin>
@@ -238,23 +250,6 @@
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
             <version>${powermockVersion}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- MTF -->
-
-        <dependency>
-            <groupId>org.mule.module</groupId>
-            <artifactId>mule-java-module</artifactId>
-            <version>${java.module.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-validation-module</artifactId>
-            <version>${validations.module.version}</version>
-            <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
     </dependencies>
