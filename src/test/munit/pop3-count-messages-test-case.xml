@@ -45,7 +45,7 @@
     <email:pop3-config name="pop3s-config">
         <email:pop3s-connection host="127.0.0.1" port="${pop3.server.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
-            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+            <tls:context enabledProtocols="TLSv1.2">
                 <tls:trust-store path="greenmail.p12" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
