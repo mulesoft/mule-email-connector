@@ -20,7 +20,7 @@
 
     <properties>
         <commonsIoVersion>2.11.0</commonsIoVersion>
-        <commonsLangVersion>3.12.0</commonsLangVersion>
+        <commonsLangVersion>3.15.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
         <greenmailVersion>1.6.11</greenmailVersion>
