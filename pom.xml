@@ -36,7 +36,7 @@
         <mavenResourcesVersion>3.3.1</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
         <validations.module.version>2.0.6</validations.module.version>
-        <java.module.version>1.2.12</java.module.version>
+        <java.module.version>1.2.13</java.module.version>
         <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
         <muleJavaEeBomVersion>4.6.0-20231025</muleJavaEeBomVersion>
         <jacoco.version>0.8.10</jacoco.version>
