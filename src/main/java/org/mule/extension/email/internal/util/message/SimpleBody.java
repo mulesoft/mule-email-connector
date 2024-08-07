@@ -7,6 +7,7 @@
 package org.mule.extension.email.internal.util.message;
 
 import static java.lang.String.format;
+import static java.lang.System.getProperty;
 import static org.mule.extension.email.internal.util.EmailUtils.getMultipart;
 import static org.mule.extension.email.internal.util.EmailUtils.hasAlternativeBodies;
 import static org.mule.extension.email.internal.util.EmailUtils.hasInlineAttachments;
@@ -25,6 +26,8 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 import org.slf4j.Logger;
 
+import org.mule.extension.email.internal.util.EmailConnectorConstants;
+
 /**
  * Models a body of MimeType 'multipart/related' or 'text/*'.
  *
@@ -36,6 +39,8 @@ public class SimpleBody implements MessageBody {
   private static final String NAME_HEADER = "name=";
   private static final String ATTACHMENT = "attachment";
 
+  private final boolean parsingTextAttachmentAsBody =
+      Boolean.parseBoolean(getProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY, "true"));
 
   /**
    * The text extracted from the given part.
@@ -58,7 +63,8 @@ public class SimpleBody implements MessageBody {
         bodyPart = mp.getBodyPart(0);
         initInlineAttachments(mp);
       } else if (isTextBody(part)) {
-        if (part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
+        if (!parsingTextAttachmentAsBody &&
+            part.getDisposition() != null && part.getDisposition().contains(ATTACHMENT)) {
           inlineAttachments.add(new MessageAttachment(part));
         } else {
           bodyPart = part;

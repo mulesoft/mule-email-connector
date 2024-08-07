@@ -105,6 +105,12 @@ public class IMAPPollingSource extends BaseMailboxPollingSource {
     super.onRejectedItem(result, sourceCallbackContext);
   }
 
+  @OnBackPressure
+  public void onBackPressure() {
+    LOGGER.warn("OnBackPressure activated.");
+    endUsingFolder();
+  }
+
   @OnTerminate
   public void onTerminate() {
     endUsingFolder();

@@ -40,6 +40,7 @@ import org.junit.rules.TemporaryFolder;
 import org.mule.extension.email.EmailConnectorTestCase;
 import org.mule.extension.email.api.StoredEmailContent;
 import org.mule.extension.email.api.attributes.BaseEmailAttributes;
+import org.mule.extension.email.internal.util.EmailConnectorConstants;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.api.metadata.TypedValue;
@@ -233,6 +234,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
 
   @Test
   public void retrieveEmailsWithoutBody() throws Exception {
+    System.setProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY, "false");
     server.purgeEmailFromAllMailboxes();
     user.deliver(getMessageFromEmlFile("unit/only_attachment"));
     Iterator<Message> messageIterator = runFlowAndGetMessages(RETRIEVE_AND_READ_MAX_CONCURRENCY_EQUALS_ONE);
@@ -241,6 +243,7 @@ public abstract class AbstractEmailRetrieverTestCase extends EmailConnectorTestC
     assertThat(body.getValue(), is(""));
     assertThat(((BaseEmailAttributes) next.getAttributes().getValue()).getHeaders().get("Content-Disposition")
         .startsWith("attachment"), is(true));
+    System.clearProperty(EmailConnectorConstants.PARSING_TEXT_ATTACHMENT_AS_BODY);
   }
 
   // TODO MULE-16388 : Review if it makes sense to migrated this test.
