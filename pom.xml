@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.1.9</version>
+        <version>1.1.10</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-email-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>1.7.3-SNAPSHOT</version>
+    <version>1.7.4-SNAPSHOT</version>
 
     <name>Email Connector</name>
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
@@ -31,17 +31,56 @@
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
         <munit.extensions.maven.plugin.version>1.3.0</munit.extensions.maven.plugin.version>
-        <munit.version>2.3.15</munit.version>
+        <munit.version>3.2.0</munit.version>
         <mtf.tools.version>1.3.0</mtf.tools.version>
         <mavenResourcesVersion>3.3.1</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-        <validations.module.version>1.4.6</validations.module.version>
-        <java.module.version>1.2.10</java.module.version>
-        <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
+        <validations.module.version>2.0.6</validations.module.version>
+        <java.module.version>1.2.12</java.module.version>
+        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
+        <muleJavaEeBomVersion>4.6.0-20231025</muleJavaEeBomVersion>
+        <jacoco.version>0.8.10</jacoco.version>
+
+        <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
+        <license.maven.plugin.version>4.2</license.maven.plugin.version>
+        <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
+        <licenseYear>2023</licenseYear>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license.maven.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mulesoft.license</groupId>
+                        <artifactId>license</artifactId>
+                        <version>${mulesoftLicenseVersion}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <header>${licensePath}</header>
+                    <properties>
+                        <year>${licenseYear}</year>
+                    </properties>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${mavenResourcesVersion}</version>
@@ -79,9 +118,7 @@
                 </executions>
                 <configuration>
                     <argLines>
-                        <argLine>
-                            -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco.exec
-                        </argLine>
+                        <argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec</argLine>
                     </argLines>
                     <runtimeConfiguration>
                         <discoverRuntimes>
@@ -114,9 +151,38 @@
                         <artifactId>jakarta.mail</artifactId>
                         <version>${jakartaMailVersion}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.mule.module</groupId>
+                        <artifactId>mule-java-module</artifactId>
+                        <version>${java.module.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.mule.modules</groupId>
+                        <artifactId>mule-validation-module</artifactId>
+                        <version>${validations.module.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jdeps-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jdkinternals</goal> <!-- verify main classes -->
+                            <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
     <dependencies>
@@ -134,8 +200,6 @@
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>jakarta.activation</artifactId>
-            <version>${jakartaActivationVersion}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -188,23 +252,6 @@
             <version>${powermockVersion}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- MTF -->
-
-        <dependency>
-            <groupId>org.mule.module</groupId>
-            <artifactId>mule-java-module</artifactId>
-            <version>${java.module.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-validation-module</artifactId>
-            <version>${validations.module.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
@@ -222,5 +269,15 @@
             <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
         </pluginRepository>
     </pluginRepositories>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.mule</groupId>
+                <artifactId>mule-javaee-runtime-bom</artifactId>
+                <version>${muleJavaEeBomVersion}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

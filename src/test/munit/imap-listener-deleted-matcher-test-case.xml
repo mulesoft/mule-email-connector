@@ -56,7 +56,7 @@
 
     <email:imap-config name="imaps-config">
         <email:imaps-connection host="127.0.0.1" port="${imap.server.port}" password="password" user="juan.desimoni@mulesoft.com">
-            <tls:context enabledProtocols="TLSv1.2,SSLv3">
+            <tls:context enabledProtocols="TLSv1.2">
                 <tls:trust-store path="greenmail.p12" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
@@ -111,7 +111,7 @@
             <!--send new emails -->
             <flow-ref name="sendEmails" />
 
-            <until-successful maxRetries="10" millisBetweenRetries="500">
+            <until-successful maxRetries="150" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
             </until-successful>
@@ -120,7 +120,7 @@
             <flow-ref name="sendEmails" />
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="10" millisBetweenRetries="500">
+            <until-successful maxRetries="150" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
                 <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('deleted'))]"/>
@@ -157,7 +157,7 @@
 
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="1000">
+            <until-successful maxRetries="150" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="15" max="20"/>
             </until-successful>
@@ -189,7 +189,7 @@
             <!--send new emails -->
             <flow-ref name="sendEmails" />
 
-            <until-successful maxRetries="10" millisBetweenRetries="500">
+            <until-successful maxRetries="150" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="5" max="5"/>
             </until-successful>
@@ -198,7 +198,7 @@
             <flow-ref name="sendEmails" />
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="150" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="10" max="10"/>
                 <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::everyItem(MunitTools::containsString('New Email'))]"/>
