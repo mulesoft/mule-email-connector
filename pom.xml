@@ -38,7 +38,7 @@
         <validations.module.version>2.0.6</validations.module.version>
         <java.module.version>1.2.12</java.module.version>
         <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
-        <muleJavaEeBomVersion>4.6.0-20231025</muleJavaEeBomVersion>
+        <muleJavaEeBomVersion>4.9.0-20240919</muleJavaEeBomVersion>
         <jacoco.version>0.8.10</jacoco.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
