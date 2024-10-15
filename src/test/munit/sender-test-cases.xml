@@ -71,7 +71,7 @@
     <email:smtp-config name="smtps-SenderTests">
         <email:smtps-connection host="127.0.0.1" port="${smtp-server.port}">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:smtps-connection>
     </email:smtp-config>

@@ -180,7 +180,7 @@
         <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
@@ -194,7 +194,7 @@
         <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>
@@ -208,7 +208,7 @@
         <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
@@ -222,7 +222,7 @@
         <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>
@@ -236,7 +236,7 @@
         <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
@@ -250,7 +250,7 @@
         <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${env.greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>

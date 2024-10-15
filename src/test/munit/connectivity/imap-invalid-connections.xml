@@ -39,6 +39,15 @@
         <email:imap-connection host="127.0.0.1" port="12344423" password="password" user="juan.desimoni@mulesoft.com"/>
     </email:imap-config>
 
+    <email:imap-config name="imap-config">
+        <email:imap-connection host="127.0.0.1" port="${imap.server.port}" user="juan.desimoni@mulesoft.com" password="password"/>
+    </email:imap-config>
+
+    <email:pop3-config name="pop3-config">
+        <email:pop3-connection host="127.0.0.1" port="${pop3.server.port}" password="password"
+                               user="juan.desimoni@mulesoft.com"/>
+    </email:pop3-config>
+
     <!-- Setup/Dispose -->
     <munit:before-suite name="setUpConnectivityTesting">
         <java:invoke-static class="org.mule.email.mtf.TestIMAPServer" method="start(Integer)">
