@@ -23,9 +23,10 @@
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
-        <greenmailVersion>1.6.11</greenmailVersion>
+        <greenmailVersion>1.6.15</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
+        <greenmail.keystore.name>${env.greenmail.keystore.name}</greenmail.keystore.name>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
@@ -280,4 +281,58 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <profiles>
+        <profile>
+            <id>default-config</id>
+            <activation>
+                <property>
+                    <name>!mule.security.model</name> <!-- if mule.security.model does not exist -->
+                </property>
+            </activation>
+            <properties>
+                <env.greenmail.keystore.name>greenmail.p12</env.greenmail.keystore.name>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.mulesoft.munit.tools</groupId>
+                        <artifactId>munit-maven-plugin</artifactId>
+                        <version>${munit.version}</version>
+                        <configuration>
+                            <argLines>
+                                <argLine>-greenmail.tls.keystore.file=${session.executionRootDirectory}/target/test-classes/greenmail.p12</argLine>
+                            </argLines>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>fips-config</id>
+            <activation>
+                <property>
+                    <name>mule.security.model</name>
+                    <value>fips140-2</value> <!-- if mule.security.model == fips140-2 -->
+                </property>
+            </activation>
+            <properties>
+                <env.greenmail.keystore.name>greenmail.bcfks</env.greenmail.keystore.name>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.mulesoft.munit.tools</groupId>
+                        <artifactId>munit-maven-plugin</artifactId>
+                        <version>${munit.version}</version>
+                        <configuration>
+                            <argLines>
+                                <argLine>-greenmail.tls.keystore.file=${session.executionRootDirectory}/target/test-classes/greenmail.bcfks</argLine>
+                            </argLines>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
