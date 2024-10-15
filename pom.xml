@@ -295,6 +295,16 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <greenmail.tls.keystore.file>${basedir}/target/test-classes/greenmail.p12</greenmail.tls.keystore.file>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
+                    <plugin>
                         <groupId>com.mulesoft.munit.tools</groupId>
                         <artifactId>munit-maven-plugin</artifactId>
                         <version>${munit.version}</version>
@@ -321,6 +331,16 @@
             </properties>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.5</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <greenmail.tls.keystore.file>${basedir}/target/test-classes/greenmail.bcfks</greenmail.tls.keystore.file>
+                            </systemPropertyVariables>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>com.mulesoft.munit.tools</groupId>
                         <artifactId>munit-maven-plugin</artifactId>
