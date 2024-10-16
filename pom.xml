@@ -23,7 +23,7 @@
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
-        <greenmailVersion>1.6.11</greenmailVersion>
+        <greenmailVersion>1.6.15</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
@@ -99,7 +99,6 @@
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
-
                         </configuration>
                     </execution>
                 </executions>
@@ -118,6 +117,7 @@
                 </executions>
                 <configuration>
                     <argLines>
+                        <argLine>-Dgreenmail.tls.keystore.file=${env.greenmail.keystore.path}</argLine>
                         <argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec</argLine>
                     </argLines>
                     <runtimeConfiguration>
@@ -191,10 +191,10 @@
             <artifactId>jakarta.mail</artifactId>
             <version>${jakartaMailVersion}</version>
             <exclusions>
-            	<exclusion>
-            		<groupId>com.sun.activation</groupId>
-            		<artifactId>jakarta.activation</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>com.sun.activation</groupId>
+                    <artifactId>jakarta.activation</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -229,8 +229,8 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
                 <exclusion>
-                	<groupId>javax.activation</groupId>
-                	<artifactId>activation</artifactId>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -280,4 +280,29 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <profiles>
+        <profile>
+            <id>default-config</id>
+            <activation>
+                <property>
+                    <name>!mule.security.model</name> <!-- if mule.security.model does not exist -->
+                </property>
+            </activation>
+            <properties>
+                <env.greenmail.keystore.path>${basedir}/target/test-classes/greenmail.p12</env.greenmail.keystore.path>
+            </properties>
+        </profile>
+        <profile>
+            <id>fips-config</id>
+            <activation>
+                <property>
+                    <name>mule.security.model</name>
+                    <value>fips140-2</value> <!-- if mule.security.model == fips140-2 -->
+                </property>
+            </activation>
+            <properties>
+                <env.greenmail.keystore.path>${basedir}/target/test-classes/greenmail.bcfks</env.greenmail.keystore.path>
+            </properties>
+        </profile>
+    </profiles>
 </project>
