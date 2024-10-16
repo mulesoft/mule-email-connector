@@ -50,7 +50,6 @@
         </java:invoke-static>
     </munit:before-suite>
 
-
     <munit:test name="incorrectCredentials"
                 expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
                 expectedErrorType="EMAIL:INVALID_CREDENTIALS">
