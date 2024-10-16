@@ -82,6 +82,7 @@
         </munit:execution>
     </munit:test>
 
+
     <munit:test name="cannotReach"
                 expectedException="org.mule.extension.email.api.exception.EmailConnectionException"
                 expectedErrorType="EMAIL:UNKNOWN_HOST">
