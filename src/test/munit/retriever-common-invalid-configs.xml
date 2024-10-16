@@ -15,7 +15,7 @@
     <email:imap-config name="imaps-CommonTests-IncorrectCredentialsUser">
         <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="password" user="XXXXXXXXXXX@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>
@@ -27,7 +27,7 @@
     <email:imap-config name="imaps-CommonTests-IncorrectCredentialsPassword">
         <email:imaps-connection host="127.0.0.1" port="${retriever.port}" password="wrongpassword" user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>
@@ -39,7 +39,7 @@
     <email:imap-config name="imaps-CommonTests-IncorrectPort">
         <email:imaps-connection host="127.0.0.1" port="123449423" password="password" user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>
@@ -53,7 +53,7 @@
     <email:pop3-config name="pop3s-CommonTests-IncorrectCredentialsUser">
         <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="password" user="XXXXXXXXXXX@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
@@ -65,7 +65,7 @@
     <email:pop3-config name="pop3s-CommonTests-IncorrectCredentialsPassword">
         <email:pop3s-connection host="127.0.0.1" port="${retriever.port}" password="wrongpassword" user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
@@ -77,7 +77,7 @@
     <email:pop3-config name="pop3s-CommonTests-IncorrectPort">
         <email:pop3s-connection host="127.0.0.1" port="123449423" password="password" user="juan.desimoni@mulesoft.com">
             <tls:context enabledProtocols="TLSv1.2">
-                <tls:trust-store path="${greenmail.keystore.name}" password="changeit"/>
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>

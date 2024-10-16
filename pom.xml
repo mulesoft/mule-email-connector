@@ -83,29 +83,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${mavenResourcesVersion}</version>
-                <executions>
-                    <execution>
-                        <id>copy-munit-resources</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${munit.output.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${munit.input.directory}</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>com.mulesoft.munit</groupId>
                 <artifactId>munit-extensions-maven-plugin</artifactId>
                 <version>${munit.extensions.maven.plugin.version}</version>
@@ -119,6 +96,7 @@
                 </executions>
                 <configuration>
                     <argLines>
+                        <argLine>-Dgreenmail.tls.keystore.file=${env.greenmail.keystore.path}</argLine>
                         <argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec</argLine>
                     </argLines>
                     <runtimeConfiguration>
@@ -165,6 +143,28 @@
                         <classifier>mule-plugin</classifier>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${mavenResourcesVersion}</version>
+                <executions>
+                    <execution>
+                        <id>copy-munit-resources</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${munit.output.directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${munit.input.directory}</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -290,34 +290,9 @@
                 </property>
             </activation>
             <properties>
-                <env.greenmail.keystore.name>greenmail.p12</env.greenmail.keystore.name>
+                <env.greenmail.keystore.path>${basedir}/target/test-classes/greenmail.p12</env.greenmail.keystore.path>
             </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.5</version>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <greenmail.tls.keystore.file>${basedir}/target/test-classes/greenmail.p12</greenmail.tls.keystore.file>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.mulesoft.munit.tools</groupId>
-                        <artifactId>munit-maven-plugin</artifactId>
-                        <version>${munit.version}</version>
-                        <configuration>
-                            <argLines>
-                                <argLine>-greenmail.tls.keystore.file=${session.executionRootDirectory}/target/test-classes/greenmail.p12</argLine>
-                            </argLines>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
-
         <profile>
             <id>fips-config</id>
             <activation>
@@ -327,32 +302,8 @@
                 </property>
             </activation>
             <properties>
-                <env.greenmail.keystore.name>greenmail.bcfks</env.greenmail.keystore.name>
+                <env.greenmail.keystore.path>${basedir}/target/test-classes/greenmail.bcfks</env.greenmail.keystore.path>
             </properties>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.5</version>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <greenmail.tls.keystore.file>${basedir}/target/test-classes/greenmail.bcfks</greenmail.tls.keystore.file>
-                            </systemPropertyVariables>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.mulesoft.munit.tools</groupId>
-                        <artifactId>munit-maven-plugin</artifactId>
-                        <version>${munit.version}</version>
-                        <configuration>
-                            <argLines>
-                                <argLine>-greenmail.tls.keystore.file=${session.executionRootDirectory}/target/test-classes/greenmail.bcfks</argLine>
-                            </argLines>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 </project>
