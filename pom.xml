@@ -26,7 +26,6 @@
         <greenmailVersion>1.6.15</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
-        <greenmail.keystore.name>${env.greenmail.keystore.name}</greenmail.keystore.name>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
