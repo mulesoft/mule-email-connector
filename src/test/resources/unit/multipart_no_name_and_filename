@@ -29,9 +29,8 @@ This is some content!
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family:verdana,=
-sans-serif;font-size:small;color:#444444">This is some content!</div><div c=
-lass=3D"gmail_default" style=3D"font-family:verdana,sans-serif;font-size:sm=
+<div dir=3D"ltr"><div class=3D"gmail_default" style=3D"font-family: var(--lume-g-font-family);font-size:small;color:#444444">This is some content!</div><div c=
+lass=3D"gmail_default" style=3D"font-family: var(--lume-g-font-family);font-size:sm=
 all;color:#444444"><br></div><div class=3D"gmail_signature" data-smartmail=
 =3D"gmail_signature"><div dir=3D"ltr"><div><div dir=3D"ltr"><div><div dir=
 =3D"ltr"><div dir=3D"ltr"><div style=3D"color:rgb(136,136,136)"><div dir=3D=
