@@ -216,6 +216,11 @@
             <artifactId>mule-sdk-api</artifactId>
             <version>${muleSdkApiVersion}</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>jakarta.activation</artifactId>
+            <version>${jakartaActivationVersion}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
