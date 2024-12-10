@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:email="http://www.mulesoft.org/schema/mule/email"
       xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:file="http://www.mulesoft.org/schema/mule/file"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
@@ -9,6 +11,8 @@
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
       http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+      http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
       http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
       http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd
       http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd">
@@ -354,6 +358,32 @@
                     'stream-attachment' : vars.octetStream
                     }]"/>
         </munit:validation>
+    </munit:test>
+
+    <file:config name="File_Config">
+        <file:connection workingDir="src/test/resources"/>
+    </file:config>
+
+    <munit:test name="sender-activation-test">
+        <munit:execution>
+            <java:new class="org.mule.email.mtf.util.TestDataTransformer"
+                      constructor="TestDataTransformer()"
+                      target="testDataTransformer">
+            </java:new>
+            <file:read config-ref="File_Config" path="send-request-attachment-datahandler.txt"/>
+            <set-payload value="#[%dw 2.0 output application/java ---Java::invoke('org.mule.email.mtf.util.TestDataTransformer', 'transformMessage(String)', vars.testDataTransformer, {message: payload})]"/>
+            <set-payload value="#[%dw 2.0 output application/java ---Java::invoke('org.mule.email.mtf.util.TestDataTransformer', 'extractContent(MimeMessage)', vars.testDataTransformer, {mimeMessage: payload})]"/>
+            <email:send config-ref="${sender-config}" fromAddress="testing@gmail.com" subject="TESTING">
+                <email:to-addresses>
+                    <email:to-address value="testing@gmail.com"/>
+                </email:to-addresses>
+                <email:body contentType="text/html">
+                    <email:content><![CDATA[#[payload.body]]]></email:content>
+                </email:body>
+                <email:attachments><![CDATA[#[payload.Attachment]]]></email:attachments>
+            </email:send>
+            <set-payload value="#[%dw 2.0 output application/java --- payload]"/>
+        </munit:execution>
     </munit:test>
 
 </mule>
