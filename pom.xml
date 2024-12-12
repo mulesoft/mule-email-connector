@@ -45,7 +45,7 @@
         <license.maven.plugin.version>4.2</license.maven.plugin.version>
         <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
         <licenseYear>2023</licenseYear>
-        <mule-file-connector.version>1.6.0-SNAPSHOT</mule-file-connector.version>
+        <mule-file-connector.version>1.5.2</mule-file-connector.version>
     </properties>
 
     <build>
