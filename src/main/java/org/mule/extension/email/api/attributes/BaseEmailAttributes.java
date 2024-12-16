@@ -119,6 +119,19 @@ public abstract class BaseEmailAttributes implements Serializable {
   @Optional
   private final LocalDateTime sentDate;
 
+  public BaseEmailAttributes() {
+    this.number = 0;
+    this.subject = null;
+    this.headers = null;
+    this.toAddresses = null;
+    this.ccAddresses = null;
+    this.bccAddresses = null;
+    this.replyToAddresses = null;
+    this.sentDate = null;
+    this.receivedDate = null;
+    this.fromAddresses = null;
+  }
+
   public BaseEmailAttributes(Message msg) {
     try {
       Map<String, String> headers = new HashMap<>();
