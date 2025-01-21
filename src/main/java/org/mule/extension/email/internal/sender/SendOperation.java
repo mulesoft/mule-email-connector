@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * Copyright 2023 Salesforce, Inc. All rights reserved.
  * The software in this package is published under the terms of the CPAL v1.0
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
@@ -14,6 +14,7 @@ import org.mule.extension.email.api.exception.EmailConnectionException;
 import org.mule.extension.email.internal.commands.SendCommand;
 import org.mule.extension.email.internal.errors.SendErrorTypeProvider;
 import org.mule.extension.email.internal.util.AttachmentsGroup;
+import org.mule.runtime.api.i18n.I18nMessageFactory;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.TypedValue;
 import org.mule.runtime.api.transformation.TransformationService;
@@ -29,7 +30,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import javax.inject.Inject;
 
 import java.io.InputStream;
-import java.util.HashMap;
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -76,19 +78,27 @@ public class SendOperation {
    */
   private Map<String, TypedValue<InputStream>> transformAttachments(AttachmentsGroup attachments)
       throws MessageTransformerException, TransformerException {
-    Map<String, TypedValue<InputStream>> newAttachments = new HashMap<>();
+    Map<String, TypedValue<InputStream>> newAttachments = new LinkedHashMap<>();
     for (Map.Entry<String, TypedValue<InputStream>> attachment : attachments.getAttachments().entrySet()) {
       newAttachments.put(attachment.getKey(), getTransformTypedValue(attachment.getValue()));
     }
     return newAttachments;
   }
 
-  private TypedValue<InputStream> getTransformTypedValue(TypedValue typedValue)
-      throws MessageTransformerException, TransformerException {
+  private TypedValue<InputStream> getTransformTypedValue(TypedValue typedValue) throws TransformerException {
 
     Object value = typedValue.getValue();
     if (value instanceof InputStream) {
       return typedValue;
+    }
+    if (value.getClass().getName().equals("javax.activation.DataHandler")) {
+      try {
+        InputStream result = (InputStream) value.getClass().getDeclaredMethod("getInputStream").invoke(value);
+        return new TypedValue<>(result, DataType.builder().type(result.getClass())
+            .mediaType(typedValue.getDataType().getMediaType()).build());
+      } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
+        throw new TransformerException(I18nMessageFactory.createStaticMessage("Could not transform attachment"), e);
+      }
     }
     InputStream result = (InputStream) transformationService.transform(value, fromObject(value), INPUT_STREAM);
     return new TypedValue<>(result, DataType.builder().type(result.getClass()).mediaType(typedValue.getDataType().getMediaType())

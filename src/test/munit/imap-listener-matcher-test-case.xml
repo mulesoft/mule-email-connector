@@ -57,8 +57,8 @@
 
     <email:imap-config name="imaps-config">
         <email:imaps-connection host="127.0.0.1" port="${imap.server.port}" password="password" user="juan.desimoni@mulesoft.com">
-            <tls:context enabledProtocols="TLSv1.2,SSLv3">
-                <tls:trust-store path="greenmail.p12" password="changeit"/>
+            <tls:context enabledProtocols="TLSv1.2">
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>
@@ -139,7 +139,7 @@
             <flow-ref name="sendEmails"/>
         </munit:execution>
         <munit:validation>
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="100" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="45" max="45"/>
             </until-successful>
@@ -166,7 +166,7 @@
         <munit:validation>
             <flow-ref name="sendEmails"/>
 
-            <until-successful maxRetries="20" millisBetweenRetries="500">
+            <until-successful maxRetries="100" millisBetweenRetries="500">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="0" max="0"/>
             </until-successful>
@@ -194,7 +194,7 @@
         <munit:validation>
             <flow-ref name="sendEmails"/>
 
-            <until-successful maxRetries="20" millisBetweenRetries="1000">
+            <until-successful maxRetries="100" millisBetweenRetries="1000">
                 <munit-tools:retrieve key="messages"/>
                 <validation:validate-size value="#[payload]" min="20" max="20"/>
                 <munit-tools:assert-that expression="#[payload.attributes.subject]" is="#[MunitTools::not(MunitTools::hasValue('Mark as deleted'))]"/>

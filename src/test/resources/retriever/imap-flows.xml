@@ -81,6 +81,10 @@
         <email:list-imap config-ref="config" pageSize="#[vars.pageSize]" imapMatcher="matcher"/>
     </flow>
 
+    <flow name="retrieveWithPageSizeAndOffset">
+        <email:list-imap config-ref="config" pageSize="#[vars.pageSize]" paginationOffset="#[vars.paginationOffset]" imapMatcher="matcher"/>
+    </flow>
+
     <flow name="retrieveNumberedWithPageSize">
         <email:list-imap config-ref="config" pageSize="#[vars.pageSize]">
             <email:imap-matcher subjectRegex="[0-9]+"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * Copyright 2023 Salesforce, Inc. All rights reserved.
  * The software in this package is published under the terms of the CPAL v1.0
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
@@ -155,11 +155,12 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
         if (predicate.test(attributes)) {
           emailDispatchedToFlow();
           pollContext.accept(item -> {
-            if (isWatermarkEnabled()) {
-              item.setWatermark(Long.valueOf(id));
-            }
-            item.setId(id);
             try {
+              if (isWatermarkEnabled()) {
+                item.setWatermark(Long.valueOf(id));
+              }
+              item.setId(id);
+
               item.setResult(Result.<StoredEmailContent, BaseEmailAttributes>builder()
                   .output(getEmailContent(message, id))
                   .attributes(attributes)
@@ -196,10 +197,15 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   protected void beginUsingFolder() {
     synchronized (usingFolderCounter) {
-      LOGGER.debug("beginUsingFolder.");
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("beginUsingFolder = " + usingFolderCounter.get());
+      }
       int currentUsingFolderCounter = usingFolderCounter.incrementAndGet();
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Current folder count (beginUsingFolder) " + usingFolderCounter.get());
+      }
       if (currentUsingFolderCounter == 1) {
-        LOGGER.debug("Opening folder.");
+        LOGGER.debug("Opening folder. ");
         openFolder = connection.getFolder(folder, READ_WRITE);
       }
     }
@@ -207,10 +213,15 @@ public abstract class BaseMailboxPollingSource extends PollingSource<StoredEmail
 
   protected void endUsingFolder() {
     synchronized (usingFolderCounter) {
-      LOGGER.debug("endUsingFolder.");
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("endUsingFolder = " + usingFolderCounter.get());
+      }
       int currentUsingFolderCounter = usingFolderCounter.decrementAndGet();
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Current folder count (endUsingFolder) " + usingFolderCounter.get());
+      }
       if (currentUsingFolderCounter == 0) {
-        LOGGER.debug("Closing folder.");
+        LOGGER.debug("Closing folder. ");
         connection.closeFolder(deleteAfterRetrieve);
       }
     }

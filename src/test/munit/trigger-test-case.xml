@@ -59,8 +59,8 @@
     <email:pop3-config name="pop3s-config">
         <email:pop3s-connection host="127.0.0.1" port="${server.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
-            <tls:context enabledProtocols="TLSv1.2,SSLv3">
-                <tls:trust-store path="greenmail.p12" password="changeit"/>
+            <tls:context enabledProtocols="TLSv1.2">
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:pop3s-connection>
     </email:pop3-config>
@@ -78,8 +78,8 @@
     <email:imap-config name="imaps-config">
         <email:imaps-connection host="127.0.0.1" port="${server.port}" password="password"
                                 user="juan.desimoni@mulesoft.com">
-            <tls:context enabledProtocols="TLSv1.2,SSLv3">
-                <tls:trust-store path="greenmail.p12" password="changeit"/>
+            <tls:context enabledProtocols="TLSv1.2">
+                <tls:trust-store path="${env.greenmail.keystore.path}" password="changeit"/>
             </tls:context>
         </email:imaps-connection>
     </email:imap-config>

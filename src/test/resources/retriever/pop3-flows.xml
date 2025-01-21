@@ -35,6 +35,10 @@
         <email:list-pop3 config-ref="config" pageSize="#[vars.pageSize]" pop3Matcher="matcher"/>
     </flow>
 
+    <flow name="retrieveWithPageSizeAndOffset">
+        <email:list-pop3 config-ref="config" pageSize="#[vars.pageSize]" paginationOffset="#[vars.paginationOffset]" pop3Matcher="matcher"/>
+    </flow>
+
     <flow name="retrieveNumberedWithPageSize">
         <email:list-pop3 config-ref="config" pageSize="#[vars.pageSize]">
             <email:pop3-matcher subjectRegex="[0-9]+"/>

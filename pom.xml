@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.1.9</version>
+        <version>1.1.10</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -19,29 +19,69 @@
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
 
     <properties>
-        <commonsIoVersion>2.11.0</commonsIoVersion>
-        <commonsLangVersion>3.12.0</commonsLangVersion>
+        <commonsIoVersion>2.18.0</commonsIoVersion>
+        <commonsLangVersion>3.17.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
-        <greenmailVersion>1.6.9</greenmailVersion>
+        <greenmailVersion>1.6.15</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.1.2</munit.extensions.maven.plugin.version>
-        <munit.version>2.3.10</munit.version>
-        <mtf.tools.version>1.1.2</mtf.tools.version>
-        <mavenResourcesVersion>3.2.0</mavenResourcesVersion>
+        <munit.extensions.maven.plugin.version>1.4.0</munit.extensions.maven.plugin.version>
+        <munit.version>3.3.2</munit.version>
+        <mtf.tools.version>1.2.0</mtf.tools.version>
+        <mavenResourcesVersion>3.3.1</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-        <validations.module.version>1.4.5</validations.module.version>
-        <java.module.version>1.2.9</java.module.version>
-        <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
+        <validations.module.version>2.0.6</validations.module.version>
+        <java.module.version>1.2.12</java.module.version>
+        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
+        <muleJavaEeBomVersion>4.6.0-20231025</muleJavaEeBomVersion>
+        <jacoco.version>0.8.10</jacoco.version>
+
+        <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
+        <license.maven.plugin.version>4.2</license.maven.plugin.version>
+        <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
+        <licenseYear>2023</licenseYear>
+        <mule-file-connector.version>1.6.0-SNAPSHOT</mule-file-connector.version>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license.maven.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mulesoft.license</groupId>
+                        <artifactId>license</artifactId>
+                        <version>${mulesoftLicenseVersion}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <header>${licensePath}</header>
+                    <properties>
+                        <year>${licenseYear}</year>
+                    </properties>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${mavenResourcesVersion}</version>
@@ -60,7 +100,6 @@
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
-
                         </configuration>
                     </execution>
                 </executions>
@@ -79,9 +118,8 @@
                 </executions>
                 <configuration>
                     <argLines>
-                        <argLine>
-                            -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco.exec
-                        </argLine>
+                        <argLine>-Dgreenmail.tls.keystore.file=${env.greenmail.keystore.path}</argLine>
+                        <argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec</argLine>
                     </argLines>
                     <runtimeConfiguration>
                         <discoverRuntimes>
@@ -114,9 +152,44 @@
                         <artifactId>jakarta.mail</artifactId>
                         <version>${jakartaMailVersion}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>org.mule.module</groupId>
+                        <artifactId>mule-java-module</artifactId>
+                        <version>${java.module.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.mule.modules</groupId>
+                        <artifactId>mule-validation-module</artifactId>
+                        <version>${validations.module.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.mule.connectors</groupId>
+                        <artifactId>mule-file-connector</artifactId>
+                        <version>${mule-file-connector.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jdeps-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jdkinternals</goal> <!-- verify main classes -->
+                            <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                </configuration>
+            </plugin>
         </plugins>
+
     </build>
 
     <dependencies>
@@ -125,17 +198,16 @@
             <artifactId>jakarta.mail</artifactId>
             <version>${jakartaMailVersion}</version>
             <exclusions>
-            	<exclusion>
-            		<groupId>com.sun.activation</groupId>
-            		<artifactId>jakarta.activation</artifactId>
-            	</exclusion>
+                <exclusion>
+                    <groupId>com.sun.activation</groupId>
+                    <artifactId>jakarta.activation</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
             <groupId>com.sun.activation</groupId>
-            <artifactId>jakarta.activation</artifactId>
-            <version>${jakartaActivationVersion}</version>
-            <scope>provided</scope>
+            <artifactId>javax.activation</artifactId>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -165,8 +237,8 @@
                     <artifactId>slf4j-api</artifactId>
                 </exclusion>
                 <exclusion>
-                	<groupId>javax.activation</groupId>
-                	<artifactId>activation</artifactId>
+                    <groupId>javax.activation</groupId>
+                    <artifactId>activation</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -188,23 +260,6 @@
             <version>${powermockVersion}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- MTF -->
-
-        <dependency>
-            <groupId>org.mule.module</groupId>
-            <artifactId>mule-java-module</artifactId>
-            <version>${java.module.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-validation-module</artifactId>
-            <version>${validations.module.version}</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
@@ -222,5 +277,40 @@
             <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
         </pluginRepository>
     </pluginRepositories>
-
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.mule</groupId>
+                <artifactId>mule-javaee-runtime-bom</artifactId>
+                <version>${muleJavaEeBomVersion}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <profiles>
+        <profile>
+            <id>default-config</id>
+            <activation>
+                <property>
+                    <name>!mule.security.model</name> <!-- if mule.security.model does not exist -->
+                </property>
+            </activation>
+            <properties>
+                <env.greenmail.keystore.path>${basedir}/target/test-classes/greenmail.p12</env.greenmail.keystore.path>
+            </properties>
+        </profile>
+        <profile>
+            <id>fips-config</id>
+            <activation>
+                <property>
+                    <name>mule.security.model</name>
+                    <value>fips140-2</value> <!-- if mule.security.model == fips140-2 -->
+                </property>
+            </activation>
+            <properties>
+                <env.greenmail.keystore.path>${basedir}/target/test-classes/greenmail.bcfks</env.greenmail.keystore.path>
+            </properties>
+        </profile>
+    </profiles>
 </project>
