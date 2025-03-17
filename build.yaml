@@ -1,8 +1,24 @@
 projectType: extension
 additionalTestConfigs:
-  jdk11:
+  # Workaround to run the runtimes avoiding 4.1.1, Revert this commit after release
+  jdk8-4.4:
+    testJdkTool: OPEN-JDK8
+    mavenAdditionalArgs: -DminVersion=4.4.0-20250217 -DruntimeProduct=MULE_EE
+  jdk8-4.6:
+    testJdkTool: OPEN-JDK8
+    mavenAdditionalArgs: -DminVersion=4.6.14 -DruntimeProduct=MULE_EE
+  jdk8-4.8:
+    testJdkTool: OPEN-JDK8
+    mavenAdditionalArgs: -DminVersion=4.8.5 -DruntimeProduct=MULE_EE
+  jdk11-4.4:
     testJdkTool: OPEN-JDK11
-    mavenAdditionalArgs: -DminVersion=4.4.0 -DruntimeProduct=MULE_EE
+    mavenAdditionalArgs: -DminVersion=4.4.0-20250217 -DruntimeProduct=MULE_EE
+  jdk11-4.6:
+    testJdkTool: OPEN-JDK11
+    mavenAdditionalArgs: -DminVersion=4.6.14 -DruntimeProduct=MULE_EE
+  jdk11-4.8:
+    testJdkTool: OPEN-JDK11
+    mavenAdditionalArgs: -DminVersion=4.8.5 -DruntimeProduct=MULE_EE
   jdk17:
     testJdkTool: OPEN-JDK17
-    mavenAdditionalArgs: -DminVersion=4.6.0 -DruntimeProduct=MULE_EE
+    mavenAdditionalArgs: -DruntimeVersion=4.9.2 -DruntimeProduct=MULE_EE
