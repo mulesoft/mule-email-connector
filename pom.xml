@@ -13,13 +13,13 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-email-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>1.7.5</version>
+    <version>1.7.6-SNAPSHOT</version>
 
     <name>Email Connector</name>
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
 
     <properties>
-        <commonsIoVersion>2.18.0</commonsIoVersion>
+        <commonsIoVersion>2.19.0</commonsIoVersion>
         <commonsLangVersion>3.17.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
@@ -30,12 +30,12 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.4.0</munit.extensions.maven.plugin.version>
-        <munit.version>3.3.2</munit.version>
+        <munit.extensions.maven.plugin.version>1.5.0</munit.extensions.maven.plugin.version>
+        <munit.version>3.4.0</munit.version>
         <mtf.tools.version>1.2.0</mtf.tools.version>
         <mavenResourcesVersion>3.3.1</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-        <validations.module.version>2.0.6</validations.module.version>
+        <validations.module.version>2.0.7</validations.module.version>
         <java.module.version>1.2.12</java.module.version>
         <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
         <muleJavaEeBomVersion>4.6.0-20231025</muleJavaEeBomVersion>
