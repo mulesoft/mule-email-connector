@@ -50,6 +50,8 @@ public class EmailBody {
   @Summary("Text body of the message")
   private TypedValue<InputStream> content;
 
+  private byte[] contentBytes;
+
   /**
    * ContentType of the body text. Example: "text/plain".
    */
@@ -124,7 +126,13 @@ public class EmailBody {
    * @return the body of the message content. The body aims to be text.
    */
   public String getContentAsString(Charset charset) throws IOException {
-    return isNull(content) || isNull(content.getValue()) ? "" : IOUtils.toString(content.getValue(), charset);
+    if (isNull(contentBytes)) {
+      if (isNull(content) || isNull(content.getValue())) {
+        contentBytes = new byte[0];
+      } else
+        contentBytes = IOUtils.toByteArray(content.getValue());
+    }
+    return new String(contentBytes, charset);
   }
 
   public String getContentTransferEncoding() {
