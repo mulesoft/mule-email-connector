@@ -125,7 +125,7 @@ public class EmailBody {
   /**
    * @return the body of the message content. The body aims to be text.
    */
-  public String getContentAsString(Charset charset) throws IOException {
+  public synchronized String getContentAsString(Charset charset) throws IOException {
     if (isNull(contentBytes)) {
       if (isNull(content) || isNull(content.getValue())) {
         contentBytes = new byte[0];
