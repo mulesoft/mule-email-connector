@@ -125,6 +125,7 @@
                         <discoverRuntimes>
                             <product>EE</product>
                             <includeSnapshots>false</includeSnapshots>
+                            <minMuleVersion>${minVersion}</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
                 </configuration>
