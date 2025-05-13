@@ -19,7 +19,7 @@
     <description>A Mule extension that provides functionality to send and receive emails through POP3, IMAP and SMTP</description>
 
     <properties>
-        <commonsIoVersion>2.18.0</commonsIoVersion>
+        <commonsIoVersion>2.19.0</commonsIoVersion>
         <commonsLangVersion>3.17.0</commonsLangVersion>
         <jakartaMailVersion>1.6.7</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
@@ -30,12 +30,12 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.4.0</munit.extensions.maven.plugin.version>
-        <munit.version>3.3.2</munit.version>
+        <munit.extensions.maven.plugin.version>1.5.0</munit.extensions.maven.plugin.version>
+        <munit.version>3.4.0</munit.version>
         <mtf.tools.version>1.2.0</mtf.tools.version>
         <mavenResourcesVersion>3.3.1</mavenResourcesVersion>
         <maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
-        <validations.module.version>2.0.6</validations.module.version>
+        <validations.module.version>2.0.7</validations.module.version>
         <java.module.version>1.2.12</java.module.version>
         <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
         <muleJavaEeBomVersion>4.6.0-20231025</muleJavaEeBomVersion>
@@ -124,7 +124,8 @@
                     <runtimeConfiguration>
                         <discoverRuntimes>
                             <product>EE</product>
-                            <includeSnapshots>true</includeSnapshots>
+                            <includeSnapshots>false</includeSnapshots>
+                            <minMuleVersion>${minVersion}</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
                 </configuration>
@@ -187,6 +188,51 @@
                 <configuration>
                     <failOnWarning>true</failOnWarning>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <destFile>${session.executionRootDirectory}/target/jacoco-java.exec</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>merge</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${session.executionRootDirectory}/target/jacoco.exec</destFile>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${session.executionRootDirectory}/target</directory>
+                                    <includes>
+                                        <include>*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${session.executionRootDirectory}/target/jacoco.exec</dataFile>
+                            <outputDirectory>${session.executionRootDirectory}/target/jacoco</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
