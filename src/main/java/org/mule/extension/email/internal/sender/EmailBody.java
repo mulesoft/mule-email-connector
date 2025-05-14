@@ -123,8 +123,13 @@ public class EmailBody {
   /**
    * @return the body of the message content. The body aims to be text.
    */
-  public String getContentAsString(Charset charset) throws IOException {
-    return isNull(content) || isNull(content.getValue()) ? "" : IOUtils.toString(content.getValue(), charset);
+  public synchronized String getContentAsString(Charset charset) throws IOException {
+    if (isNull(content) || isNull(content.getValue())) {
+      return "";
+    } else {
+      getContent().getValue().reset();
+      return IOUtils.toString(content.getValue(), charset);
+    }
   }
 
   public String getContentTransferEncoding() {
