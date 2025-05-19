@@ -21,7 +21,7 @@
     <properties>
         <commonsIoVersion>2.19.0</commonsIoVersion>
         <commonsLangVersion>3.17.0</commonsLangVersion>
-        <jakartaMailVersion>1.6.7</jakartaMailVersion>
+        <jakartaMailVersion>2.0.1</jakartaMailVersion>
         <jakartaActivationVersion>2.0.1</jakartaActivationVersion>
         <greenmailVersion>1.6.15</greenmailVersion>
         <powermockVersion>2.0.9</powermockVersion>
