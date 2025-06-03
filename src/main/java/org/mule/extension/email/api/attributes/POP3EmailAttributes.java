@@ -44,6 +44,11 @@ public class POP3EmailAttributes extends BaseEmailAttributes {
     }
   }
 
+  public POP3EmailAttributes() {
+    super(null);
+    this.id = null;
+  }
+
   /**
    * {@inheritDoc}
    */

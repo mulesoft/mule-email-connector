@@ -122,28 +122,57 @@ public abstract class BaseEmailPredicateBuilder {
     return (Predicate<BaseEmailAttributes>) predicate;
   }
 
+  public BaseEmailPredicateBuilder() {}
+
   public LocalDateTime getReceivedSince() {
     return receivedSince;
   }
 
+  public void setReceivedsince(LocalDateTime receivedSince) {
+    this.receivedSince = receivedSince;
+  }
+
+
   public LocalDateTime getReceivedUntil() {
     return receivedUntil;
+  }
+
+  public void setReceiveduntil(LocalDateTime receivedUntil) {
+    this.receivedUntil = receivedUntil;
   }
 
   public LocalDateTime getSentSince() {
     return sentSince;
   }
 
+  public void setSentsince(LocalDateTime sentSince) {
+    this.sentSince = sentSince;
+  }
+
+
   public LocalDateTime getSentUntil() {
     return sentUntil;
   }
+
+  public void setSentuntil(LocalDateTime sentUntil) {
+    this.sentUntil = sentUntil;
+  }
+
 
   public String getSubjectRegex() {
     return subjectRegex;
   }
 
+  public void setSubjectregex(String subjectRegex) {
+    this.subjectRegex = subjectRegex;
+  }
+
   public String getFromRegex() {
     return fromRegex;
+  }
+
+  public void setFromregex(String fromRegex) {
+    this.fromRegex = fromRegex;
   }
 
   protected Predicate<? extends BaseEmailAttributes> getBasePredicate() {

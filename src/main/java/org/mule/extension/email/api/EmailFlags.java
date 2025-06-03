@@ -56,6 +56,14 @@ public class EmailFlags {
   @Optional
   private final boolean seen;
 
+  public EmailFlags() {
+    this.answered = false;
+    this.deleted = false;
+    this.draft = false;
+    this.recent = false;
+    this.seen = false;
+  }
+
   public EmailFlags(Flags flags) {
     this.answered = flags.contains(ANSWERED);
     this.deleted = flags.contains(DELETED);
